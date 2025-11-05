@@ -1,0 +1,218 @@
+---
+title: Authentication
+description: Learn how authentication works in HomeLens Web
+---
+
+# Authentication
+
+HomeLens Web uses Firebase Authentication to handle user authentication and session management.
+
+## Overview
+
+The authentication system provides:
+
+- Email/password authentication
+- Secure session management
+- Protected route access
+- Password reset functionality
+- User profile management
+
+## Authentication Flow
+
+### Sign Up
+
+1. User enters email and password on `/signup`
+2. Firebase creates new user account
+3. User document created in Firestore `users` collection
+4. User redirected to dashboard
+
+### Sign In
+
+1. User enters credentials on `/login`
+2. Firebase verifies credentials
+3. Session token created
+4. User redirected to dashboard
+
+### Sign Out
+
+1. User clicks logout
+2. Firebase session cleared
+3. User redirected to login page
+
+## Implementation
+
+### Firebase Configuration
+
+Firebase Authentication is configured in `lib/firebase/config.ts`:
+
+```typescript
+import { initializeApp } from 'firebase/app'
+import { getAuth } from 'firebase/auth'
+
+const firebaseConfig = {
+  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
+  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+  // ... other config
+}
+
+const app = initializeApp(firebaseConfig)
+export const auth = getAuth(app)
+```
+
+### Auth Context
+
+The application uses a React Context to provide authentication state:
+
+```typescript
+// lib/auth-context.tsx
+export function AuthProvider({ children }) {
+  const [user, setUser] = useState(null)
+  const [loading, setLoading] = useState(true)
+  
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setUser(user)
+      setLoading(false)
+    })
+    return unsubscribe
+  }, [])
+  
+  return (
+    <AuthContext.Provider value={{ user, loading }}>
+      {children}
+    </AuthContext.Provider>
+  )
+}
+```
+
+### Protected Routes
+
+Middleware protects dashboard routes:
+
+```typescript
+// middleware.ts
+export function middleware(request: NextRequest) {
+  const session = await getSession(request)
+  
+  if (!session && request.nextUrl.pathname.startsWith('/dashboard')) {
+    return NextResponse.redirect(new URL('/login', request.url))
+  }
+}
+```
+
+## User Management
+
+### User Profile
+
+User profiles are stored in Firestore `users` collection:
+
+```typescript
+interface User {
+  id: string              // Firebase Auth UID
+  email: string
+  companyName?: string
+  licenseNumber?: string
+  phoneNumber?: string
+  // ... other fields
+}
+```
+
+### Creating User Document
+
+When a user signs up, a document is automatically created:
+
+```typescript
+// lib/firebase/users.ts
+export async function createUserProfile(userId: string, email: string) {
+  const userRef = doc(db, 'users', userId)
+  await setDoc(userRef, {
+    id: userId,
+    email,
+    createdAt: serverTimestamp(),
+    updatedAt: serverTimestamp(),
+  })
+}
+```
+
+## Password Reset
+
+### Request Reset
+
+Users can request password reset from `/reset-password`:
+
+```typescript
+import { sendPasswordResetEmail } from 'firebase/auth'
+
+await sendPasswordResetEmail(auth, email)
+```
+
+### Reset Email
+
+Firebase sends a password reset email with a secure link.
+
+### Complete Reset
+
+User clicks link in email and sets new password.
+
+## Security Best Practices
+
+### Environment Variables
+
+Never expose Firebase Admin credentials in client code. Use environment variables:
+
+```env
+NEXT_PUBLIC_FIREBASE_API_KEY=...  # OK for client
+FIREBASE_ADMIN_PRIVATE_KEY=...    # Server-only
+```
+
+### Session Management
+
+- Sessions managed by Firebase automatically
+- Tokens refresh automatically
+- Sessions persist across browser sessions
+
+### Password Requirements
+
+Firebase enforces:
+- Minimum 6 characters
+- No maximum length
+- Consider adding custom validation for stronger passwords
+
+## API Authentication
+
+API routes verify authentication:
+
+```typescript
+// app/api/templates/route.ts
+export async function GET(request: Request) {
+  const session = await getServerSession()
+  
+  if (!session) {
+    return Response.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+  
+  // ... proceed with authenticated request
+}
+```
+
+## Testing Authentication
+
+### Development
+
+1. Create test account via `/signup`
+2. Use Firebase Console to manage test users
+3. Test password reset flow
+
+### Production
+
+- Enable email verification (optional)
+- Set up custom email templates
+- Monitor authentication events in Firebase Console
+
+## Related Documentation
+
+- [Getting Started](/docs/getting-started) - Initial setup
+- [Architecture](/docs/architecture) - System design
+- [API Reference](/docs/api-reference) - Authenticated endpoints
+

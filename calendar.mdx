@@ -1,0 +1,254 @@
+---
+title: Calendar
+description: Manage inspections with calendar views and scheduling
+---
+
+# Calendar
+
+The calendar view provides a visual representation of your inspection schedule with month, week, and day views.
+
+## Overview
+
+Calendar features include:
+
+- Multiple view modes (month, week, day)
+- Visual inspection scheduling
+- Quick add inspections
+- Google Calendar integration
+- Filtering and search
+
+## Calendar Views
+
+### Month View
+
+Monthly overview of all inspections:
+
+- See all scheduled inspections at a glance
+- Color-coded by status
+- Click to view details
+
+### Week View
+
+Weekly schedule with time slots:
+
+- See daily schedule
+- Time-based layout
+- Quick add by clicking time slot
+
+### Day View
+
+Detailed daily schedule:
+
+- Hour-by-hour breakdown
+- See all inspections for the day
+- Easier time management
+
+## Navigation
+
+### Date Navigation
+
+- **Previous/Next**: Navigate between periods
+- **Today**: Jump to current date
+- **Date Picker**: Select specific date
+
+### View Switching
+
+Switch between views using view selector:
+
+- Month
+- Week
+- Day
+- List (alternative view)
+
+## Quick Actions
+
+### Add Inspection
+
+From calendar view:
+
+1. Click on date/time slot
+2. Quick add modal opens
+3. Fill minimal required fields:
+   - Property address
+   - Client name
+   - Service
+   - Time
+4. Create inspection
+
+### Edit Inspection
+
+1. Click inspection on calendar
+2. Inspection detail modal opens
+3. Edit information
+4. Save changes
+
+### Status Update
+
+Change inspection status directly from calendar:
+
+1. Click inspection
+2. Select new status
+3. Confirm
+
+## Sidebar
+
+### Upcoming Inspections
+
+Sidebar shows:
+
+- Today's inspections
+- Tomorrow's inspections
+- This week's inspections
+
+### Filters
+
+Filter sidebar by:
+
+- Status
+- Service type
+- Date range
+
+## Google Calendar Integration
+
+### Connect Calendar
+
+1. Navigate to **Settings → Integrations**
+2. Click **Connect Google Calendar**
+3. Authorize access
+4. Calendar syncs automatically
+
+### Two-Way Sync
+
+- **Web → Google**: Inspections created in web app sync to Google Calendar
+- **Google → Web**: Events created in Google Calendar sync to web app
+
+### Sync Settings
+
+Configure sync behavior:
+
+- Auto-sync on/off
+- Sync direction
+- Calendar selection
+- Event details
+
+See [Google Calendar Setup](/docs/google-calendar-setup) for detailed instructions.
+
+## Filtering
+
+### Status Filter
+
+Filter by inspection status:
+
+- All
+- Scheduled
+- In Progress
+- Completed
+- Cancelled
+
+### Service Filter
+
+Filter by service type:
+
+- All services
+- Specific service
+- Multiple services
+
+### Date Range
+
+Filter by date range:
+
+- Today
+- This week
+- This month
+- Custom range
+
+## Calendar Events
+
+### Event Display
+
+Each inspection appears as an event with:
+
+- Client name
+- Property address
+- Service type
+- Status color
+- Time
+
+### Event Details
+
+Click event to see:
+
+- Full inspection details
+- Quick actions
+- Status timeline
+- Related information
+
+## Responsive Design
+
+### Desktop
+
+- Full calendar with sidebar
+- All features available
+- Drag and drop support
+
+### Tablet
+
+- Optimized layout
+- Touch-friendly interactions
+- Collapsible sidebar
+
+### Mobile
+
+- Stacked layout
+- Swipe navigation
+- Simplified controls
+
+## API Examples
+
+### Get Calendar Events
+
+```typescript
+import { getCalendarEvents } from '@/lib/utils/calendarHelpers'
+
+const events = await getCalendarEvents(userId, {
+  startDate: new Date('2025-12-01'),
+  endDate: new Date('2025-12-31'),
+})
+```
+
+### Export to Calendar
+
+```typescript
+import { exportToCalendar } from '@/lib/utils/calendarExport'
+
+await exportToCalendar(inspection, {
+  format: 'ics',  // or 'google'
+})
+```
+
+## Best Practices
+
+### Scheduling
+
+- Schedule inspections with buffer time
+- Consider travel time between inspections
+- Use notes for special instructions
+
+### Organization
+
+- Color-code by status or service
+- Use consistent naming
+- Keep calendar updated
+
+### Integration
+
+- Enable Google Calendar sync for convenience
+- Review sync settings periodically
+- Test sync after initial setup
+
+## Related Documentation
+
+- [Inspections](/docs/inspections) - Inspection management
+- [Google Calendar Setup](/docs/google-calendar-setup) - Integration guide
+- [Services](/docs/services) - Service types
+

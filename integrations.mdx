@@ -1,0 +1,248 @@
+---
+title: Integrations
+description: Third-party integrations and API connections
+---
+
+# Integrations
+
+HomeLens integrates with various third-party services to extend functionality and streamline workflows.
+
+## Available Integrations
+
+### Payment Processing
+
+#### Stripe Connect
+
+Process payments and manage invoices:
+
+- **Setup**: Connect Stripe account
+- **Features**: Payment processing, invoicing, refunds
+- **Status**: Active/Pending/Restricted
+
+**Configuration:**
+
+1. Navigate to **Settings → Integrations → Payments**
+2. Click **Connect Stripe**
+3. Complete Stripe onboarding
+4. Verify account status
+
+**Usage:**
+
+- Collect payments for inspections
+- Generate invoices
+- Process refunds
+- View payment history
+
+See [Stripe Setup](/docs/stripe-setup) for detailed instructions.
+
+### Calendar Sync
+
+#### Google Calendar
+
+Two-way calendar synchronization:
+
+- **Setup**: OAuth connection
+- **Features**: Sync inspections to calendar, import events
+- **Status**: Connected/Disconnected
+
+**Configuration:**
+
+1. Navigate to **Settings → Integrations**
+2. Click **Connect Google Calendar**
+3. Authorize access
+4. Select calendar
+
+**Usage:**
+
+- Inspections automatically sync to Google Calendar
+- Events created in Google Calendar sync to HomeLens
+- Real-time updates
+
+See [Google Calendar Setup](/docs/google-calendar-setup) for details.
+
+### Cloud Storage
+
+#### Google Drive
+
+Automatically save reports to Google Drive:
+
+- **Setup**: OAuth connection
+- **Features**: Auto-upload reports, organize by folder
+- **Status**: Connected/Disconnected
+
+**Configuration:**
+
+1. Navigate to **Settings → Integrations**
+2. Click **Connect Google Drive**
+3. Authorize access
+4. Select folder (optional)
+
+**Usage:**
+
+- Reports automatically uploaded after completion
+- Organized in Drive folder
+- Accessible from anywhere
+
+### E-Signatures
+
+#### HelloSign
+
+Collect electronic signatures:
+
+- **Setup**: API key configuration
+- **Features**: Signature requests, templates, tracking
+- **Status**: Connected/Disconnected
+
+**Configuration:**
+
+1. Navigate to **Settings → Integrations**
+2. Click **Connect HelloSign**
+3. Enter API key
+4. Configure signature settings
+
+**Usage:**
+
+- Send signature requests for reports
+- Use signature templates
+- Track signature status
+- Receive notifications
+
+### Report Platforms
+
+#### HomeBinder
+
+Upload reports to HomeBinder:
+
+- **Setup**: API key configuration
+- **Features**: Auto-upload reports, create binders
+- **Status**: Connected/Disconnected
+
+**Configuration:**
+
+1. Navigate to **Settings → Integrations**
+2. Click **Connect HomeBinder**
+3. Enter API key and company key
+4. Test connection
+
+**Usage:**
+
+- Reports automatically uploaded
+- Create binders automatically
+- Link to HomeBinder accounts
+
+#### ISN (Inspection Support Network)
+
+Sync orders and reports:
+
+- **Setup**: API key configuration
+- **Features**: Order sync, report upload
+- **Status**: Connected/Disconnected
+
+**Configuration:**
+
+1. Navigate to **Settings → Integrations**
+2. Click **Connect ISN**
+3. Enter API key and company ID
+4. Test connection
+
+**Usage:**
+
+- Sync orders from ISN
+- Upload reports to ISN
+- Two-way data sync
+
+## Integration Management
+
+### Connection Status
+
+View all integrations:
+
+- **Connected**: Active and working
+- **Pending**: Setup in progress
+- **Disconnected**: Not connected
+- **Error**: Connection issue
+
+### Reconnecting
+
+If connection fails:
+
+1. Check integration status
+2. Review error message
+3. Click **Reconnect**
+4. Re-authorize if needed
+
+### Disconnecting
+
+Disconnect integration:
+
+1. Open integration settings
+2. Click **Disconnect**
+3. Confirm disconnection
+4. Integration deactivated
+
+## API Integration
+
+### Webhooks
+
+Receive webhooks from integrations:
+
+- **Stripe**: Payment events
+- **HelloSign**: Signature events
+- **Google Calendar**: Event changes
+
+### Webhook Configuration
+
+Configure webhook endpoints:
+
+1. Navigate to **Settings → Integrations → Webhooks**
+2. Add webhook URL
+3. Select events
+4. Test webhook
+
+## Security
+
+### API Keys
+
+Store API keys securely:
+
+- Encrypted at rest
+- Never exposed in client code
+- Rotate keys periodically
+
+### OAuth Tokens
+
+Manage OAuth connections:
+
+- Secure token storage
+- Automatic token refresh
+- Revoke access when needed
+
+## Best Practices
+
+### Integration Setup
+
+- Test connections after setup
+- Verify data flow
+- Monitor error logs
+- Keep credentials updated
+
+### Data Sync
+
+- Understand sync direction
+- Handle conflicts appropriately
+- Monitor sync status
+- Test edge cases
+
+### Security
+
+- Use strong API keys
+- Rotate keys regularly
+- Monitor access logs
+- Revoke unused connections
+
+## Related Documentation
+
+- [Stripe Setup](/docs/stripe-setup) - Payment integration
+- [Google Calendar Setup](/docs/google-calendar-setup) - Calendar sync
+- [Settings](/docs/settings) - Integration settings
+

@@ -1,0 +1,204 @@
+---
+title: Getting Started
+description: Set up HomeLens Web in your development environment
+---
+
+# Getting Started
+
+This guide will help you set up HomeLens Web in your local development environment.
+
+## Prerequisites
+
+Before you begin, ensure you have:
+
+- **Node.js 18+** installed ([Download](https://nodejs.org/))
+- **npm**, **yarn**, or **pnpm** package manager
+- **Firebase project** (use the same project as mobile apps for data sharing)
+- **Git** for version control
+
+## Step 1: Install Dependencies
+
+Navigate to the web directory and install packages:
+
+```bash
+cd web
+npm install
+```
+
+Or using yarn:
+
+```bash
+yarn install
+```
+
+Or using pnpm:
+
+```bash
+pnpm install
+```
+
+## Step 2: Firebase Project Setup
+
+### 2.1 Enable Firebase Services
+
+In your Firebase Console:
+
+1. **Authentication**
+   - Go to **Authentication** → **Sign-in method**
+   - Enable **Email/Password** provider
+
+2. **Firestore Database**
+   - Go to **Firestore Database**
+   - Create database in **production mode**
+   - Choose a location close to your users
+
+3. **Storage**
+   - Go to **Storage**
+   - Click "Get Started"
+   - Use default security rules for now
+
+### 2.2 Get Firebase Configuration
+
+1. Go to **Project Settings** (gear icon) → **General**
+2. Scroll down to **Your apps**
+3. Click **Web** icon (</>)
+4. Register app with name: `swiftinspect-web`
+5. Copy the Firebase config values
+
+### 2.3 Generate Firebase Admin SDK Credentials
+
+For server-side operations:
+
+1. Go to **Project Settings** → **Service accounts**
+2. Click **Generate new private key**
+3. Save the JSON file securely (don't commit to Git!)
+4. Extract these values:
+   - `project_id`
+   - `client_email`
+   - `private_key`
+
+## Step 3: Configure Environment Variables
+
+Create a `.env.local` file in the `web/` directory:
+
+```env
+# Firebase Client Configuration
+NEXT_PUBLIC_FIREBASE_API_KEY=AIzaSy...
+NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your-project.firebaseapp.com
+NEXT_PUBLIC_FIREBASE_PROJECT_ID=your-project-id
+NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=your-project.appspot.com
+NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=123456789
+NEXT_PUBLIC_FIREBASE_APP_ID=1:123456789:web:abc123
+
+# Firebase Admin SDK
+FIREBASE_ADMIN_PROJECT_ID=your-project-id
+FIREBASE_ADMIN_CLIENT_EMAIL=firebase-adminsdk-xxxxx@your-project.iam.gserviceaccount.com
+FIREBASE_ADMIN_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\nMIIEvQIB...\n-----END PRIVATE KEY-----\n"
+
+# App Configuration
+NEXT_PUBLIC_APP_URL=http://localhost:3000
+```
+
+**Important Notes:**
+
+- The `FIREBASE_ADMIN_PRIVATE_KEY` must include the full key with `\n` for line breaks
+- Wrap the private key in quotes
+- Never commit `.env.local` to Git (it's already in `.gitignore`)
+
+## Step 4: Run the Development Server
+
+Start the Next.js development server:
+
+```bash
+npm run dev
+```
+
+Open [http://localhost:3000](http://localhost:3000) in your browser.
+
+## Step 5: Verify Setup
+
+### Test Authentication
+
+1. Navigate to `/login`
+2. Create a test account
+3. Verify you can log in and access the dashboard
+
+### Check Console
+
+Open browser DevTools console. You should NOT see any Firebase initialization errors.
+
+## Common Issues
+
+### Issue: "Firebase App not initialized"
+
+**Solution**: Double-check that all environment variables in `.env.local` are correct and the file is in the `/web` directory.
+
+### Issue: "Invalid API key"
+
+**Solution**: Ensure you copied the complete API key from Firebase console, including any special characters.
+
+### Issue: "Private key error"
+
+**Solution**: Make sure the private key is wrapped in quotes and contains `\n` for newlines. Don't remove or modify the key content.
+
+### Issue: Module not found errors
+
+**Solution**: Delete `node_modules` and reinstall:
+
+```bash
+rm -rf node_modules
+npm install
+```
+
+## Next Steps
+
+Now that your environment is set up:
+
+1. ✅ Project initialized
+2. ✅ Firebase configured
+3. ⏭️ Next: Explore the [Dashboard Guide](/docs/dashboard)
+4. ⏭️ Then: Learn about [Templates](/docs/templates)
+5. ⏭️ Then: Set up [Services](/docs/services)
+
+## Development Commands
+
+```bash
+# Development server
+npm run dev
+
+# Build for production
+npm run build
+
+# Start production server
+npm run start
+
+# Type checking
+npm run type-check
+
+# Linting
+npm run lint
+
+# Run tests
+npm test
+
+# E2E tests
+npm run test:e2e
+```
+
+## Project Structure
+
+```
+web/
+├── app/                  # Next.js pages and routes
+│   ├── (auth)/          # Authentication pages
+│   ├── dashboard/       # Protected dashboard
+│   ├── api/             # API routes
+│   └── layout.tsx       # Root layout
+├── components/          # React components
+├── lib/                 # Utilities and configs
+│   ├── firebase/        # Firebase setup
+│   ├── hooks/           # Custom hooks
+│   └── utils/           # Helper functions
+└── types/               # TypeScript types
+```
+

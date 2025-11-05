@@ -1,0 +1,297 @@
+---
+title: Inspections
+description: Manage inspections from creation to completion
+---
+
+# Inspections
+
+Inspections are the core of HomeLens. This guide covers creating, managing, and tracking inspections throughout their lifecycle.
+
+## Overview
+
+Inspections represent scheduled or completed home inspections with:
+
+- Property information
+- Client details
+- Service and pricing
+- Status tracking
+- Report generation
+- Client portal access
+
+## Creating an Inspection
+
+### Quick Create
+
+From the dashboard:
+
+1. Click **New Inspection**
+2. Fill in required fields
+3. Select service and template
+4. Save
+
+### Inspection Form
+
+The inspection creation form includes multiple steps:
+
+#### Step 1: Property Details
+
+```typescript
+{
+  propertyAddress: string
+  propertyCity: string
+  propertyState: string
+  propertyZip: string
+  propertyCountry: string
+}
+```
+
+#### Step 2: Client Information
+
+```typescript
+{
+  clientName: string
+  clientEmail?: string
+  clientPhone?: string
+  contactId?: string  // Link to CRM contact
+}
+```
+
+#### Step 3: Service Selection
+
+- Select service
+- System calculates price based on property attributes
+- Review pricing breakdown
+
+#### Step 4: Schedule
+
+```typescript
+{
+  scheduledDate: Timestamp
+  scheduledTime?: string
+  notes?: string
+}
+```
+
+#### Step 5: Review
+
+- Review all information
+- Make final adjustments
+- Create inspection
+
+## Inspection Status
+
+Inspections progress through statuses:
+
+### Status Flow
+
+1. **Scheduled** - Inspection booked, not yet started
+2. **In Progress** - Inspection being performed
+3. **Completed** - Inspection finished, report ready
+4. **Cancelled** - Inspection cancelled
+
+### Status Changes
+
+Change status from inspection detail page:
+
+1. Click status badge
+2. Select new status
+3. Add notes (optional)
+4. Confirm
+
+## Inspection Fields
+
+### Core Fields
+
+```typescript
+interface Inspection {
+  id: string
+  userId: string
+  propertyAddress: string
+  propertyCity: string
+  propertyState: string
+  propertyZip: string
+  propertyCountry: string
+  clientName: string
+  clientEmail?: string
+  clientPhone?: string
+  scheduledDate: Timestamp
+  status: 'scheduled' | 'in_progress' | 'completed' | 'cancelled'
+  notes?: string
+  serviceId?: string
+  serviceName?: string
+  basePrice?: number
+  totalPrice?: number
+  isPublic: boolean
+  shareToken?: string
+  createdAt: Timestamp
+  updatedAt: Timestamp
+}
+```
+
+### Public Access
+
+- **isPublic**: Allow public access via share token
+- **shareToken**: Unique token for public URL
+- Public URL: `/portal/r/{shareToken}`
+
+## Inspection List
+
+### Filters
+
+Filter inspections by:
+
+- **Status**: All, Scheduled, In Progress, Completed, Cancelled
+- **Date Range**: Start and end date
+- **Service**: Filter by service type
+- **Client**: Search by client name
+
+### Sorting
+
+Sort by:
+
+- Scheduled date (default)
+- Created date
+- Status
+- Client name
+
+### Views
+
+- **Table View**: Detailed table with all columns
+- **Card View**: Card layout with key information
+- **Calendar View**: See [Calendar](/docs/calendar) documentation
+
+## Calendar Integration
+
+### Calendar View
+
+View inspections in calendar format:
+
+- **Month View**: Monthly overview
+- **Week View**: Weekly schedule
+- **Day View**: Daily schedule
+
+### Quick Add
+
+Add inspections directly from calendar:
+
+1. Click date/time slot
+2. Quick add modal opens
+3. Fill minimal required fields
+4. Create inspection
+
+## Client Portal
+
+### Publishing Reports
+
+Publish inspection to client portal:
+
+1. Open completed inspection
+2. Click **Publish to Portal**
+3. Configure portal settings
+4. Generate share link
+
+### Portal Features
+
+- Branded report viewing
+- Repair request builder
+- Payment collection
+- Document downloads
+
+See [Client Portal](/docs/client-portal) for details.
+
+## Report Generation
+
+### PDF Reports
+
+Generate PDF reports from inspection data:
+
+1. Open completed inspection
+2. Click **Generate Report**
+3. Select template and format
+4. Download PDF
+
+### Report Customization
+
+- Company branding
+- Template structure
+- Photo inclusion
+- Comment formatting
+
+## Status Timeline
+
+View inspection history:
+
+- Status changes
+- Notes added
+- Reports generated
+- Portal access
+
+## API Examples
+
+### Create Inspection
+
+```typescript
+import { createInspection } from '@/lib/firebase/inspections'
+
+const inspection = await createInspection({
+  userId,
+  propertyAddress: '123 Main St',
+  propertyCity: 'Toronto',
+  propertyState: 'ON',
+  propertyZip: 'M5H 2N2',
+  propertyCountry: 'Canada',
+  clientName: 'John Doe',
+  scheduledDate: new Date('2025-12-01'),
+  serviceId: 'service_123',
+})
+```
+
+### Get Inspections
+
+```typescript
+import { getInspections } from '@/lib/firebase/inspections'
+
+const inspections = await getInspections(userId, {
+  status: 'scheduled',
+  startDate: new Date(),
+})
+```
+
+### Update Status
+
+```typescript
+import { updateInspectionStatus } from '@/lib/firebase/inspections'
+
+await updateInspectionStatus(inspectionId, 'completed', {
+  notes: 'Inspection completed successfully',
+})
+```
+
+## Best Practices
+
+### Organization
+
+- Use consistent naming for properties
+- Link to CRM contacts when possible
+- Add notes for important details
+
+### Status Management
+
+- Update status promptly
+- Add notes for status changes
+- Track timeline for client communication
+
+### Pricing
+
+- Review calculated prices before creating
+- Adjust if needed for special circumstances
+- Document pricing exceptions
+
+## Related Documentation
+
+- [Templates](/docs/templates) - Inspection templates
+- [Services](/docs/services) - Service and pricing
+- [Calendar](/docs/calendar) - Calendar view
+- [Client Portal](/docs/client-portal) - Client access
+- [Contacts](/docs/contacts) - Client management
+

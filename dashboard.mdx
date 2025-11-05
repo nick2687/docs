@@ -1,0 +1,113 @@
+---
+title: Dashboard
+description: Overview of the HomeLens dashboard and navigation
+---
+
+# Dashboard
+
+The HomeLens dashboard is your central command center for managing inspections, templates, contacts, and business operations.
+
+## Overview
+
+The dashboard provides:
+
+- Quick access to all features
+- Overview statistics and metrics
+- Recent activity feed
+- Quick actions for common tasks
+
+## Navigation
+
+### Sidebar Navigation
+
+The dashboard includes a persistent sidebar with:
+
+- **Dashboard** - Home overview
+- **Inspections** - Manage inspections
+- **Calendar** - Calendar view of inspections
+- **Contacts** - CRM contact management
+- **Templates** - Inspection templates
+- **Services** - Service and pricing management
+- **Signatures** - E-signature requests
+- **Invoices** - Payment and invoicing
+- **Settings** - Configuration and preferences
+
+### User Menu
+
+Top-right corner includes:
+
+- User profile dropdown
+- Theme toggle (light/dark)
+- Logout option
+
+## Dashboard Home
+
+### Statistics Cards
+
+View key metrics at a glance:
+
+- Total inspections
+- Upcoming inspections
+- Completed this month
+- Total revenue
+
+### Recent Activity
+
+See recent actions:
+
+- New inspections created
+- Completed inspections
+- New contacts added
+- Template updates
+
+### Quick Actions
+
+Common tasks accessible from dashboard:
+
+- Create new inspection
+- Add new contact
+- Create template
+- Schedule inspection
+
+## Layout Components
+
+### DashboardLayout
+
+The main layout wrapper provides:
+
+```typescript
+<DashboardLayout>
+  <Sidebar />
+  <main>
+    {/* Page content */}
+  </main>
+</DashboardLayout>
+```
+
+### Responsive Design
+
+- Desktop: Full sidebar visible
+- Tablet: Collapsible sidebar
+- Mobile: Hamburger menu
+
+## Customization
+
+### Theme
+
+Users can toggle between light and dark themes via the theme toggle in the user menu.
+
+### Branding
+
+Customize dashboard appearance in Settings → Appearance:
+
+- Logo upload
+- Color scheme
+- Font selection
+
+## Related Documentation
+
+- [Inspections](/docs/inspections) - Inspection management
+- [Templates](/docs/templates) - Template system
+- [Contacts](/docs/contacts) - Contact management
+- [Settings](/docs/settings) - Configuration
+

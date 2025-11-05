@@ -1,0 +1,815 @@
+---
+title: "Test Plan: Services & Pricing"
+description: "Test plan for services and pricing management"
+---
+
+# Test Plan: Services & Pricing Management
+
+**Feature Area**: Services Management  
+**Related Files**: `web/app/dashboard/settings/services/page.tsx`, `web/components/services/*`, `web/lib/firebase/services.ts`
+
+---
+
+## Feature Overview
+
+The services management system allows users to create and manage inspection services with dynamic pricing based on property characteristics (size, distance, age), track service usage, and integrate with inspection creation.
+
+---
+
+## Test Cases
+
+### TC-SERV-001: Create Service (Flat Rate)
+
+**Priority**: High  
+**Type**: Functional
+
+**Preconditions**:
+- User is logged in
+
+**Test Steps**:
+1. Navigate to `/dashboard/settings/services`
+2. Click "Add Service" button
+3. **Step 1 - Basic Info**:
+   - Service Name: "Basic Home Inspection"
+   - Description: "Standard residential inspection"
+   - Duration: 2 hours
+   - Pricing Type: "Flat Rate"
+4. **Step 2 - Pricing**:
+   - Base Price: $400
+   - Tax Rate: 13%
+5. **Step 3 - Review**:
+   - Review details
+   - Click "Create Service"
+
+**Expected Result**:
+- Service created in Firestore
+- Unique service ID generated
+- All fields saved correctly
+- Service appears in services list
+- Status set to "Active"
+- Usage count initialized to 0
+- Success message displayed
+
+**Priority**: High
+
+---
+
+### TC-SERV-002: Create Service (Size-Based Pricing)
+
+**Priority**: High  
+**Type**: Functional
+
+**Preconditions**:
+- User is logged in
+
+**Test Steps**:
+1. Navigate to `/dashboard/settings/services`
+2. Click "Add Service"
+3. Service Name: "Residential Inspection"
+4. Pricing Type: "Size-Based"
+5. Configure pricing tiers:
+   - Base Price: $300
+   - Property Size Fees:
+     - 0-1,500 sqft: Included
+     - 1,500-2,500 sqft: +$100
+     - 2,500-4,000 sqft: +$200
+     - 4,000+ sqft: +$350
+6. Create service
+
+**Expected Result**:
+- Service created with tiered pricing
+- All fee tiers saved correctly
+- Pricing structure stored in Firestore
+- Service usable in inspections
+- Pricing calculator works correctly
+
+**Priority**: High
+
+---
+
+### TC-SERV-003: Create Service (Custom Pricing with Multiple Fees)
+
+**Priority**: High  
+**Type**: Functional
+
+**Preconditions**:
+- User is logged in
+
+**Test Steps**:
+1. Create new service
+2. Pricing Type: "Custom"
+3. Base Price: $350
+4. Add Property Size fees (4 tiers)
+5. Add Travel Distance fees:
+   - 0-15 miles: Included
+   - 15-30 miles: +$30
+   - 30-60 miles: +$60
+   - 60+ miles: +$100
+6. Add Property Age fees:
+   - 0-10 years: Included
+   - 10-30 years: +$25
+   - 30-50 years: +$50
+   - 50+ years: +$75
+7. Tax Rate: 13%
+8. Create service
+
+**Expected Result**:
+- Service created with multiple fee types
+- All fee tiers saved for each type
+- Pricing breakdown calculates correctly
+- Total price = Base + Size Fee + Distance Fee + Age Fee + Tax
+- Service usable in inspections
+
+**Priority**: High
+
+---
+
+### TC-SERV-004: View Services List
+
+**Priority**: High  
+**Type**: Functional
+
+**Preconditions**:
+- User is logged in
+- Multiple services exist
+
+**Test Steps**:
+1. Navigate to `/dashboard/settings/services`
+2. View services list
+
+**Expected Result**:
+- All user's services displayed as cards
+- Each card shows:
+  - Service name
+  - Description
+  - Base price
+  - Duration
+  - Usage count
+  - Total revenue
+  - Active/Inactive status
+- Services sorted by usage (most used first)
+- Grid layout responsive
+
+**Priority**: High
+
+---
+
+### TC-SERV-005: View Service Details
+
+**Priority**: High  
+**Type**: Functional
+
+**Preconditions**:
+- User is logged in
+- Service exists
+
+**Test Steps**:
+1. Navigate to services page
+2. Click on a service card
+3. View service detail modal
+
+**Expected Result**:
+- Detail modal opens
+- All information displayed:
+  - Basic details (name, description, duration)
+  - Pricing type
+  - Base price highlighted
+  - All fee tiers with ranges and amounts
+  - Tax information
+  - Usage statistics:
+    - Total bookings
+    - Total revenue
+    - Average revenue per booking
+  - Created/updated dates
+- Action buttons: Edit, Duplicate, Delete
+
+**Priority**: High
+
+---
+
+### TC-SERV-006: Edit Service
+
+**Priority**: High  
+**Type**: Functional
+
+**Preconditions**:
+- User is logged in
+- Service exists
+
+**Test Steps**:
+1. Open service detail modal
+2. Click "Edit" button
+3. Modify base price from $400 to $450
+4. Add new property size tier
+5. Update description
+6. Save changes
+
+**Expected Result**:
+- All changes saved to Firestore
+- `updatedAt` timestamp updated
+- Changes reflected immediately
+- Existing inspections not affected (use snapshot pricing)
+- Future inspections use new pricing
+- Success message displayed
+
+**Priority**: High
+
+---
+
+### TC-SERV-007: Duplicate Service
+
+**Priority**: Medium  
+**Type**: Functional
+
+**Preconditions**:
+- User is logged in
+- Service exists
+
+**Test Steps**:
+1. Open service detail modal
+2. Click "Duplicate" button
+3. Modify service name to "Copy of [Original Name]"
+4. Adjust pricing if desired
+5. Save duplicated service
+
+**Expected Result**:
+- New service created with same structure
+- New unique ID generated
+- Name includes "Copy of" prefix
+- All fee tiers copied
+- Usage count reset to 0
+- Original service unchanged
+
+**Priority**: Medium
+
+---
+
+### TC-SERV-008: Delete Service (No Usage)
+
+**Priority**: High  
+**Type**: Functional
+
+**Preconditions**:
+- User is logged in
+- Service exists with 0 usage
+
+**Test Steps**:
+1. Open service detail modal
+2. Click "Delete" button
+3. Confirm deletion
+
+**Expected Result**:
+- Confirmation modal appears
+- After confirmation, service deleted
+- Removed from services list
+- All related fee documents deleted
+- Success message displayed
+
+**Priority**: High
+
+---
+
+### TC-SERV-009: Delete Service (With Usage)
+
+**Priority**: High  
+**Type**: Functional
+
+**Preconditions**:
+- User is logged in
+- Service has been used in inspections
+
+**Test Steps**:
+1. Open service detail modal
+2. Click "Delete" button
+3. View warning about usage
+4. Confirm deletion
+
+**Expected Result**:
+- Warning message: "This service has been used in X inspections"
+- User must confirm they understand
+- After confirmation:
+  - Service deleted
+  - Existing inspections retain service data (snapshot)
+  - Service no longer available for new inspections
+
+**Priority**: High
+
+---
+
+### TC-SERV-010: Toggle Service Active/Inactive
+
+**Priority**: Medium  
+**Type**: Functional
+
+**Preconditions**:
+- User is logged in
+- Service exists
+
+**Test Steps**:
+1. View services list
+2. Click toggle switch on service card
+3. Set service to "Inactive"
+4. Attempt to use in new inspection
+
+**Expected Result**:
+- Service status changes to "Inactive"
+- Badge shows "Inactive" status
+- Service not available in inspection creation dropdown
+- Existing inspections with this service unaffected
+- Can reactivate later
+
+**Priority**: Medium
+
+---
+
+### TC-SERV-011: Set Default Service
+
+**Priority**: Low  
+**Type**: Functional
+
+**Preconditions**:
+- User is logged in
+- Multiple services exist
+
+**Test Steps**:
+1. View services list
+2. Click "Set as Default" on a service
+3. Create new inspection
+4. Verify service pre-selected
+
+**Expected Result**:
+- Service marked as default
+- Badge shows "Default" status
+- Only one service can be default at a time
+- Pre-selected in inspection creation
+- User can change selection
+
+**Priority**: Low
+
+---
+
+### TC-SERV-012: Service Usage Tracking
+
+**Priority**: High  
+**Type**: Functional
+
+**Preconditions**:
+- User is logged in
+- Service exists with known usage count
+
+**Test Steps**:
+1. Note current usage: 10 bookings, $4,000 revenue
+2. Create inspection with this service (price: $450)
+3. Return to services page
+4. View service card
+
+**Expected Result**:
+- Usage count incremented: 11 bookings
+- Revenue updated: $4,450
+- Average calculated: $404.55
+- Statistics update in real-time
+- Displayed on service card and detail modal
+
+**Priority**: High
+
+---
+
+### TC-SERV-013: Service in Inspection Creation
+
+**Priority**: High  
+**Type**: Integration
+
+**Preconditions**:
+- User is logged in
+- Services exist
+
+**Test Steps**:
+1. Navigate to create inspection
+2. View service dropdown
+3. Select a service
+4. View pricing breakdown
+
+**Expected Result**:
+- All active services shown in dropdown
+- Inactive services not shown
+- Selecting service:
+  - Auto-fills duration
+  - Calculates price
+  - Shows pricing breakdown:
+    - Base price
+    - Fee items
+    - Subtotal
+    - Tax
+    - Total
+- Price updates immediately
+
+**Priority**: High
+
+---
+
+### TC-SERV-014: Pricing Calculator (Property Size)
+
+**Priority**: High  
+**Type**: Functional
+
+**Preconditions**:
+- User is logged in
+- Service with size-based pricing exists
+
+**Test Steps**:
+1. Create inspection
+2. Select service with size tiers
+3. Enter property size: 2,000 sqft
+4. View calculated price
+
+**Expected Result**:
+- Correct tier selected (1,500-2,500 sqft)
+- Fee applied: +$100
+- Total = Base ($300) + Size Fee ($100) + Tax
+- Breakdown shows tier range and fee
+
+**Priority**: High
+
+---
+
+### TC-SERV-015: Pricing Calculator (Multiple Fees)
+
+**Priority**: High  
+**Type**: Functional
+
+**Preconditions**:
+- User is logged in
+- Service with multiple fee types exists
+
+**Test Steps**:
+1. Create inspection
+2. Select service with size + distance + age fees
+3. Property: 2,500 sqft, 40 miles away, built 1985
+4. View calculated price
+
+**Expected Result**:
+- Size fee calculated: +$100 (2,500 sqft)
+- Distance fee calculated: +$60 (40 miles)
+- Age fee calculated: +$50 (40 years old)
+- Total = $350 (base) + $100 + $60 + $50 + tax
+- Breakdown shows all fees clearly
+
+**Priority**: High
+
+---
+
+### TC-SERV-016: Search Services
+
+**Priority**: Medium  
+**Type**: Functional
+
+**Preconditions**:
+- User is logged in
+- Multiple services exist
+
+**Test Steps**:
+1. Navigate to services page
+2. Enter "Residential" in search box
+3. View filtered results
+
+**Expected Result**:
+- Search filters services in real-time
+- Searches service name and description
+- Case-insensitive
+- Results update as user types
+- Clear button resets search
+
+**Priority**: Medium
+
+---
+
+### TC-SERV-017: Filter Services by Status
+
+**Priority**: Medium  
+**Type**: Functional
+
+**Preconditions**:
+- User is logged in
+- Active and inactive services exist
+
+**Test Steps**:
+1. Navigate to services page
+2. Click "Status" filter
+3. Select "Active Only"
+4. Select "Inactive Only"
+5. Select "All"
+
+**Expected Result**:
+- Filter shows only selected status
+- Count of filtered results shown
+- Filter persists during session
+- Works with search
+
+**Priority**: Medium
+
+---
+
+### TC-SERV-018: Sort Services
+
+**Priority**: Medium  
+**Type**: Functional
+
+**Preconditions**:
+- User is logged in
+- Multiple services exist
+
+**Test Steps**:
+1. Navigate to services page
+2. Click sort dropdown
+3. Select "Most Used"
+4. Select "Highest Revenue"
+5. Select "Name (A-Z)"
+
+**Expected Result**:
+- Services reorder based on selection
+- Sort persists during session
+- Visual indicator shows current sort
+- Works with filters
+
+**Priority**: Medium
+
+---
+
+### TC-SERV-019: Validation - Required Fields
+
+**Priority**: High  
+**Type**: Validation
+
+**Preconditions**:
+- User is logged in
+
+**Test Steps**:
+1. Click "Add Service"
+2. Leave service name empty
+3. Leave base price empty
+4. Attempt to save
+
+**Expected Result**:
+- Cannot save without required fields
+- Error messages displayed:
+  - "Service name is required"
+  - "Base price is required"
+  - "Duration is required"
+- Required fields highlighted
+- Form submission blocked
+
+**Priority**: High
+
+---
+
+### TC-SERV-020: Validation - Price Format
+
+**Priority**: Medium  
+**Type**: Validation
+
+**Preconditions**:
+- User is logged in
+
+**Test Steps**:
+1. Create/edit service
+2. Enter invalid price: "abc"
+3. Enter negative price: "-100"
+4. Attempt to save
+
+**Expected Result**:
+- Error messages for invalid formats
+- Only positive numbers accepted
+- Decimal values allowed (e.g., 399.99)
+- Currency formatting applied on display
+
+**Priority**: Medium
+
+---
+
+### TC-SERV-021: Validation - Fee Tier Ranges
+
+**Priority**: Medium  
+**Type**: Validation
+
+**Preconditions**:
+- User is logged in
+
+**Test Steps**:
+1. Create service with size-based pricing
+2. Add tiers with overlapping ranges:
+   - 0-2,000 sqft
+   - 1,500-3,000 sqft (overlaps)
+3. Attempt to save
+
+**Expected Result**:
+- Validation error: "Tier ranges cannot overlap"
+- Cannot save with overlapping ranges
+- Clear guidance on fixing
+- OR system auto-adjusts ranges
+
+**Priority**: Medium
+
+---
+
+### TC-SERV-022: Service Statistics Accuracy
+
+**Priority**: High  
+**Type**: Functional
+
+**Preconditions**:
+- User is logged in
+- Service with known usage exists
+
+**Test Steps**:
+1. Verify current statistics
+2. Create 3 inspections with this service:
+   - Inspection 1: $400
+   - Inspection 2: $450
+   - Inspection 3: $425
+3. Return to services page
+4. Verify statistics updated
+
+**Expected Result**:
+- Bookings count: +3
+- Total revenue: +$1,275
+- Average: Recalculated correctly
+- Statistics accurate across all views
+- Real-time updates
+
+**Priority**: High
+
+---
+
+### TC-SERV-023: Service Revenue Calculation
+
+**Priority**: High  
+**Type**: Functional
+
+**Preconditions**:
+- User is logged in
+- Service exists
+
+**Test Steps**:
+1. Note current revenue
+2. Create inspection with service ($450)
+3. Delete that inspection
+4. Check revenue
+
+**Expected Result**:
+- Creating inspection adds to revenue
+- Deleting inspection subtracts from revenue
+- Revenue always accurate
+- No orphaned revenue data
+
+**Priority**: High
+
+---
+
+## API/Backend Test Cases
+
+### TC-SERV-API-001: Create Service API
+
+**Priority**: High  
+**Type**: API
+
+**Test Steps**:
+1. Call `createService()` with valid data
+2. Verify Firestore documents created:
+   - Service document in `/services`
+   - Fee documents in `/serviceFees`
+3. Check all fields saved correctly
+
+**Expected Result**:
+- Service document created
+- Fee documents created and linked
+- All fields match input
+- Timestamps set
+- User ID associated
+
+**Priority**: High
+
+---
+
+### TC-SERV-API-002: Load Service with Fees
+
+**Priority**: High  
+**Type**: API
+
+**Test Steps**:
+1. Call `getServiceWithFees()` for service ID
+2. Verify service data returned
+3. Verify all fee tiers loaded
+
+**Expected Result**:
+- Service data complete
+- All fee types included
+- Fees sorted by order
+- Efficient query (uses index)
+
+**Priority**: High
+
+---
+
+### TC-SERV-API-003: Increment Service Usage
+
+**Priority**: High  
+**Type**: API
+
+**Test Steps**:
+1. Call `incrementServiceUsage()` with service ID and price
+2. Verify Firestore document updated
+3. Check statistics recalculated
+
+**Expected Result**:
+- Usage count incremented atomically
+- Revenue added correctly
+- No race conditions
+- Transaction ensures consistency
+
+**Priority**: High
+
+---
+
+### TC-SERV-API-004: Query Services by User
+
+**Priority**: High  
+**Type**: API, Security
+
+**Test Steps**:
+1. Log in as User A
+2. Query services
+3. Verify only User A's services returned
+
+**Expected Result**:
+- Only authenticated user's services
+- Cannot access other users' services
+- Firestore security rules enforced
+
+**Priority**: High
+
+---
+
+## Performance Test Cases
+
+### TC-SERV-PERF-001: Load Services Performance
+
+**Priority**: Medium  
+**Type**: Performance
+
+**Test Steps**:
+1. Create 50+ services
+2. Navigate to services page
+3. Measure load time
+
+**Expected Result**:
+- Page loads in &lt;3 seconds
+- All services rendered
+- Smooth scrolling
+- No UI freezing
+
+**Priority**: Medium
+
+---
+
+### TC-SERV-PERF-002: Pricing Calculation Performance
+
+**Priority**: Medium  
+**Type**: Performance
+
+**Test Steps**:
+1. Select service with complex pricing (multiple fee types)
+2. Measure calculation time
+
+**Expected Result**:
+- Price calculates in &lt;100ms
+- No delay in UI
+- Smooth user experience
+
+**Priority**: Medium
+
+---
+
+## Summary
+
+**Total Test Cases**: 27  
+**High Priority**: 16  
+**Medium Priority**: 9  
+**Low Priority**: 2
+
+**Coverage Areas**:
+- [OK] CRUD Operations
+- [OK] Flat Rate Pricing
+- [OK] Size-Based Pricing
+- [OK] Custom Multi-Fee Pricing
+- [OK] Usage Tracking
+- [OK] Revenue Calculation
+- [OK] Integration with Inspections
+- [OK] Pricing Calculator
+- [OK] Validation
+- [OK] API/Backend
+- [OK] Performance
+
+**Estimated Testing Time**: 10-12 hours for complete execution
+
+
+

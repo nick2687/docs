@@ -1,43 +1,118 @@
-# Mintlify Starter Kit
+# HomeLens Web Documentation
 
-Use the starter kit to get your docs deployed and ready to customize.
+Comprehensive documentation for HomeLens Web application in MDX format, compatible with Mintlify.
 
-Click the green **Use this template** button at the top of this repo to copy the Mintlify starter kit. The starter kit contains examples with
+## Documentation Structure
 
-- Guide pages
-- Navigation
-- Customizations
-- API reference pages
-- Use of popular components
+### Getting Started
+- **introduction.mdx** - Overview of HomeLens Web
+- **getting-started.mdx** - Setup and installation guide
+- **architecture.mdx** - Technical architecture and design decisions
 
-**[Follow the full quickstart guide](https://starter.mintlify.com/quickstart)**
+### Core Features
+- **dashboard.mdx** - Dashboard overview and navigation
+- **inspections.mdx** - Inspection management
+- **templates.mdx** - Template system and management
+- **services.mdx** - Service and pricing configuration
+- **calendar.mdx** - Calendar views and scheduling
+- **contacts.mdx** - CRM contact management
 
-## Development
+### Client Features
+- **client-portal.mdx** - Client portal and report sharing
+- **widgets.mdx** - Embeddable scheduling widgets
 
-Install the [Mintlify CLI](https://www.npmjs.com/package/mint) to preview your documentation changes locally. To install, use the following command:
+### Configuration
+- **settings.mdx** - Application settings
+- **integrations.mdx** - Third-party integrations
+- **authentication.mdx** - Authentication system
 
+### Technical
+- **firestore-structure.mdx** - Database schema
+- **api-reference.mdx** - API endpoint documentation
+- **development.mdx** - Development guide
+
+## Mintlify Configuration
+
+The documentation is configured for Mintlify with:
+
+- **Navigation Groups**: Organized into logical sections
+- **Tabs**: Web App, Mobile Apps, API
+- **Reusable Snippets**: Located in `snippets/` directory
+
+### Configuration File
+
+`mint.json` contains the complete Mintlify configuration including:
+- Navigation structure
+- Tabs configuration
+- Colors and branding
+- Topbar links
+
+## Usage
+
+### Local Development
+
+1. Install Mintlify CLI:
+```bash
+npm install -g mintlify
 ```
-npm i -g mint
+
+2. Preview documentation:
+```bash
+mintlify dev
 ```
 
-Run the following command at the root of your documentation, where your `docs.json` is located:
-
+3. Build for production:
+```bash
+mintlify build
 ```
-mint dev
+
+### Deployment
+
+Deploy to Mintlify:
+1. Connect your repository to Mintlify
+2. Mintlify will automatically detect `mint.json`
+3. Documentation will be available at your Mintlify domain
+
+## Reusable Snippets
+
+Snippets are located in `snippets/` directory:
+
+- **tech-stack.mdx** - Technology stack component and variable
+
+To use snippets in pages:
+
+```mdx
+import TechStack from '/snippets/tech-stack.mdx'
+
+<TechStack />
 ```
 
-View your local preview at `http://localhost:3000`.
+## Documentation Features
 
-## Publishing changes
+All documentation pages include:
 
-Install our GitHub app from your [dashboard](https://dashboard.mintlify.com/settings/organization/github-app) to propagate changes from your repo to your deployment. Changes are deployed to production automatically after pushing to the default branch.
+- **Frontmatter**: Title and description for SEO and navigation
+- **Code Examples**: TypeScript/JavaScript examples with syntax highlighting
+- **Cross-References**: Links to related documentation
+- **Structured Content**: Organized sections with clear headings
 
-## Need help?
+## Navigation Scheme
 
-### Troubleshooting
+See `navigation-scheme.md` for detailed navigation structure and recommendations.
 
-- If your dev environment isn't running: Run `mint update` to ensure you have the most recent version of the CLI.
-- If a page loads as a 404: Make sure you are running in a folder with a valid `docs.json`.
+## Contributing
 
-### Resources
-- [Mintlify documentation](https://mintlify.com/docs)
+When adding new documentation:
+
+1. Create `.mdx` file in `docs/` directory
+2. Add frontmatter with `title` and `description`
+3. Update `mint.json` navigation
+4. Use reusable snippets when appropriate
+5. Follow existing documentation style
+
+## Related Files
+
+- `mint.json` - Mintlify configuration
+- `navigation-scheme.md` - Navigation structure documentation
+- `snippets/` - Reusable documentation components
+

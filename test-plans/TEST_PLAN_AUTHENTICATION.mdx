@@ -1,0 +1,868 @@
+---
+title: "Test Plan: Authentication & User Management"
+description: "Comprehensive test plan for user authentication, registration, login, password reset, and session management"
+---
+
+# Test Plan: Authentication & User Management
+
+**Feature Area**: User Authentication  
+**Related Files**: `web/lib/auth-context.tsx`, `web/app/(auth)/*`, `web/lib/firebase/users.ts`
+
+---
+
+## Feature Overview
+
+The authentication system handles user registration, login, password reset, and session management using Firebase Authentication. It includes protected routes, user profile management, and secure access control.
+
+---
+
+## Test Cases
+
+### TC-AUTH-001: User Registration (Sign Up)
+
+**Priority**: High  
+**Type**: Functional
+
+**Preconditions**:
+
+- User is not logged in
+- Email address has not been registered before
+
+**Test Steps**:
+
+1. Navigate to `/signup` page
+2. Enter valid email address (e.g., `newuser@example.com`)
+3. Enter valid password (minimum 6 characters)
+4. Click "Sign Up" button
+5. Verify redirect to dashboard
+
+**Expected Result**:
+
+- User account created in Firebase Authentication
+- User profile created in Firestore `/users/&#123;userId&#125;` collection
+- User automatically logged in
+- Redirected to `/dashboard` page
+- Welcome message displays user email
+
+**Priority**: High
+
+---
+
+### TC-AUTH-002: User Registration with Invalid Email
+
+**Priority**: High  
+**Type**: Functional, Validation
+
+**Preconditions**:
+
+- User is not logged in
+
+**Test Steps**:
+
+1. Navigate to `/signup` page
+2. Enter invalid email address (e.g., `notanemail`)
+3. Enter valid password
+4. Click "Sign Up" button
+
+**Expected Result**:
+
+- Error message displayed: "Invalid email format" or similar
+- No account created
+- User remains on signup page
+- Form fields retain entered data
+
+**Priority**: High
+
+---
+
+### TC-AUTH-003: User Registration with Weak Password
+
+**Priority**: High  
+**Type**: Functional, Validation
+
+**Preconditions**:
+
+- User is not logged in
+
+**Test Steps**:
+
+1. Navigate to `/signup` page
+2. Enter valid email address
+3. Enter weak password (e.g., `123`)
+4. Click "Sign Up" button
+
+**Expected Result**:
+
+- Error message displayed: "Password should be at least 6 characters"
+- No account created
+- User remains on signup page
+
+**Priority**: High
+
+---
+
+### TC-AUTH-004: User Registration with Existing Email
+
+**Priority**: High  
+**Type**: Functional, Validation
+
+**Preconditions**:
+
+- Email address already registered in system
+
+**Test Steps**:
+
+1. Navigate to `/signup` page
+2. Enter existing email address
+3. Enter valid password
+4. Click "Sign Up" button
+
+**Expected Result**:
+
+- Error message displayed: "Email already in use" or similar
+- No duplicate account created
+- User remains on signup page
+
+**Priority**: High
+
+---
+
+### TC-AUTH-005: User Login with Valid Credentials
+
+**Priority**: High  
+**Type**: Functional
+
+**Preconditions**:
+
+- User account exists in system
+- User is not logged in
+
+**Test Steps**:
+
+1. Navigate to `/login` page
+2. Enter registered email address
+3. Enter correct password
+4. Click "Login" button
+
+**Expected Result**:
+
+- User successfully authenticated
+- Redirected to `/dashboard` page
+- User session established
+- User data loaded (profile, settings)
+- Dashboard displays user-specific data
+
+**Priority**: High
+
+---
+
+### TC-AUTH-006: User Login with Invalid Email
+
+**Priority**: High  
+**Type**: Functional, Security
+
+**Preconditions**:
+
+- User is not logged in
+
+**Test Steps**:
+
+1. Navigate to `/login` page
+2. Enter non-existent email address
+3. Enter any password
+4. Click "Login" button
+
+**Expected Result**:
+
+- Error message displayed: "Invalid credentials" or similar
+- User not authenticated
+- User remains on login page
+- No sensitive information leaked about whether email exists
+
+**Priority**: High
+
+---
+
+### TC-AUTH-007: User Login with Invalid Password
+
+**Priority**: High  
+**Type**: Functional, Security
+
+**Preconditions**:
+
+- User account exists in system
+- User is not logged in
+
+**Test Steps**:
+
+1. Navigate to `/login` page
+2. Enter registered email address
+3. Enter incorrect password
+4. Click "Login" button
+
+**Expected Result**:
+
+- Error message displayed: "Invalid credentials" or similar
+- User not authenticated
+- User remains on login page
+- Account not locked after single failed attempt
+
+**Priority**: High
+
+---
+
+### TC-AUTH-008: Password Reset Request
+
+**Priority**: High  
+**Type**: Functional
+
+**Preconditions**:
+
+- User account exists in system
+- User is not logged in
+
+**Test Steps**:
+
+1. Navigate to `/login` page
+2. Click "Forgot Password?" link
+3. Redirected to `/reset-password` page
+4. Enter registered email address
+5. Click "Send Reset Link" button
+
+**Expected Result**:
+
+- Success message displayed: "Password reset email sent"
+- Password reset email sent to user's email address
+- Email contains valid reset link
+- Reset link expires after 1 hour
+- User can click link and set new password
+
+**Priority**: High
+
+---
+
+### TC-AUTH-009: Password Reset with Non-Existent Email
+
+**Priority**: Medium  
+**Type**: Functional, Security
+
+**Preconditions**:
+
+- User is not logged in
+
+**Test Steps**:
+
+1. Navigate to `/reset-password` page
+2. Enter non-existent email address
+3. Click "Send Reset Link" button
+
+**Expected Result**:
+
+- Generic success message displayed (for security)
+- No email sent
+- No information leaked about whether email exists in system
+
+**Priority**: Medium
+
+---
+
+### TC-AUTH-010: User Logout
+
+**Priority**: High  
+**Type**: Functional
+
+**Preconditions**:
+
+- User is logged in
+
+**Test Steps**:
+
+1. Navigate to any dashboard page
+2. Click user profile menu in sidebar
+3. Click "Logout" button
+4. Confirm logout action
+
+**Expected Result**:
+
+- User session terminated
+- Firebase auth token cleared
+- Redirected to `/login` page
+- Cannot access protected routes without logging in again
+- Browser back button does not restore session
+
+**Priority**: High
+
+---
+
+### TC-AUTH-011: Protected Route Access (Unauthenticated)
+
+**Priority**: High  
+**Type**: Security
+
+**Preconditions**:
+
+- User is not logged in
+
+**Test Steps**:
+
+1. Attempt to navigate directly to `/dashboard`
+2. Attempt to navigate to `/dashboard/inspections`
+3. Attempt to navigate to `/dashboard/settings`
+
+**Expected Result**:
+
+- Automatically redirected to `/login` page
+- Cannot access any protected routes
+- After login, redirected to originally requested page (deep linking)
+
+**Priority**: High
+
+---
+
+### TC-AUTH-012: Session Persistence
+
+**Priority**: High  
+**Type**: Functional
+
+**Preconditions**:
+
+- User is logged in
+
+**Test Steps**:
+
+1. Log in to application
+2. Close browser tab
+3. Open new browser tab
+4. Navigate to application URL
+
+**Expected Result**:
+
+- User still logged in
+- Session persists across browser tabs
+- User data loaded automatically
+- No need to log in again
+
+**Priority**: High
+
+---
+
+### TC-AUTH-013: Session Expiration
+
+**Priority**: Medium  
+**Type**: Security
+
+**Preconditions**:
+
+- User is logged in
+- Firebase token expires (after 1 hour of inactivity)
+
+**Test Steps**:
+
+1. Log in to application
+2. Wait for token expiration (or manually expire token)
+3. Attempt to perform any action requiring authentication
+
+**Expected Result**:
+
+- Token automatically refreshed if refresh token valid
+- OR user redirected to login page if refresh token expired
+- No data loss occurs
+- Clear message about session expiration
+
+**Priority**: Medium
+
+---
+
+### TC-AUTH-014: Concurrent Sessions
+
+**Priority**: Medium  
+**Type**: Functional
+
+**Preconditions**:
+
+- User account exists
+
+**Test Steps**:
+
+1. Log in to application in Browser A
+2. Log in to same account in Browser B
+3. Perform actions in both browsers
+
+**Expected Result**:
+
+- Both sessions remain active
+- Real-time data syncs between sessions
+- Logout in one browser doesn't affect other session
+- Data changes in one browser reflect in other browser
+
+**Priority**: Medium
+
+---
+
+### TC-AUTH-015: User Profile Creation on First Login
+
+**Priority**: High  
+**Type**: Functional
+
+**Preconditions**:
+
+- New user just registered
+
+**Test Steps**:
+
+1. Complete registration process
+2. Check Firestore ```
+/users/{userId}
+``` document
+
+**Expected Result**:
+
+- User profile document created with:
+  - `id`: Firebase Auth UID
+  - `email`: User's email
+  - `createdAt`: Current timestamp
+  - `updatedAt`: Current timestamp
+  - Default values for optional fields
+
+**Priority**: High
+
+---
+
+### TC-AUTH-016: Email Validation (Format)
+
+**Priority**: Medium  
+**Type**: Validation
+
+**Preconditions**:
+
+- User on signup or login page
+
+**Test Steps**:
+
+1. Test various invalid email formats:
+   - `plaintext`
+   - `@example.com`
+   - `user@`
+   - `user @example.com` (space)
+   - `user@.com`
+2. Attempt to submit form
+
+**Expected Result**:
+
+- All invalid formats rejected
+- Clear error message for each
+- Form not submitted
+
+**Priority**: Medium
+
+---
+
+### TC-AUTH-017: Password Visibility Toggle
+
+**Priority**: Low  
+**Type**: UI/UX
+
+**Preconditions**:
+
+- User on login or signup page
+
+**Test Steps**:
+
+1. Enter password in password field
+2. Click "Show Password" icon/button
+3. Click "Hide Password" icon/button
+
+**Expected Result**:
+
+- Password initially masked (••••••)
+- Clicking show reveals plain text
+- Clicking hide masks again
+- Toggle works smoothly
+
+**Priority**: Low
+
+---
+
+### TC-AUTH-018: Remember Me Functionality
+
+**Priority**: Low  
+**Type**: Functional
+
+**Preconditions**:
+
+- User on login page
+
+**Test Steps**:
+
+1. Enter valid credentials
+2. Check "Remember Me" checkbox (if available)
+3. Log in
+4. Close browser completely
+5. Reopen browser and navigate to app
+
+**Expected Result**:
+
+- User automatically logged in
+- Session persists even after browser closure
+- Works until explicit logout
+
+**Priority**: Low
+
+---
+
+### TC-AUTH-019: Account Security - Multiple Failed Login Attempts
+
+**Priority**: High  
+**Type**: Security
+
+**Preconditions**:
+
+- User account exists
+
+**Test Steps**:
+
+1. Attempt to log in with wrong password 5 times
+2. Attempt 6th login with correct password
+
+**Expected Result**:
+
+- Firebase may temporarily lock account (default behavior)
+- Clear message about too many attempts
+- User can reset password to unlock
+- OR wait for cooldown period
+
+**Priority**: High
+
+---
+
+### TC-AUTH-020: XSS Protection in Auth Forms
+
+**Priority**: High  
+**Type**: Security
+
+**Preconditions**:
+
+- User on signup or login page
+
+**Test Steps**:
+
+1. Enter XSS payload in email field: ``&lt;script&gt;alert('XSS')&lt;/script&gt;``
+2. Enter XSS payload in password field
+3. Submit form
+
+**Expected Result**:
+
+- Script not executed
+- Input sanitized or rejected
+- No JavaScript injection possible
+- Error message displayed for invalid format
+
+**Priority**: High
+
+---
+
+### TC-AUTH-021: CSRF Protection
+
+**Priority**: High  
+**Type**: Security
+
+**Preconditions**:
+
+- User logged in
+
+**Test Steps**:
+
+1. Inspect network requests during authentication
+2. Verify CSRF tokens present
+3. Attempt to replay authentication request without valid token
+
+**Expected Result**:
+
+- Firebase handles CSRF protection automatically
+- Tokens validated on each request
+- Replayed requests rejected
+
+**Priority**: High
+
+---
+
+### TC-AUTH-022: Authentication State Listener
+
+**Priority**: High  
+**Type**: Functional
+
+**Preconditions**:
+
+- Application loaded
+
+**Test Steps**:
+
+1. Open application
+2. Check console logs for auth state listener
+3. Log in
+4. Check auth state change event
+5. Log out
+6. Check auth state change event
+
+**Expected Result**:
+
+- Auth listener initialized on app load
+- Auth state changes trigger updates
+- User state updates throughout app
+- No memory leaks from listeners
+
+**Priority**: High
+
+---
+
+### TC-AUTH-023: Error Handling - Network Failure
+
+**Priority**: Medium  
+**Type**: Error Handling
+
+**Preconditions**:
+
+- User on login page
+- Simulate network failure
+
+**Test Steps**:
+
+1. Disconnect from internet
+2. Enter valid credentials
+3. Click "Login" button
+
+**Expected Result**:
+
+- Clear error message: "Network error, please check connection"
+- User not logged in
+- Form remains functional
+- Can retry when connection restored
+
+**Priority**: Medium
+
+---
+
+### TC-AUTH-024: Loading States During Authentication
+
+**Priority**: Medium  
+**Type**: UI/UX
+
+**Preconditions**:
+
+- User on login page
+
+**Test Steps**:
+
+1. Enter valid credentials
+2. Click "Login" button
+3. Observe UI during authentication process
+
+**Expected Result**:
+
+- Loading spinner or indicator displayed
+- Submit button disabled during process
+- User cannot submit multiple times
+- Loading state clears after success/failure
+
+**Priority**: Medium
+
+---
+
+### TC-AUTH-025: Deep Linking After Login
+
+**Priority**: Medium  
+**Type**: Functional
+
+**Preconditions**:
+
+- User not logged in
+
+**Test Steps**:
+
+1. Navigate directly to `/dashboard/inspections/new`
+2. Redirected to login page
+3. Log in with valid credentials
+
+**Expected Result**:
+
+- After successful login, redirected to originally requested page
+- URL preserved during redirect
+- User lands on `/dashboard/inspections/new` after login
+
+**Priority**: Medium
+
+---
+
+## API/Backend Test Cases
+
+### TC-AUTH-API-001: Firebase Authentication Token Validation
+
+**Priority**: High  
+**Type**: API, Security
+
+**Test Steps**:
+
+1. Log in and capture Firebase ID token
+2. Make API request with valid token
+3. Make API request with expired token
+4. Make API request with invalid token
+5. Make API request without token
+
+**Expected Result**:
+
+- Valid token: Request succeeds
+- Expired token: 401 Unauthorized, token refreshed
+- Invalid token: 401 Unauthorized
+- No token: 401 Unauthorized
+
+**Priority**: High
+
+---
+
+### TC-AUTH-API-002: User Profile CRUD Operations
+
+**Priority**: High  
+**Type**: API
+
+**Test Steps**:
+
+1. Create user profile via `createUserProfile()`
+2. Read user profile via `getUserProfile()`
+3. Update user profile via `updateUserProfile()`
+4. Verify Firestore document updated
+
+**Expected Result**:
+
+- All operations succeed
+- Data persists correctly
+- Timestamps updated appropriately
+- User can only access own profile
+
+**Priority**: High
+
+---
+
+### TC-AUTH-API-003: Firestore Security Rules - User Isolation
+
+**Priority**: High  
+**Type**: Security
+
+**Test Steps**:
+
+1. Log in as User A
+2. Attempt to read User B's profile document
+3. Attempt to update User B's profile document
+4. Attempt to delete User B's profile document
+
+**Expected Result**:
+
+- All operations denied
+- Error: "Permission denied"
+- User can only access own data
+- Security rules enforced
+
+**Priority**: High
+
+---
+
+## Performance Test Cases
+
+### TC-AUTH-PERF-001: Login Performance
+
+**Priority**: Medium  
+**Type**: Performance
+
+**Test Steps**:
+
+1. Measure time from clicking "Login" to dashboard load
+2. Test with fast network (WiFi)
+3. Test with slow network (3G simulation)
+
+**Expected Result**:
+
+- Fast network: &lt;2 seconds
+- Slow network: &lt;5 seconds
+- No blocking UI during authentication
+
+**Priority**: Medium
+
+---
+
+### TC-AUTH-PERF-002: Concurrent User Logins
+
+**Priority**: Medium  
+**Type**: Performance
+
+**Test Steps**:
+
+1. Simulate 50 concurrent user logins
+2. Measure response times
+3. Check for any failures
+
+**Expected Result**:
+
+- All logins succeed
+- Average response time &lt;3 seconds
+- Firebase handles load gracefully
+
+**Priority**: Medium
+
+---
+
+## Cross-Browser Test Cases
+
+### TC-AUTH-BROWSER-001: Authentication Across Browsers
+
+**Priority**: High  
+**Type**: Cross-Browser
+
+**Test Steps**:
+
+1. Test login/signup in Chrome
+2. Test login/signup in Firefox
+3. Test login/signup in Safari
+4. Test login/signup in Edge
+
+**Expected Result**:
+
+- All authentication flows work identically
+- No browser-specific issues
+- UI renders correctly in all browsers
+
+**Priority**: High
+
+---
+
+## Mobile Test Cases
+
+### TC-AUTH-MOBILE-001: Mobile Login Experience
+
+**Priority**: High  
+**Type**: Mobile, UI/UX
+
+**Test Steps**:
+
+1. Open app on mobile device (iPhone/Android)
+2. Navigate to login page
+3. Test form input on mobile keyboard
+4. Complete login process
+
+**Expected Result**:
+
+- Forms optimized for mobile
+- Keyboard doesn't obscure inputs
+- Touch targets appropriately sized
+- Smooth mobile experience
+
+**Priority**: High
+
+---
+
+## Summary
+
+**Total Test Cases**: 28  
+**High Priority**: 21  
+**Medium Priority**: 6  
+**Low Priority**: 1
+**Estimated Testing Time**: 8-10 hours for complete execution
+

@@ -1,0 +1,507 @@
+---
+title: 'Firebase Setup Guide'
+description: 'Complete guide to setting up Firestore Database and Firebase Storage for HomeLens'
+icon: 'fire'
+---
+
+## Prerequisites
+
+<Check>Firebase project already created (you have `GoogleService-Info.plist` and `google-services.json`)</Check>
+<Check>Firebase Auth already enabled (for user authentication)</Check>
+
+**Time Required:** 15 minutes
+
+---
+
+## Part 1: Enable Firestore Database
+
+<Steps>
+  <Step title="Open Firebase Console">
+    1. Go to **https://console.firebase.google.com/**
+    2. Select your **HomeLens** project
+  </Step>
+
+  <Step title="Navigate to Firestore Database">
+    1. In the left sidebar, find **"Build"** section
+    2. Click on **"Firestore Database"**
+
+    <Info>
+      **What you'll see:**
+      - If not enabled yet: A page with "Create database" button
+      - If already enabled: Your existing database dashboard
+    </Info>
+  </Step>
+
+  <Step title="Create Database">
+    1. Click **"Create database"** button
+
+    2. **Choose Location:**
+       - Select a location close to your users
+       - For Canada: Choose **"us-central"** or **"us-east4"** (closest to Canada)
+       - Click **"Next"**
+
+    <Warning>Location cannot be changed later!</Warning>
+
+    3. **Security Rules:**
+       - You'll see two options:
+         - Start in **production mode** (secure, but requires rules)
+         - Start in **test mode** (open for 30 days)
+       
+       - Select **"Start in production mode"** (we'll set proper rules next)
+       - Click **"Create"**
+
+    4. **Wait for Database Creation** (~30 seconds)
+       - You'll see a loading spinner
+       - Database will be provisioned
+  </Step>
+
+  <Step title="Set Security Rules">
+    Once the database is created:
+
+    1. Click on the **"Rules"** tab at the top
+
+    2. **Replace the default rules** with:
+
+    ```javascript
+    rules_version = '2';
+    service cloud.firestore {
+      match /databases/{database}/documents {
+        
+        // Users can only read/write their own data
+        match /users/{userId} {
+          allow read, write: if request.auth != null 
+            && request.auth.uid == userId;
+        }
+        
+        // Inspections: users can only access their own
+        match /inspections/{inspectionId} {
+          allow read, write: if request.auth != null 
+            && request.auth.uid == resource.data.userId;
+          allow create: if request.auth != null 
+            && request.auth.uid == request.resource.data.userId;
+        }
+        
+        // Sections: accessible by authenticated users
+        // (will validate via inspectionId in app)
+        match /sections/{sectionId} {
+          allow read, write: if request.auth != null;
+        }
+        
+        // Items: accessible by authenticated users
+        match /items/{itemId} {
+          allow read, write: if request.auth != null;
+        }
+        
+        // Templates: users can only access their own
+        match /templates/{templateId} {
+          allow read, write: if request.auth != null 
+            && request.auth.uid == resource.data.userId;
+          allow create: if request.auth != null 
+            && request.auth.uid == request.resource.data.userId;
+        }
+        
+        // Services: users can only access their own
+        match /services/{serviceId} {
+          allow read, write: if request.auth != null 
+            && request.auth.uid == resource.data.userId;
+          allow create: if request.auth != null 
+            && request.auth.uid == request.resource.data.userId;
+        }
+      }
+    }
+    ```
+
+    3. Click **"Publish"** button at the top
+
+    4. **Confirmation:**
+       - You should see "Rules published successfully" message
+       - Green checkmark appears
+  </Step>
+
+  <Step title="Verify Firestore is Ready">
+    1. Click on **"Data"** tab
+    2. You should see an empty database (no collections yet)
+    3. <Check>Firestore Database is ready!</Check>
+  </Step>
+</Steps>
+
+---
+
+## Part 2: Enable Firebase Storage
+
+<Steps>
+  <Step title="Navigate to Storage">
+    1. In the Firebase Console left sidebar
+    2. Under **"Build"** section
+    3. Click on **"Storage"**
+
+    <Info>
+      **What you'll see:**
+      - If not enabled: "Get started" button
+      - If already enabled: Your storage browser
+    </Info>
+  </Step>
+
+  <Step title="Enable Storage">
+    1. Click **"Get started"** button
+
+    2. **Security Rules Dialog:**
+       - You'll see default rules
+       - Click **"Next"**
+
+    3. **Choose Location:**
+       - Same location as Firestore (recommended)
+       - For Canada: **"us-central"** or **"us-east4"**
+       - Click **"Done"**
+
+    <Warning>Location cannot be changed later!</Warning>
+
+    4. **Wait for Storage Creation** (~10 seconds)
+       - Firebase provisions your storage bucket
+  </Step>
+
+  <Step title="Set Storage Security Rules">
+    Once storage is created:
+
+    1. Click on the **"Rules"** tab at the top
+
+    2. **Replace the default rules** with:
+
+    ```javascript
+    rules_version = '2';
+    service firebase.storage {
+      match /b/{bucket}/o {
+        
+        // Users can only access their own files
+        match /users/{userId}/{allPaths=**} {
+          allow read: if request.auth != null 
+            && request.auth.uid == userId;
+          allow write: if request.auth != null 
+            && request.auth.uid == userId
+            && request.resource.size < 10 * 1024 * 1024; // Max 10MB per file
+        }
+      }
+    }
+    ```
+
+    3. Click **"Publish"** button
+
+    4. **Confirmation:**
+       - "Rules published successfully" message
+       - Green checkmark
+  </Step>
+
+  <Step title="Verify Storage is Ready">
+    1. Click on **"Files"** tab
+    2. You should see an empty storage bucket
+    3. You might see a default folder like `users/` (that's fine)
+    4. <Check>Firebase Storage is ready!</Check>
+  </Step>
+</Steps>
+
+---
+
+## Part 3: Enable Indexes (Optional, but Recommended)
+
+Firestore needs indexes for complex queries. We'll create them now to avoid errors later.
+
+<Steps>
+  <Step title="Go to Indexes Tab">
+    1. In Firestore Database section
+    2. Click on **"Indexes"** tab
+    3. Click **"Create Index"** button
+  </Step>
+
+  <Step title="Create Inspection Index">
+    **Index 1: Inspections by User and Date**
+
+    1. **Collection ID:** `inspections`
+    2. **Fields to index:**
+       - Field: `userId` → Order: Ascending
+       - Field: `inspectionDate` → Order: Descending
+    3. **Query scope:** Collection
+    4. Click **"Create"**
+
+    **Index 2: Inspections by User and Updated Time**
+
+    1. Click **"Create Index"** again
+    2. **Collection ID:** `inspections`
+    3. **Fields to index:**
+       - Field: `userId` → Order: Ascending
+       - Field: `updatedAt` → Order: Descending
+    4. **Query scope:** Collection
+    5. Click **"Create"**
+  </Step>
+
+  <Step title="Wait for Indexes to Build">
+    - Status shows "Building" with a spinner
+    - Usually takes 1-5 minutes
+    - Status will change to "Enabled" when ready
+    - You can proceed while they build
+  </Step>
+</Steps>
+
+---
+
+## Part 4: Verify Everything Works
+
+### Test Firestore
+
+<Steps>
+  <Step title="Create Test Document">
+    1. Go to **Firestore Database** → **Data** tab
+    2. Click **"Start collection"**
+    3. Collection ID: `test`
+    4. Document ID: `test-doc`
+    5. Add a field:
+       - Field: `message`
+       - Type: string
+       - Value: `Hello Firebase!`
+    6. Click **"Save"**
+    7. You should see the document appear
+    8. **Delete the test collection** (click the 3 dots → Delete collection)
+  </Step>
+</Steps>
+
+### Test Storage
+
+<Steps>
+  <Step title="Upload Test File">
+    1. Go to **Storage** → **Files** tab
+    2. Click **"Upload file"** button
+    3. Choose any small image from your computer
+    4. It should upload successfully
+    5. You'll see it in the file browser
+    6. **Delete the test file** (click the 3 dots → Delete)
+  </Step>
+</Steps>
+
+---
+
+## Part 5: Get Firebase Configuration
+
+### iOS Configuration File
+
+Your `GoogleService-Info.plist` should already have everything needed, but verify:
+
+<Steps>
+  <Step title="Verify Configuration">
+    1. Go to **Project Settings** (gear icon in sidebar)
+    2. Scroll down to **"Your apps"** section
+    3. Find your iOS app
+    4. You should see:
+       - <Check>App ID</Check>
+       - <Check>Storage Bucket (e.g., `swiftinspect-4b885.appspot.com`)</Check>
+       - <Check>Database URL (may be empty, that's OK)</Check>
+  </Step>
+
+  <Step title="Re-download if Needed">
+    If you need to re-download:
+    1. Click iOS app
+    2. Scroll down to **"Your apps"**
+    3. Click **"Download GoogleService-Info.plist"**
+    4. Replace the old file in your Xcode project
+  </Step>
+</Steps>
+
+### Android Configuration File
+
+If you're also building Android:
+
+1. Same steps as iOS
+2. Find your Android app
+3. Download **"google-services.json"**
+4. Place in `android/app/` directory
+
+---
+
+## Part 6: Check Firebase Quotas
+
+### Free Tier Limits (Spark Plan)
+
+<CardGroup cols={2}>
+  <Card title="Firestore" icon="database">
+    - 50,000 document reads/day
+    - 20,000 document writes/day
+    - 20,000 document deletes/day
+    - 1 GB stored data
+    - 10 GB/month network egress
+  </Card>
+
+  <Card title="Storage" icon="folder">
+    - 5 GB stored data
+    - 1 GB/day downloads
+    - 20,000 file uploads/day
+  </Card>
+</CardGroup>
+
+### Should You Upgrade to Blaze (Pay-as-you-go)?
+
+<Tip>**Recommendation:** Start with **Free Tier (Spark)**</Tip>
+
+**Upgrade to Blaze when:**
+- You have 20+ active users
+- Exceeding free tier limits
+- Need more storage space
+- Want to avoid quota errors
+
+**Cost estimate (Blaze plan):**
+- $0.06 per 100K document reads
+- $0.18 per 100K document writes
+- $0.18/GB storage
+- Typically **$10-30/month** for 100 users
+
+---
+
+## Part 7: Enable Monitoring (Optional)
+
+### Set Up Usage Alerts
+
+<Steps>
+  <Step title="Configure Alerts">
+    1. Go to **Project Settings** → **Usage and billing** tab
+    2. Click **"Set up budget alert"**
+    3. Set threshold: 80% of free tier
+    4. Add your email
+    5. Click **"Save"**
+
+    <Info>Now you'll get notified if approaching limits!</Info>
+  </Step>
+</Steps>
+
+---
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title='"Permission denied" errors'>
+    **Cause:** Security rules not set correctly
+
+    **Fix:**
+    1. Go to Firestore → Rules tab
+    2. Verify rules match the ones above
+    3. Make sure you published them
+    4. Check that `request.auth != null` exists
+  </Accordion>
+
+  <Accordion title='"Storage bucket not found"'>
+    **Cause:** Storage not enabled or misconfigured
+
+    **Fix:**
+    1. Go to Storage section
+    2. Verify storage is enabled
+    3. Check that bucket name appears in Firebase console
+    4. Verify `GoogleService-Info.plist` has `STORAGE_BUCKET` key
+  </Accordion>
+
+  <Accordion title='"Index required" error'>
+    **Cause:** Firestore needs a composite index
+
+    **Fix:**
+    1. Error message will contain a link to create the index
+    2. Click the link (it auto-fills the index form)
+    3. Click "Create"
+    4. Wait for index to build (~2 minutes)
+  </Accordion>
+
+  <Accordion title='"Quota exceeded" error'>
+    **Cause:** Exceeded free tier limits
+
+    **Fix:**
+    1. Check usage in Firebase Console → Usage tab
+    2. Either wait 24 hours (limits reset daily)
+    3. Or upgrade to Blaze plan
+  </Accordion>
+</AccordionGroup>
+
+---
+
+## Verification Checklist
+
+Before proceeding to code implementation, verify:
+
+<Accordion title="Click to expand checklist">
+  - [ ] Firestore Database created
+  - [ ] Firestore security rules published
+  - [ ] Firebase Storage enabled
+  - [ ] Storage security rules published
+  - [ ] Indexes created (or building)
+  - [ ] Test document created and deleted successfully
+  - [ ] Test file uploaded and deleted successfully
+  - [ ] `GoogleService-Info.plist` still in Xcode project
+  - [ ] Usage alerts set up (optional)
+  - [ ] Know your storage bucket name (e.g., `swiftinspect-4b885.appspot.com`)
+</Accordion>
+
+---
+
+## Next Steps
+
+Once everything above is complete, you're ready to proceed with implementation!
+
+<Card title="Ready to Code" icon="rocket">
+  **I can now:**
+  1. Create `SyncManager.swift`
+  2. Add Firestore sync logic
+  3. Add Storage upload/download
+  4. Build the sync UI
+</Card>
+
+---
+
+## Useful Firebase Console Links
+
+<CardGroup cols={2}>
+  <Card title="Firebase Console" icon="fire" href="https://console.firebase.google.com/">
+    Access your Firebase project dashboard
+  </Card>
+
+  <Card title="Firestore Rules Reference" icon="shield" href="https://firebase.google.com/docs/firestore/security/rules-conditions">
+    Learn about security rules
+  </Card>
+
+  <Card title="Storage Rules Reference" icon="lock" href="https://firebase.google.com/docs/storage/security/rules-conditions">
+    Storage security documentation
+  </Card>
+
+  <Card title="Pricing Calculator" icon="calculator" href="https://firebase.google.com/pricing">
+    Estimate your Firebase costs
+  </Card>
+</CardGroup>
+
+---
+
+## Security Notes
+
+### Current Rules Explanation
+
+**Firestore Rules:**
+```javascript
+// Only authenticated users can access data
+request.auth != null
+
+// Users can only access their own inspections
+request.auth.uid == resource.data.userId
+
+// File size limit (10MB per photo)
+request.resource.size < 10 * 1024 * 1024
+```
+
+**Why These Rules?**
+- <Check>**Security:** Users can't see other users' data</Check>
+- <Check>**Privacy:** Each user's data is isolated</Check>
+- <Check>**Cost Control:** 10MB limit prevents abuse</Check>
+- <Check>**Performance:** Read/write only what you need</Check>
+
+<Warning>
+**Never do this (insecure!):**
+```javascript
+// DON'T DO THIS - allows anyone to read/write
+allow read, write: if true;
+```
+</Warning>
+
+---
+
+<Check>**Setup complete! You're ready to implement cloud sync.**</Check>
+

@@ -1,0 +1,256 @@
+---
+title: Services & Pricing
+description: Manage inspection services and flexible pricing structures
+---
+
+# Services & Pricing
+
+Services define the types of inspections you offer, with flexible pricing based on property characteristics.
+
+## Overview
+
+Services allow you to:
+
+- Define inspection types (e.g., "Residential Home Inspection")
+- Set base pricing
+- Configure flexible fees based on property attributes
+- Track service usage and revenue
+- Link services to templates
+
+## Creating a Service
+
+### Basic Service Setup
+
+1. Navigate to **Settings → Services**
+2. Click **Create New Service**
+3. Enter service details:
+   - **Name**: Service name (e.g., "Residential Home Inspection")
+   - **Description**: Service description
+   - **Estimated Duration**: Inspection time in minutes
+   - **Base Price**: Starting price
+   - **Currency**: USD, CAD, etc.
+   - **Tax Rate**: Tax percentage (e.g., 13% for HST)
+   - **Tax Name**: Tax label (e.g., "HST", "GST+PST")
+
+### Service Fields
+
+```typescript
+interface Service {
+  id: string
+  userId: string
+  name: string
+  serviceDescription?: string
+  estimatedDuration: number  // Minutes
+  isActive: boolean
+  isDefault: boolean
+  basePrice: number
+  currency: string
+  taxRate: number           // Decimal (e.g., 0.13)
+  taxName: string
+  usageCount: number
+  totalRevenue: number
+  templateIds?: string[]
+  createdAt: Timestamp
+  updatedAt: Timestamp
+}
+```
+
+## Flexible Pricing
+
+HomeLens supports flexible pricing similar to TapInspect, with fees based on property characteristics.
+
+### Fee Types
+
+Available fee types:
+
+- **Property Size** - Square footage-based pricing
+- **Selling Price** - Price-based pricing
+- **Property Age** - Age-based pricing
+- **Travel Distance** - Distance-based pricing
+- **Hourly Rate** - Time-based pricing
+- **Additional Features** - Feature-based pricing
+- **Custom** - Custom calculation logic
+
+### Creating Fees
+
+1. Select a service
+2. Click **Add Fee**
+3. Choose fee type
+4. Configure calculation method:
+   - **Tiered** - Different prices for ranges
+   - **Flat** - Fixed additional amount
+   - **Percentage** - Percentage of base or property value
+
+### Fee Configuration
+
+```typescript
+interface Fee {
+  id: string
+  serviceId: string
+  feeType: 'property_size' | 'selling_price' | 'property_age' | 
+           'travel_distance' | 'hourly_rate' | 'additional_features' | 'custom'
+  feeName: string
+  calculationMethod: 'tiered' | 'flat' | 'percentage'
+  isEnabled: boolean
+  order: number
+}
+```
+
+### Fee Options (Tiers)
+
+For tiered fees, define ranges:
+
+```typescript
+interface FeeOption {
+  id: string
+  feeId: string
+  minValue: number
+  maxValue: number
+  feeAmount: number
+  optionLabel: string  // e.g., "0-2000 sqft"
+  order: number
+}
+```
+
+### Example: Property Size Fee
+
+Tiered pricing example:
+
+- **0-2000 sqft**: +$50
+- **2001-3000 sqft**: +$75
+- **3001-4000 sqft**: +$100
+- **4000+ sqft**: +$150
+
+## Price Calculation
+
+When creating an inspection, the system calculates the total price:
+
+1. **Base Price**: Service base price
+2. **Fee Calculation**: Apply enabled fees based on property characteristics
+3. **Tax Calculation**: Apply tax rate to subtotal
+4. **Total Price**: Final amount
+
+### Calculation Example
+
+```typescript
+// Base price
+let subtotal = service.basePrice  // $300
+
+// Property size fee (2500 sqft = tier 2001-3000)
+subtotal += 75  // $375
+
+// Travel distance fee (15 miles = $2/mile)
+subtotal += 30  // $405
+
+// Tax (13% HST)
+const tax = subtotal * 0.13  // $52.65
+
+// Total
+const total = subtotal + tax  // $457.65
+```
+
+## Service Management
+
+### Activating/Deactivating
+
+- Active services appear in inspection creation
+- Inactive services are hidden but retained for history
+
+### Default Service
+
+Set one service as default for quick inspection creation.
+
+### Template Association
+
+Link services to templates:
+
+1. Edit service
+2. Select associated templates
+3. Save
+
+### Usage Tracking
+
+Services track:
+- **usageCount**: Number of inspections using this service
+- **totalRevenue**: Sum of all inspection prices
+
+## API Examples
+
+### Get All Services
+
+```typescript
+import { getServices } from '@/lib/firebase/services'
+
+const services = await getServices(userId)
+```
+
+### Create Service
+
+```typescript
+import { createService } from '@/lib/firebase/services'
+
+const service = await createService({
+  userId,
+  name: 'Residential Home Inspection',
+  basePrice: 300,
+  currency: 'USD',
+  taxRate: 0.13,
+  taxName: 'HST',
+  estimatedDuration: 180,
+  isActive: true,
+})
+```
+
+### Add Fee to Service
+
+```typescript
+import { createFee } from '@/lib/firebase/fees'
+
+const fee = await createFee({
+  serviceId,
+  feeType: 'property_size',
+  feeName: 'Property Size Fee',
+  calculationMethod: 'tiered',
+  isEnabled: true,
+})
+```
+
+### Calculate Price
+
+```typescript
+import { calculateServicePrice } from '@/lib/utils/pricingCalculator'
+
+const price = await calculateServicePrice({
+  serviceId,
+  propertySize: 2500,
+  travelDistance: 15,
+  // ... other property attributes
+})
+```
+
+## Best Practices
+
+### Pricing Strategy
+
+- Set competitive base prices
+- Use tiered fees for scalability
+- Consider market rates for different property types
+
+### Fee Organization
+
+- Enable commonly used fees
+- Disable rarely used fees
+- Order fees logically
+
+### Service Naming
+
+- Use clear, descriptive names
+- Include service type (e.g., "Residential", "Commercial")
+- Consider client-facing names
+
+## Related Documentation
+
+- [Inspections](/docs/inspections) - Using services in inspections
+- [Invoices](/docs/invoices) - Service pricing in invoices
+- [API Reference](/docs/api-reference) - Service API endpoints
+

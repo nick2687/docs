@@ -1,122 +1,118 @@
 {
   "$schema": "https://mintlify.com/docs.json",
   "theme": "mint",
-  "name": "Mint Starter Kit",
+  "name": "HomeLens Web Documentation",
   "colors": {
-    "primary": "#16A34A",
-    "light": "#07C983",
-    "dark": "#15803D"
+    "primary": "#1E40AF",
+    "light": "#3B82F6",
+    "dark": "#1E3A8A"
   },
   "favicon": "/favicon.svg",
   "navigation": {
     "tabs": [
       {
-        "tab": "Guides",
+        "tab": "Web App",
         "groups": [
           {
-            "group": "Getting started",
+            "group": "Getting Started",
             "pages": [
-              "index",
-              "quickstart",
+              "introduction",
+              "getting-started",
+              "architecture"
+            ]
+          },
+          {
+            "group": "Core Features",
+            "pages": [
+              "dashboard",
+              "inspections",
+              "templates",
+              "services",
+              "calendar",
+              "contacts"
+            ]
+          },
+          {
+            "group": "Client Features",
+            "pages": [
+              "client-portal",
+              "widgets"
+            ]
+          },
+          {
+            "group": "Configuration",
+            "pages": [
+              "settings",
+              "integrations",
+              "authentication"
+            ]
+          },
+          {
+            "group": "Technical",
+            "pages": [
+              "firestore-structure",
+              "api-reference",
               "development"
             ]
           },
           {
-            "group": "Customization",
+            "group": "Web Test Plans",
             "pages": [
-              "essentials/settings",
-              "essentials/navigation"
-            ]
-          },
-          {
-            "group": "Writing content",
-            "pages": [
-              "essentials/markdown",
-              "essentials/code",
-              "essentials/images",
-              "essentials/reusable-snippets"
-            ]
-          },
-          {
-            "group": "AI tools",
-            "pages": [
-              "ai-tools/cursor",
-              "ai-tools/claude-code",
-              "ai-tools/windsurf"
-            ]
-          }
-        ]
-      },
-      {
-        "tab": "API reference",
-        "groups": [
-          {
-            "group": "API documentation",
-            "pages": [
-              "api-reference/introduction"
-            ]
-          },
-          {
-            "group": "Endpoint examples",
-            "pages": [
-              "api-reference/endpoint/get",
-              "api-reference/endpoint/create",
-              "api-reference/endpoint/delete",
-              "api-reference/endpoint/webhook"
+              "test-plans/TEST_PLAN_INDEX",
+              "test-plans/TEST_PLAN_OVERVIEW",
+              "test-plans/TEST_PLAN_AUTHENTICATION",
+              "test-plans/TEST_PLAN_INSPECTIONS",
+              "test-plans/TEST_PLAN_CALENDAR",
+              "test-plans/TEST_PLAN_CONTACTS",
+              "test-plans/TEST_PLAN_SERVICES",
+              "test-plans/TEST_PLAN_COMMUNICATIONS",
+              "test-plans/TEST_PLAN_TEMPLATES",
+              "test-plans/TEST_PLAN_PORTAL",
+              "test-plans/TEST_PLAN_WIDGET",
+              "test-plans/TEST_PLAN_SETTINGS",
+              "test-plans/TEST_PLAN_AUTOMATED"
             ]
           }
         ]
       }
     ],
     "global": {
-      "anchors": [
-        {
-          "anchor": "Documentation",
-          "href": "https://mintlify.com/docs",
-          "icon": "book-open-cover"
-        },
-        {
-          "anchor": "Blog",
-          "href": "https://mintlify.com/blog",
-          "icon": "newspaper"
-        }
-      ]
+      "anchors": []
     }
   },
   "logo": {
-    "light": "/logo/light.svg",
-    "dark": "/logo/dark.svg"
+    "light": "/logo/light.svg"
   },
   "navbar": {
     "links": [
       {
-        "label": "Support",
-        "href": "mailto:hi@mintlify.com"
+        "label": "GitHub",
+        "href": "https://github.com/yourorg/swiftinspect"
       }
     ],
     "primary": {
       "type": "button",
       "label": "Dashboard",
-      "href": "https://dashboard.mintlify.com"
+      "href": "https://app.swiftinspect.com"
     }
   },
   "contextual": {
     "options": [
-     "copy",
-     "view",
-     "chatgpt",
-     "claude",
-     "perplexity",
-     "mcp",
-     "cursor",
-     "vscode"
-   ]
+      "copy",
+      "view",
+      "chatgpt",
+      "claude",
+      "perplexity",
+      "mcp",
+      "cursor",
+      "vscode"
+    ]
   },
   "footer": {
     "socials": {
-      "x": "https://x.com/mintlify",
-      "github": "https://github.com/mintlify",
-      "linkedin": "https://linkedin.com/company/mintlify"
+      "x": "https://twitter.com/swiftinspect",
+      "github": "https://github.com/yourorg/swiftinspect",
+      "linkedin": "https://linkedin.com/company/swiftinspect"
     }
   }
 }

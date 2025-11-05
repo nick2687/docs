@@ -1,0 +1,385 @@
+---
+title: Contacts (CRM)
+description: Manage clients, agents, and contractors with CRM features
+---
+
+# Contacts (CRM)
+
+The contact management system provides CRM-style functionality for organizing clients, agents, and contractors.
+
+## Overview
+
+Contact management includes:
+
+- Client, agent, and contractor management
+- Contact tagging and organization
+- Communication history
+- Related inspections
+- Bulk operations
+- Import/export
+- Duplicate detection
+
+## Contact Types
+
+### Client
+
+Clients are the end customers for inspections:
+
+- Name and contact information
+- Property addresses
+- Payment preferences
+- Inspection history
+
+### Agent
+
+Real estate agents:
+
+- Agency information
+- License number
+- Referral tracking
+- Preferred contact method
+
+### Contractor
+
+Service contractors:
+
+- Company name
+- Service types
+- Availability
+- Contact preferences
+
+## Creating Contacts
+
+### Manual Entry
+
+1. Navigate to **Contacts**
+2. Click **Add Contact**
+3. Select contact type
+4. Fill in information:
+   - Name
+   - Email
+   - Phone
+   - Company (for agents/contractors)
+   - Address
+   - Notes
+5. Add tags (optional)
+6. Save
+
+### Contact Fields
+
+```typescript
+interface Contact {
+  id: string
+  userId: string
+  contactType: 'client' | 'agent' | 'contractor'
+  firstName: string
+  lastName: string
+  email?: string
+  phone?: string
+  company?: string
+  address?: string
+  notes?: string
+  tags: string[]
+  createdAt: Timestamp
+  updatedAt: Timestamp
+  lastContactedAt?: Timestamp
+}
+```
+
+## Contact Management
+
+### Contact List
+
+View all contacts with:
+
+- Contact type badges
+- Contact information
+- Tags
+- Last contacted date
+- Quick actions
+
+### Filters
+
+Filter contacts by:
+
+- **Type**: Client, Agent, Contractor
+- **Tags**: One or more tags
+- **Search**: Name, email, phone, company
+- **Date Range**: Last contacted date
+
+### Sorting
+
+Sort by:
+
+- Name (A-Z, Z-A)
+- Last contacted (recent first)
+- Created date
+- Company
+
+## Tags
+
+### Creating Tags
+
+Tags help organize contacts:
+
+1. Select contact(s)
+2. Click **Add Tags**
+3. Enter tag name or select existing
+4. Save
+
+### Common Tags
+
+- VIP
+- Repeat Client
+- Investor
+- Referral Source
+- Preferred Contact
+- Do Not Contact
+
+### Tag Management
+
+- View contacts by tag
+- Remove tags from contacts
+- Bulk tag operations
+
+## Communication History
+
+### Logging Communications
+
+Log interactions with contacts:
+
+1. Open contact
+2. Click **Log Activity**
+3. Select communication type:
+   - Email
+   - Phone call
+   - Meeting
+   - Note
+4. Add details
+5. Save
+
+### Communication Types
+
+- **Email**: Email sent/received
+- **Phone**: Phone call
+- **Meeting**: In-person meeting
+- **Note**: General note
+
+### Viewing History
+
+See all communications:
+
+- Chronological list
+- Filter by type
+- Search by content
+
+## Related Inspections
+
+### Linking Contacts
+
+Link contacts to inspections:
+
+1. Create/edit inspection
+2. Select contact from picker
+3. Contact information auto-fills
+4. Inspection linked to contact
+
+### Viewing Related Inspections
+
+From contact detail:
+
+- See all inspections for contact
+- Filter by status
+- Quick navigation to inspections
+
+## Bulk Operations
+
+### Bulk Actions
+
+Perform actions on multiple contacts:
+
+1. Select contacts (checkbox)
+2. Choose action:
+   - Add tags
+   - Remove tags
+   - Export
+   - Delete
+3. Confirm
+
+### Bulk Tagging
+
+Add or remove tags from multiple contacts at once.
+
+### Bulk Export
+
+Export selected contacts to CSV.
+
+## Import/Export
+
+### Importing Contacts
+
+Import contacts from CSV:
+
+1. Click **Import Contacts**
+2. Upload CSV file
+3. Map columns:
+   - First Name
+   - Last Name
+   - Email
+   - Phone
+   - Company
+   - Type
+   - Tags
+4. Preview import
+5. Confirm
+
+### CSV Format
+
+```csv
+First Name,Last Name,Email,Phone,Company,Type,Tags
+John,Doe,john@example.com,555-0100,ABC Realty,agent,"VIP,Referral"
+Jane,Smith,jane@example.com,555-0101,,client,Repeat Client
+```
+
+### Exporting Contacts
+
+Export contacts to CSV:
+
+1. Apply filters (optional)
+2. Click **Export Contacts**
+3. Select fields to export
+4. Download CSV
+
+## Duplicate Detection
+
+### Automatic Detection
+
+System detects potential duplicates:
+
+- Same email address
+- Same phone number
+- Similar name and company
+
+### Merge Duplicates
+
+Merge duplicate contacts:
+
+1. View duplicate suggestions
+2. Select contacts to merge
+3. Choose primary contact
+4. Review merged data
+5. Confirm merge
+
+### Merge Strategy
+
+- Keep primary contact as base
+- Merge contact information
+- Combine inspection history
+- Preserve tags from both
+
+## Advanced Filters
+
+### Filter Panel
+
+Advanced filtering options:
+
+- **Contact Type**: Multiple types
+- **Tags**: Multiple tags (AND/OR)
+- **Has Email**: Yes/No
+- **Has Phone**: Yes/No
+- **Last Contacted**: Date range
+- **Created**: Date range
+
+### Saved Filters
+
+Save frequently used filters:
+
+1. Configure filters
+2. Click **Save Filter**
+3. Name the filter
+4. Access from filter dropdown
+
+## Contact Picker
+
+### Using in Forms
+
+Select contacts in inspection forms:
+
+```typescript
+<ContactPicker
+  contactType="client"
+  onSelect={(contact) => {
+    // Handle selection
+  }}
+/>
+```
+
+### Search
+
+- Search by name
+- Search by email
+- Search by phone
+- Search by company
+
+## API Examples
+
+### Get Contacts
+
+```typescript
+import { getContacts } from '@/lib/firebase/contacts'
+
+const contacts = await getContacts(userId, {
+  contactType: 'client',
+  tags: ['VIP'],
+})
+```
+
+### Create Contact
+
+```typescript
+import { createContact } from '@/lib/firebase/contacts'
+
+const contact = await createContact({
+  userId,
+  contactType: 'client',
+  firstName: 'John',
+  lastName: 'Doe',
+  email: 'john@example.com',
+  tags: ['VIP'],
+})
+```
+
+### Merge Contacts
+
+```typescript
+import { mergeContacts } from '@/lib/firebase/contactMerge'
+
+await mergeContacts(primaryContactId, duplicateContactId)
+```
+
+## Best Practices
+
+### Organization
+
+- Use consistent naming
+- Add tags for easy filtering
+- Keep contact information updated
+
+### Communication
+
+- Log all interactions
+- Track preferred contact method
+- Follow up on scheduled dates
+
+### Data Quality
+
+- Regularly check for duplicates
+- Validate email addresses
+- Keep phone numbers current
+
+## Related Documentation
+
+- [Inspections](/docs/inspections) - Linking contacts to inspections
+- [Communication Templates](/docs/communication-templates) - Email/SMS templates
+- [API Reference](/docs/api-reference) - Contact API endpoints
+

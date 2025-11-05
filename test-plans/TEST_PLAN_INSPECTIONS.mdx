@@ -1,0 +1,900 @@
+---
+title: "Test Plan: Inspection Management"
+description: "Test plan for inspection management and workflows"
+---
+
+# Test Plan: Inspection Management
+
+**Feature Area**: Inspection Management  
+**Related Files**: `web/app/dashboard/inspections/*`, `web/lib/firebase/inspections.ts`, `web/components/inspections/*`
+
+---
+
+## Feature Overview
+
+The inspection management system allows users to create, view, edit, and manage home inspections. Features include multi-step inspection creation, status management, service selection with pricing, client information, property details, scheduling, and inspection lifecycle tracking.
+
+---
+
+## Test Cases
+
+### TC-INSP-001: Create New Inspection (Complete Flow)
+
+**Priority**: High  
+**Type**: Functional
+
+**Preconditions**:
+- User is logged in
+- At least one service exists in system
+- At least one contact exists
+
+**Test Steps**:
+1. Navigate to `/dashboard/inspections/new`
+2. **Step 1 - Service Selection**:
+   - Select a service from dropdown
+   - Verify price auto-calculates
+   - View pricing breakdown
+3. **Step 2 - Property Details**:
+   - Enter property address
+   - Enter square footage
+   - Enter year built
+   - Add property notes
+4. **Step 3 - Schedule**:
+   - Select inspection date
+   - Select time slot
+   - Set duration
+5. **Step 4 - Client Information**:
+   - Select existing contact OR create new
+   - Enter client email
+   - Enter client phone
+6. Review summary
+7. Click "Create Inspection"
+
+**Expected Result**:
+- Inspection created in Firestore
+- Unique inspection ID generated
+- Status set to "Scheduled"
+- Service data saved with inspection
+- Pricing breakdown saved
+- Calendar event created (if calendar sync enabled)
+- Redirected to inspection detail page
+- Success message displayed
+
+**Priority**: High
+
+---
+
+### TC-INSP-002: Quick Add Inspection from Calendar
+
+**Priority**: High  
+**Type**: Functional
+
+**Preconditions**:
+- User is logged in
+- User on calendar page
+
+**Test Steps**:
+1. Navigate to `/dashboard/calendar`
+2. Click on a date in calendar
+3. Click "Quick Add" button
+4. Fill in quick add form:
+   - Property address
+   - Service selection
+   - Time
+   - Client name
+5. Click "Create"
+
+**Expected Result**:
+- Inspection created with minimal information
+- Appears on calendar immediately
+- Can be edited later for full details
+- Status set to "Scheduled"
+- Real-time update on calendar view
+
+**Priority**: High
+
+---
+
+### TC-INSP-003: View Inspection List
+
+**Priority**: High  
+**Type**: Functional
+
+**Preconditions**:
+- User is logged in
+- Multiple inspections exist in system
+
+**Test Steps**:
+1. Navigate to `/dashboard/inspections`
+2. View inspection list/table
+
+**Expected Result**:
+- All user's inspections displayed
+- Table shows: Property Address, Date, Status, Client, Service, Price
+- Inspections sorted by date (newest first)
+- Pagination works if &gt;20 inspections
+- Loading state shown while fetching data
+
+**Priority**: High
+
+---
+
+### TC-INSP-004: View Inspection Details
+
+**Priority**: High  
+**Type**: Functional
+
+**Preconditions**:
+- User is logged in
+- Inspection exists
+
+**Test Steps**:
+1. Navigate to `/dashboard/inspections`
+2. Click on an inspection row
+3. View inspection detail page
+
+**Expected Result**:
+- All inspection details displayed:
+  - Property information
+  - Client information
+  - Schedule details
+  - Service and pricing
+  - Status and timeline
+  - Notes
+- Action buttons available: Edit, Delete, Change Status
+- Status timeline shows history
+
+**Priority**: High
+
+---
+
+### TC-INSP-005: Edit Inspection
+
+**Priority**: High  
+**Type**: Functional
+
+**Preconditions**:
+- User is logged in
+- Inspection exists
+
+**Test Steps**:
+1. Navigate to inspection detail page
+2. Click "Edit" button
+3. Modify property address
+4. Modify scheduled date/time
+5. Change service selection
+6. Update client information
+7. Click "Save Changes"
+
+**Expected Result**:
+- All changes saved to Firestore
+- `updatedAt` timestamp updated
+- Calendar event updated (if applicable)
+- Service usage statistics updated
+- Success message displayed
+- Changes reflected immediately
+
+**Priority**: High
+
+---
+
+### TC-INSP-006: Delete Inspection
+
+**Priority**: High  
+**Type**: Functional
+
+**Preconditions**:
+- User is logged in
+- Inspection exists
+
+**Test Steps**:
+1. Navigate to inspection detail page
+2. Click "Delete" button
+3. Confirm deletion in modal
+
+**Expected Result**:
+- Confirmation modal appears
+- After confirmation:
+  - Inspection deleted from Firestore
+  - Calendar event deleted (if applicable)
+  - Service usage statistics decremented
+  - Redirected to inspections list
+  - Success message displayed
+  - Inspection no longer appears in list
+
+**Priority**: High
+
+---
+
+### TC-INSP-007: Change Inspection Status
+
+**Priority**: High  
+**Type**: Functional
+
+**Preconditions**:
+- User is logged in
+- Inspection exists with status "Scheduled"
+
+**Test Steps**:
+1. Navigate to inspection detail page
+2. Click "Change Status" button
+3. Select "In Progress" from dropdown
+4. Add optional status note
+5. Click "Update Status"
+
+**Expected Result**:
+- Status updated to "In Progress"
+- Status change logged in timeline
+- Timestamp recorded
+- Optional note saved
+- Status badge color changes
+- Real-time update across all views
+
+**Priority**: High
+
+---
+
+### TC-INSP-008: Status Workflow (Complete Lifecycle)
+
+**Priority**: High  
+**Type**: Functional
+
+**Preconditions**:
+- User is logged in
+- New inspection created
+
+**Test Steps**:
+1. Create inspection (status: "Scheduled")
+2. Change status to "In Progress"
+3. Change status to "Completed"
+4. Verify cannot change back to "Scheduled"
+
+**Expected Result**:
+- Status transitions follow logical workflow
+- Timeline shows all status changes
+- Each change has timestamp
+- Status cannot be reverted to earlier states
+- Completed inspections marked clearly
+
+**Priority**: High
+
+---
+
+### TC-INSP-009: Service Selection and Pricing
+
+**Priority**: High  
+**Type**: Functional
+
+**Preconditions**:
+- User is logged in
+- Multiple services with different pricing exist
+
+**Test Steps**:
+1. Start creating new inspection
+2. Select Service A (e.g., $400 base price)
+3. View pricing breakdown
+4. Change to Service B (e.g., $600 base price)
+5. View updated pricing breakdown
+6. Complete inspection creation
+
+**Expected Result**:
+- Price updates immediately when service changes
+- Breakdown shows:
+  - Base price
+  - Fee items (property size, distance, age)
+  - Subtotal
+  - Tax
+  - Total
+- Correct service data saved with inspection
+- Service usage count increments
+
+**Priority**: High
+
+---
+
+### TC-INSP-010: Filter Inspections by Status
+
+**Priority**: Medium  
+**Type**: Functional
+
+**Preconditions**:
+- User is logged in
+- Inspections with various statuses exist
+
+**Test Steps**:
+1. Navigate to `/dashboard/inspections`
+2. Click "Status" filter dropdown
+3. Select "Scheduled"
+4. View filtered results
+5. Select "Completed"
+6. View filtered results
+7. Select "All"
+
+**Expected Result**:
+- Only inspections matching selected status shown
+- Filter persists during session
+- Count of filtered results displayed
+- Can clear filter to show all
+- Filter works with search and sort
+
+**Priority**: Medium
+
+---
+
+### TC-INSP-011: Search Inspections
+
+**Priority**: Medium  
+**Type**: Functional
+
+**Preconditions**:
+- User is logged in
+- Multiple inspections exist
+
+**Test Steps**:
+1. Navigate to `/dashboard/inspections`
+2. Enter property address in search box
+3. View filtered results
+4. Clear search
+5. Search by client name
+6. View filtered results
+
+**Expected Result**:
+- Search filters inspections in real-time
+- Searches across: property address, client name, service name
+- Case-insensitive search
+- Results update as user types
+- Clear button resets search
+
+**Priority**: Medium
+
+---
+
+### TC-INSP-012: Sort Inspections
+
+**Priority**: Medium  
+**Type**: Functional
+
+**Preconditions**:
+- User is logged in
+- Multiple inspections exist
+
+**Test Steps**:
+1. Navigate to `/dashboard/inspections`
+2. Click "Date" column header
+3. Verify sort order (ascending)
+4. Click "Date" again
+5. Verify sort order (descending)
+6. Click "Price" column header
+7. Verify sort by price
+
+**Expected Result**:
+- Clicking column header sorts by that column
+- Toggle between ascending/descending
+- Sort indicator (arrow) shows current sort
+- Sort persists during session
+- Works with filters and search
+
+**Priority**: Medium
+
+---
+
+### TC-INSP-013: Inspection with No Service Selected
+
+**Priority**: Medium  
+**Type**: Functional
+
+**Preconditions**:
+- User is logged in
+
+**Test Steps**:
+1. Start creating new inspection
+2. Skip service selection (leave as "None")
+3. Manually enter price
+4. Complete inspection creation
+
+**Expected Result**:
+- Inspection created without service link
+- Manual price saved
+- No service usage incremented
+- Pricing breakdown shows manual entry
+- Can edit and add service later
+
+**Priority**: Medium
+
+---
+
+### TC-INSP-014: Duplicate Inspection
+
+**Priority**: Low  
+**Type**: Functional
+
+**Preconditions**:
+- User is logged in
+- Inspection exists
+
+**Test Steps**:
+1. Navigate to inspection detail page
+2. Click "Duplicate" button (if available)
+3. Modify duplicated inspection details
+4. Save new inspection
+
+**Expected Result**:
+- New inspection created with same details
+- New unique ID generated
+- Status reset to "Scheduled"
+- Date/time cleared or set to today
+- Original inspection unchanged
+
+**Priority**: Low
+
+---
+
+### TC-INSP-015: Add Notes to Inspection
+
+**Priority**: Medium  
+**Type**: Functional
+
+**Preconditions**:
+- User is logged in
+- Inspection exists
+
+**Test Steps**:
+1. Navigate to inspection detail page
+2. Scroll to Notes section
+3. Click "Add Note" button
+4. Enter note text
+5. Click "Save Note"
+
+**Expected Result**:
+- Note saved to inspection
+- Timestamp recorded
+- Note appears in notes list
+- Can edit or delete note later
+- Notes displayed chronologically
+
+**Priority**: Medium
+
+---
+
+### TC-INSP-016: Inspection Statistics on Dashboard
+
+**Priority**: Medium  
+**Type**: Functional
+
+**Preconditions**:
+- User is logged in
+- Multiple inspections exist
+
+**Test Steps**:
+1. Navigate to `/dashboard`
+2. View statistics cards
+
+**Expected Result**:
+- Total inspections count displayed
+- This month count displayed
+- Pending reports count displayed
+- Statistics accurate and real-time
+- Clicking stat card navigates to filtered view
+
+**Priority**: Medium
+
+---
+
+### TC-INSP-017: Recent Inspections on Dashboard
+
+**Priority**: Medium  
+**Type**: Functional
+
+**Preconditions**:
+- User is logged in
+- Inspections exist
+
+**Test Steps**:
+1. Navigate to `/dashboard`
+2. View "Recent Inspections" section
+
+**Expected Result**:
+- Shows 3-5 most recent inspections
+- Displays: address, date, status
+- Clicking inspection navigates to detail page
+- "View all" link goes to inspections list
+- Updates in real-time
+
+**Priority**: Medium
+
+---
+
+### TC-INSP-018: Validation - Required Fields
+
+**Priority**: High  
+**Type**: Validation
+
+**Preconditions**:
+- User is logged in
+
+**Test Steps**:
+1. Start creating new inspection
+2. Leave property address empty
+3. Attempt to proceed to next step
+4. Leave scheduled date empty
+5. Attempt to complete inspection
+
+**Expected Result**:
+- Cannot proceed without required fields
+- Clear error messages displayed
+- Required fields highlighted in red
+- Form submission blocked
+- User guided to complete required fields
+
+**Priority**: High
+
+---
+
+### TC-INSP-019: Validation - Date in Past
+
+**Priority**: Medium  
+**Type**: Validation
+
+**Preconditions**:
+- User is logged in
+
+**Test Steps**:
+1. Start creating new inspection
+2. Select date in the past
+3. Attempt to save inspection
+
+**Expected Result**:
+- Warning message displayed (past dates may be allowed for historical data)
+- OR error if past dates not allowed
+- User can override warning if intentional
+- Clear indication of past date
+
+**Priority**: Medium
+
+---
+
+### TC-INSP-020: Validation - Property Address Format
+
+**Priority**: Low  
+**Type**: Validation
+
+**Preconditions**:
+- User is logged in
+
+**Test Steps**:
+1. Start creating new inspection
+2. Enter invalid address format
+3. Test address autocomplete (if implemented)
+
+**Expected Result**:
+- Address autocomplete suggests valid addresses
+- Can enter manual address if autocomplete fails
+- Basic format validation (not empty)
+- Address saved as entered
+
+**Priority**: Low
+
+---
+
+## Integration Test Cases
+
+### TC-INSP-INT-001: Inspection to Calendar Sync
+
+**Priority**: High  
+**Type**: Integration
+
+**Preconditions**:
+- User is logged in
+- Calendar sync enabled
+
+**Test Steps**:
+1. Create new inspection with scheduled date
+2. Navigate to calendar view
+3. Verify inspection appears on calendar
+4. Edit inspection date
+5. Verify calendar updates
+
+**Expected Result**:
+- Inspection appears on calendar at correct date/time
+- Real-time sync between inspections and calendar
+- Editing inspection updates calendar
+- Deleting inspection removes from calendar
+
+**Priority**: High
+
+---
+
+### TC-INSP-INT-002: Inspection to Contact Linking
+
+**Priority**: High  
+**Type**: Integration
+
+**Preconditions**:
+- User is logged in
+- Contacts exist
+
+**Test Steps**:
+1. Create inspection and select existing contact
+2. Navigate to contact detail page
+3. View "Related Inspections" section
+4. Verify inspection appears in contact's history
+
+**Expected Result**:
+- Inspection linked to contact
+- Contact's inspection history updated
+- Last contacted date updated
+- Can navigate from contact to inspection
+
+**Priority**: High
+
+---
+
+### TC-INSP-INT-003: Inspection to Service Usage Tracking
+
+**Priority**: High  
+**Type**: Integration
+
+**Preconditions**:
+- User is logged in
+- Service exists with known usage count
+
+**Test Steps**:
+1. Note current service usage count
+2. Create inspection with that service
+3. Navigate to services page
+4. Verify usage count incremented
+5. Delete inspection
+6. Verify usage count decremented
+
+**Expected Result**:
+- Creating inspection increments service usage
+- Deleting inspection decrements service usage
+- Revenue totals updated correctly
+- Average price recalculated
+- Real-time updates across all views
+
+**Priority**: High
+
+---
+
+## API/Backend Test Cases
+
+### TC-INSP-API-001: Create Inspection API
+
+**Priority**: High  
+**Type**: API
+
+**Test Steps**:
+1. Call `createInspection()` with valid data
+2. Verify Firestore document created
+3. Check all fields saved correctly
+4. Verify timestamps set
+
+**Expected Result**:
+- Document created in `/inspections` collection
+- Unique ID generated
+- All fields match input data
+- `createdAt` and `updatedAt` timestamps set
+- User ID correctly associated
+
+**Priority**: High
+
+---
+
+### TC-INSP-API-002: Update Inspection API
+
+**Priority**: High  
+**Type**: API
+
+**Test Steps**:
+1. Call `updateInspection()` with changes
+2. Verify Firestore document updated
+3. Check `updatedAt` timestamp changed
+4. Verify only specified fields changed
+
+**Expected Result**:
+- Document updated in Firestore
+- Only modified fields changed
+- `updatedAt` timestamp updated
+- `createdAt` timestamp unchanged
+- Changes reflected immediately
+
+**Priority**: High
+
+---
+
+### TC-INSP-API-003: Delete Inspection API
+
+**Priority**: High  
+**Type**: API
+
+**Test Steps**:
+1. Call `deleteInspection()` with inspection ID
+2. Verify document deleted from Firestore
+3. Verify related data cleaned up
+
+**Expected Result**:
+- Document removed from `/inspections` collection
+- Related calendar events deleted
+- Service usage decremented
+- No orphaned data
+
+**Priority**: High
+
+---
+
+### TC-INSP-API-004: Query Inspections by User
+
+**Priority**: High  
+**Type**: API, Security
+
+**Test Steps**:
+1. Log in as User A
+2. Query inspections
+3. Verify only User A's inspections returned
+4. Attempt to access User B's inspection directly
+
+**Expected Result**:
+- Only authenticated user's inspections returned
+- Cannot access other users' inspections
+- Firestore security rules enforced
+- Query filtered by `userId`
+
+**Priority**: High
+
+---
+
+### TC-INSP-API-005: Real-Time Inspection Updates
+
+**Priority**: Medium  
+**Type**: API
+
+**Test Steps**:
+1. Subscribe to inspections collection
+2. Create new inspection in another tab
+3. Verify subscription receives update
+4. Update inspection
+5. Verify subscription receives update
+
+**Expected Result**:
+- Real-time listener receives all changes
+- New inspections appear immediately
+- Updates reflect immediately
+- Deletions remove immediately
+- No polling required
+
+**Priority**: Medium
+
+---
+
+## Performance Test Cases
+
+### TC-INSP-PERF-001: Load Inspections List Performance
+
+**Priority**: Medium  
+**Type**: Performance
+
+**Test Steps**:
+1. Create 100+ inspections
+2. Navigate to inspections list
+3. Measure load time
+
+**Expected Result**:
+- Page loads in &lt;3 seconds
+- Pagination implemented for large datasets
+- Smooth scrolling
+- No UI freezing
+
+**Priority**: Medium
+
+---
+
+### TC-INSP-PERF-002: Inspection Creation Performance
+
+**Priority**: Medium  
+**Type**: Performance
+
+**Test Steps**:
+1. Measure time to create inspection
+2. Test with and without service selection
+3. Test with large property notes
+
+**Expected Result**:
+- Inspection created in &lt;2 seconds
+- No blocking UI during save
+- Success feedback immediate
+- Background operations don't delay UI
+
+**Priority**: Medium
+
+---
+
+### TC-INSP-PERF-003: Concurrent Inspection Operations
+
+**Priority**: Low  
+**Type**: Performance
+
+**Test Steps**:
+1. Open app in multiple tabs
+2. Create/edit inspections simultaneously
+3. Verify no conflicts or data loss
+
+**Expected Result**:
+- All operations succeed
+- No race conditions
+- Data consistency maintained
+- Real-time sync works correctly
+
+**Priority**: Low
+
+---
+
+## Mobile Test Cases
+
+### TC-INSP-MOBILE-001: Create Inspection on Mobile
+
+**Priority**: High  
+**Type**: Mobile
+
+**Test Steps**:
+1. Open app on mobile device
+2. Navigate to create inspection
+3. Complete multi-step form on mobile
+4. Submit inspection
+
+**Expected Result**:
+- Form optimized for mobile
+- Steps easy to navigate on small screen
+- Date/time pickers mobile-friendly
+- Keyboard doesn't obscure inputs
+- Smooth mobile experience
+
+**Priority**: High
+
+---
+
+### TC-INSP-MOBILE-002: View Inspections on Mobile
+
+**Priority**: High  
+**Type**: Mobile
+
+**Test Steps**:
+1. Open app on mobile device
+2. Navigate to inspections list
+3. View inspection details
+
+**Expected Result**:
+- Table converts to cards on mobile
+- All information accessible
+- Touch targets appropriately sized
+- Scrolling smooth
+- Responsive design works well
+
+**Priority**: High
+
+---
+
+## Summary
+
+**Total Test Cases**: 35  
+**High Priority**: 20  
+**Medium Priority**: 13  
+**Low Priority**: 2
+
+**Coverage Areas**:
+- [OK] CRUD Operations (Create, Read, Update, Delete)
+- [OK] Multi-step Inspection Creation
+- [OK] Quick Add from Calendar
+- [OK] Status Management
+- [OK] Service Selection and Pricing
+- [OK] Filtering, Searching, Sorting
+- [OK] Validation
+- [OK] Integration (Calendar, Contacts, Services)
+- [OK] API/Backend
+- [OK] Performance
+- [OK] Mobile
+
+**Estimated Testing Time**: 12-15 hours for complete execution
+
+
+

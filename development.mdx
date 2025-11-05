@@ -1,94 +1,332 @@
 ---
-title: 'Development'
-description: 'Preview changes locally to update your docs'
+title: Development Guide
+description: Guide for contributing to HomeLens Web
 ---
 
-<Info>
-  **Prerequisites**:
-  - Node.js version 19 or higher
-  - A docs repository with a `docs.json` file
-</Info>
+# Development Guide
 
-Follow these steps to install and run Mintlify on your operating system.
+This guide covers development setup, coding standards, and contribution guidelines for HomeLens Web.
 
-<Steps>
-<Step title="Install the Mintlify CLI">
+## Development Setup
 
-```bash
-npm i -g mint
+### Prerequisites
+
+- Node.js 18+
+- npm, yarn, or pnpm
+- Firebase project
+- Git
+
+### Initial Setup
+
+1. Clone repository
+2. Install dependencies: `npm install`
+3. Configure environment variables (see [Getting Started](/docs/getting-started))
+4. Run development server: `npm run dev`
+
+## Code Structure
+
+### Directory Organization
+
 ```
-</Step>
-
-<Step title="Preview locally">
-
-Navigate to your docs directory where your `docs.json` file is located, and run the following command:
-
-```bash
-mint dev
-```
-
-A local preview of your documentation will be available at `http://localhost:3000`.
-
-</Step>
-</Steps>
-
-## Custom ports
-
-By default, Mintlify uses port 3000. You can customize the port Mintlify runs on by using the `--port` flag. For example, to run Mintlify on port 3333, use this command:
-
-```bash
-mint dev --port 3333
+web/
+├── app/              # Next.js App Router
+├── components/       # React components
+├── lib/             # Utilities and configurations
+├── types/           # TypeScript definitions
+└── public/          # Static assets
 ```
 
-If you attempt to run Mintlify on a port that's already in use, it will use the next available port:
+### Naming Conventions
 
-```md
-Port 3000 is already in use. Trying 3001 instead.
-```
+- **Files**: `kebab-case.tsx` for components, `camelCase.ts` for utilities
+- **Components**: `PascalCase` (e.g., `InspectionCard.tsx`)
+- **Functions**: `camelCase` (e.g., `getInspections`)
+- **Constants**: `UPPER_SNAKE_CASE` (e.g., `MAX_FILE_SIZE`)
 
-## Mintlify versions
+### TypeScript
 
-Please note that each CLI release is associated with a specific version of Mintlify. If your local preview does not align with the production version, please update the CLI:
+- Use TypeScript for all new code
+- Define types in `types/` directory
+- Avoid `any` type
+- Use proper interfaces for data structures
 
-```bash
-npm mint update
-```
+## Component Guidelines
 
-## Validating links
+### React Components
 
-The CLI can assist with validating links in your documentation. To identify any broken links, use the following command:
+Use functional components with hooks:
 
-```bash
-mint broken-links
-```
+```typescript
+import { useState } from 'react'
 
-## Deployment
+interface Props {
+  title: string
+}
 
-If the deployment is successful, you should see the following:
-
-<Frame>
-  <img src="/images/checks-passed.png" alt="Screenshot of a deployment confirmation message that says All checks have passed." style={{ borderRadius: '0.5rem' }} />
-</Frame>
-
-## Code formatting
-
-We suggest using extensions on your IDE to recognize and format MDX. If you're a VSCode user, consider the [MDX VSCode extension](https://marketplace.visualstudio.com/items?itemName=unifiedjs.vscode-mdx) for syntax highlighting, and [Prettier](https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode) for code formatting.
-
-## Troubleshooting
-
-<AccordionGroup>
-  <Accordion title='Error: Could not load the "sharp" module using the darwin-arm64 runtime'>
-
-    This may be due to an outdated version of node. Try the following:
-    1. Remove the currently-installed version of the CLI: `npm remove -g mint`
-    2. Upgrade to Node v19 or higher.
-    3. Reinstall the CLI: `npm i -g mint`
-  </Accordion>
-
-  <Accordion title="Issue: Encountering an unknown error">
+export function MyComponent({ title }: Props) {
+  const [count, setCount] = useState(0)
   
-    Solution: Go to the root of your device and delete the `~/.mintlify` folder. Then run `mint dev` again.
-  </Accordion>
-</AccordionGroup>
+  return (
+    <div>
+      <h1>{title}</h1>
+      <p>Count: {count}</p>
+    </div>
+  )
+}
+```
 
-Curious about what changed in the latest CLI version? Check out the [CLI changelog](https://www.npmjs.com/package/mintlify?activeTab=versions).
+### Component Organization
+
+- One component per file
+- Co-locate related components
+- Extract reusable logic to hooks
+
+### Styling
+
+Use Tailwind CSS classes:
+
+```typescript
+<div className="flex items-center justify-between p-4 bg-white rounded-lg shadow">
+  <h2 className="text-xl font-semibold">Title</h2>
+</div>
+```
+
+## Data Fetching
+
+### Using SWR
+
+For client-side data fetching:
+
+```typescript
+import useSWR from 'swr'
+
+function useTemplates() {
+  const { data, error, mutate } = useSWR('/api/templates', fetcher)
+  return { templates: data, isLoading: !error && !data, error, mutate }
+}
+```
+
+### Server Components
+
+For server-side data fetching:
+
+```typescript
+async function TemplatesPage() {
+  const templates = await getTemplates()
+  return <TemplatesList templates={templates} />
+}
+```
+
+## Firebase Integration
+
+### Client-Side
+
+```typescript
+import { db } from '@/lib/firebase/config'
+import { collection, getDocs } from 'firebase/firestore'
+
+const templatesRef = collection(db, 'templates')
+const snapshot = await getDocs(templatesRef)
+```
+
+### Server-Side
+
+```typescript
+import { adminDb } from '@/lib/firebase/admin'
+
+const snapshot = await adminDb.collection('templates').get()
+```
+
+## API Routes
+
+### Structure
+
+```typescript
+// app/api/templates/route.ts
+import { NextRequest, NextResponse } from 'next/server'
+
+export async function GET(request: NextRequest) {
+  try {
+    // Get data
+    const templates = await getTemplates()
+    return NextResponse.json({ templates })
+  } catch (error) {
+    return NextResponse.json(
+      { error: 'Failed to fetch templates' },
+      { status: 500 }
+    )
+  }
+}
+
+export async function POST(request: NextRequest) {
+  try {
+    const body = await request.json()
+    const template = await createTemplate(body)
+    return NextResponse.json({ template }, { status: 201 })
+  } catch (error) {
+    return NextResponse.json(
+      { error: 'Failed to create template' },
+      { status: 500 }
+    )
+  }
+}
+```
+
+### Authentication
+
+Verify authentication in API routes:
+
+```typescript
+import { getServerSession } from '@/lib/auth'
+
+export async function GET(request: NextRequest) {
+  const session = await getServerSession(request)
+  if (!session) {
+    return NextResponse.json(
+      { error: 'Unauthorized' },
+      { status: 401 }
+    )
+  }
+  // ... proceed
+}
+```
+
+## Testing
+
+### Unit Tests
+
+Use Vitest for unit tests:
+
+```typescript
+import { describe, it, expect } from 'vitest'
+import { calculatePrice } from '@/lib/utils/pricingCalculator'
+
+describe('calculatePrice', () => {
+  it('calculates price correctly', () => {
+    const price = calculatePrice({ basePrice: 300, taxRate: 0.13 })
+    expect(price).toBe(339)
+  })
+})
+```
+
+### E2E Tests
+
+Use Playwright for E2E tests:
+
+```typescript
+import { test, expect } from '@playwright/test'
+
+test('user can create inspection', async ({ page }) => {
+  await page.goto('/dashboard/inspections/new')
+  await page.fill('[name="propertyAddress"]', '123 Main St')
+  await page.click('button[type="submit"]')
+  await expect(page).toHaveURL(/\/dashboard\/inspections\/\w+/)
+})
+```
+
+### Running Tests
+
+```bash
+# Unit tests
+npm test
+
+# E2E tests
+npm run test:e2e
+
+# Watch mode
+npm run test:watch
+```
+
+## Code Quality
+
+### Linting
+
+```bash
+npm run lint
+```
+
+### Type Checking
+
+```bash
+npm run type-check
+```
+
+### Formatting
+
+Use Prettier (configured in project):
+
+```bash
+npx prettier --write .
+```
+
+## Git Workflow
+
+### Branching
+
+- `main`: Production-ready code
+- `develop`: Development branch
+- `feature/*`: Feature branches
+- `fix/*`: Bug fix branches
+
+### Commit Messages
+
+Use conventional commits:
+
+```
+feat: add template import functionality
+fix: resolve calendar sync issue
+docs: update API documentation
+refactor: simplify pricing calculation
+```
+
+### Pull Requests
+
+1. Create feature branch
+2. Make changes
+3. Write/update tests
+4. Update documentation
+5. Create pull request
+6. Address review comments
+
+## Best Practices
+
+### Error Handling
+
+Always handle errors:
+
+```typescript
+try {
+  await createTemplate(data)
+} catch (error) {
+  console.error('Failed to create template:', error)
+  toast.error('Failed to create template')
+}
+```
+
+### Performance
+
+- Lazy load components when possible
+- Optimize images with Next.js Image
+- Use React.memo for expensive components
+- Debounce search inputs
+
+### Security
+
+- Never expose API keys in client code
+- Validate all user input
+- Use Firestore security rules
+- Sanitize data before storing
+
+### Accessibility
+
+- Use semantic HTML
+- Add ARIA labels where needed
+- Ensure keyboard navigation
+- Test with screen readers
+
+## Related Documentation
+
+- [Getting Started](/docs/getting-started) - Initial setup
+- [Architecture](/docs/architecture) - System design
+- [API Reference](/docs/api-reference) - API endpoints
+

@@ -1,0 +1,917 @@
+---
+title: "Test Plan: Scheduling Widget"
+description: "Test plan for embeddable scheduling widget"
+---
+
+# Test Plan: Scheduling Widget
+
+**Feature Area**: Embeddable Scheduling Widget  
+**Related Files**: `web/app/widget/[inspectorId]/*`, `web/app/dashboard/settings/widget/page.tsx`, `web/public/widget/embed.js`
+
+---
+
+## Feature Overview
+
+The scheduling widget is an embeddable booking system that allows clients to schedule inspections directly from an inspector's website. Features include multi-step and single-page modes, service selection, availability calculation, real-time booking, and email/SMS notifications.
+
+---
+
+## Test Cases
+
+### TC-WID-001: Configure Widget Settings - General
+
+**Priority**: High  
+**Type**: Functional
+
+**Preconditions**:
+- User is logged in
+
+**Test Steps**:
+1. Navigate to `/dashboard/settings/widget`
+2. Toggle "Enable Widget" ON
+3. Select display mode: "Multi-Step"
+4. Save settings
+
+**Expected Result**:
+- Widget enabled
+- Display mode saved
+- Settings persist
+- Widget becomes accessible at public URL
+
+**Priority**: High
+
+---
+
+### TC-WID-002: Configure Widget Branding
+
+**Priority**: High  
+**Type**: Functional
+
+**Preconditions**:
+- User is logged in
+
+**Test Steps**:
+1. Navigate to widget settings
+2. Go to "Branding" tab
+3. Configure:
+   - Primary Color: #1D4D8F
+   - Font Family: "Inter"
+   - Button Style: "Rounded"
+   - Button Text Color: #FFFFFF
+4. View live preview
+5. Save settings
+
+**Expected Result**:
+- Branding settings saved
+- Live preview updates in real-time
+- Colors and fonts applied
+- Professional appearance
+
+**Priority**: High
+
+---
+
+### TC-WID-003: Configure Widget Calendar Settings
+
+**Priority**: High  
+**Type**: Functional
+
+**Preconditions**:
+- User is logged in
+
+**Test Steps**:
+1. Navigate to widget settings
+2. Go to "Calendar" tab
+3. Configure working hours:
+   - Monday-Friday: 9:00 AM - 5:00 PM
+   - Saturday: 9:00 AM - 1:00 PM
+   - Sunday: Closed
+4. Set buffer time: 30 minutes
+5. Add blackout dates
+6. Save
+
+**Expected Result**:
+- Working hours saved
+- Buffer time applied
+- Blackout dates stored
+- Availability calculator uses these settings
+
+**Priority**: High
+
+---
+
+### TC-WID-004: Get Widget Embed Code
+
+**Priority**: High  
+**Type**: Functional
+
+**Preconditions**:
+- User is logged in
+- Widget enabled
+
+**Test Steps**:
+1. Navigate to widget settings
+2. Go to "Embed Code" tab
+3. View embed code
+4. Click "Copy Code" button
+
+**Expected Result**:
+- Embed code displayed:
+```html
+<div id="homelens-widget" data-inspector-id="USER_ID"></div>
+<script src="https://app.swiftinspect.com/widget/embed.js"></script>
+```html
+- Code copied to clipboard
+- Instructions provided
+- Preview URL shown
+
+**Priority**: High
+
+---
+
+### TC-WID-005: Embed Widget on External Website
+
+**Priority**: High  
+**Type**: Integration
+
+**Preconditions**:
+- Widget enabled and configured
+- Test HTML page created
+
+**Test Steps**:
+1. Create test HTML file
+2. Paste embed code
+3. Open in browser
+4. Verify widget loads
+
+**Expected Result**:
+- Widget loads successfully
+- Embedded in iframe
+- Responsive to container size
+- Branding applied
+- Fully functional
+
+**Priority**: High
+
+---
+
+### TC-WID-006: Widget Multi-Step Mode - Step 1 (Service Selection)
+
+**Priority**: High  
+**Type**: Functional
+
+**Preconditions**:
+- Widget configured in multi-step mode
+- Services exist
+
+**Test Steps**:
+1. Open widget
+2. View service selection step
+3. Select a service
+4. Click "Next"
+
+**Expected Result**:
+- All active services displayed as cards
+- Service details shown (name, description, price, duration)
+- Can select one service
+- "Next" button enabled after selection
+- Progress indicator shows Step 1 of 4
+
+**Priority**: High
+
+---
+
+### TC-WID-007: Widget Multi-Step Mode - Step 2 (Property Details)
+
+**Priority**: High  
+**Type**: Functional
+
+**Preconditions**:
+- Completed Step 1
+
+**Test Steps**:
+1. Enter property address
+2. Enter optional details (sqft, year built)
+3. Add notes
+4. Click "Next"
+
+**Expected Result**:
+- Address field with autocomplete (if configured)
+- Optional fields available
+- Validation on required fields
+- Can proceed to next step
+- Progress shows Step 2 of 4
+
+**Priority**: High
+
+---
+
+### TC-WID-008: Widget Multi-Step Mode - Step 3 (Schedule)
+
+**Priority**: High  
+**Type**: Functional
+
+**Preconditions**:
+- Completed Steps 1-2
+
+**Test Steps**:
+1. View calendar
+2. Select available date
+3. Select available time slot
+4. Click "Next"
+
+**Expected Result**:
+- Calendar displays current month
+- Only available dates clickable
+- Past dates disabled
+- Blackout dates disabled
+- Time slots shown for selected date
+- Only available slots selectable
+- Buffer time applied
+- Working hours respected
+- Progress shows Step 3 of 4
+
+**Priority**: High
+
+---
+
+### TC-WID-009: Widget Multi-Step Mode - Step 4 (Contact Info)
+
+**Priority**: High  
+**Type**: Functional
+
+**Preconditions**:
+- Completed Steps 1-3
+
+**Test Steps**:
+1. Enter contact information:
+   - First Name: "John"
+   - Last Name: "Doe"
+   - Email: "john@example.com"
+   - Phone: "+1 (555) 123-4567"
+2. Review booking summary
+3. Click "Confirm Booking"
+
+**Expected Result**:
+- Contact form displayed
+- Booking summary shows:
+  - Selected service
+  - Property address
+  - Date and time
+  - Estimated price
+- All information validated
+- Can submit booking
+- Progress shows Step 4 of 4
+
+**Priority**: High
+
+---
+
+### TC-WID-010: Complete Widget Booking (Multi-Step)
+
+**Priority**: High  
+**Type**: Functional
+
+**Preconditions**:
+- Widget configured
+- All steps completed
+
+**Test Steps**:
+1. Complete all 4 steps
+2. Submit booking
+3. View confirmation screen
+
+**Expected Result**:
+- Booking submitted successfully
+- Inspection created in Firestore
+- Status: "Scheduled"
+- Confirmation screen displayed with:
+  - Confirmation number
+  - Booking details
+  - Next steps
+- Confirmation email sent to client
+- Notification email sent to inspector
+- SMS notifications sent (if configured)
+- Success message shown
+
+**Priority**: High
+
+---
+
+### TC-WID-011: Widget Single-Page Mode
+
+**Priority**: High  
+**Type**: Functional
+
+**Preconditions**:
+- Widget configured in single-page mode
+
+**Test Steps**:
+1. Open widget
+2. View all sections collapsed
+3. Complete Service section
+4. Complete Property section
+5. Complete Schedule section
+6. Complete Contact section
+7. Submit booking
+
+**Expected Result**:
+- All 4 sections visible on one page
+- Sections collapsible/expandable
+- Completed sections show checkmark
+- Auto-advance to next section
+- Progress dots at bottom
+- Can navigate between sections
+- Submit button at bottom
+- Booking completes successfully
+
+**Priority**: High
+
+---
+
+### TC-WID-012: Widget Availability Calculator
+
+**Priority**: High  
+**Type**: Functional
+
+**Preconditions**:
+- Widget configured
+- Working hours set
+- Some inspections already scheduled
+
+**Test Steps**:
+1. Open widget schedule step
+2. Select today's date
+3. View available time slots
+4. Select date with existing inspection
+5. View available slots
+
+**Expected Result**:
+- Only available time slots shown
+- Booked slots not displayed
+- Working hours respected
+- Buffer time applied between bookings
+- Blackout dates unavailable
+- Past times not shown
+- Real-time availability
+
+**Priority**: High
+
+---
+
+### TC-WID-013: Widget Price Calculation
+
+**Priority**: High  
+**Type**: Functional
+
+**Preconditions**:
+- Service with tiered pricing configured
+
+**Test Steps**:
+1. Select service
+2. Enter property details (size, distance, age)
+3. View calculated price
+
+**Expected Result**:
+- Price calculates automatically
+- Breakdown shown:
+  - Base price
+  - Fee items
+  - Subtotal
+  - Tax
+  - Total
+- Updates as details entered
+- Accurate calculation
+
+**Priority**: High
+
+---
+
+### TC-WID-014: Widget Email Notifications
+
+**Priority**: High  
+**Type**: Integration
+
+**Preconditions**:
+- Email configured (Resend)
+- Booking completed
+
+**Test Steps**:
+1. Complete booking
+2. Check client email
+3. Check inspector email
+
+**Expected Result**:
+- Client receives confirmation email:
+  - Booking details
+  - Date, time, address
+  - Inspector contact info
+  - Confirmation number
+- Inspector receives notification email:
+  - New booking alert
+  - Client details
+  - Booking information
+  - Link to dashboard
+
+**Priority**: High
+
+---
+
+### TC-WID-015: Widget SMS Notifications
+
+**Priority**: Medium  
+**Type**: Integration
+
+**Preconditions**:
+- SMS configured (NotificationAPI)
+- Booking completed with phone number
+
+**Test Steps**:
+1. Complete booking
+2. Check client phone
+3. Check inspector phone
+
+**Expected Result**:
+- Client receives SMS:
+  - Confirmation message
+  - Date, time, address
+  - Confirmation number
+- Inspector receives SMS:
+  - New booking alert
+  - Client name and property
+
+**Priority**: Medium
+
+---
+
+### TC-WID-016: Widget Responsive Design
+
+**Priority**: High  
+**Type**: UI/UX
+
+**Preconditions**:
+- Widget embedded
+
+**Test Steps**:
+1. View widget on desktop (1920px)
+2. View widget on tablet (768px)
+3. View widget on mobile (375px)
+
+**Expected Result**:
+- Fully responsive on all sizes
+- Touch-friendly on mobile
+- Calendar usable on small screens
+- Forms easy to fill on mobile
+- No horizontal scrolling
+- Professional appearance
+
+**Priority**: High
+
+---
+
+### TC-WID-017: Widget Loading State
+
+**Priority**: Medium  
+**Type**: UI/UX
+
+**Preconditions**:
+- Widget embedded
+
+**Test Steps**:
+1. Load widget
+2. Observe loading state
+3. Wait for widget to initialize
+
+**Expected Result**:
+- Loading spinner/skeleton shown
+- Smooth transition to loaded state
+- No flash of unstyled content
+- Professional loading experience
+
+**Priority**: Medium
+
+---
+
+### TC-WID-018: Widget Error Handling
+
+**Priority**: High  
+**Type**: Functional
+
+**Preconditions**:
+- Widget embedded
+
+**Test Steps**:
+1. Disconnect internet
+2. Attempt to load widget
+3. Attempt to submit booking
+
+**Expected Result**:
+- Clear error message displayed
+- "Unable to connect" or similar
+- Retry option available
+- Graceful degradation
+- No crash or blank screen
+
+**Priority**: High
+
+---
+
+### TC-WID-019: Widget Validation - Required Fields
+
+**Priority**: High  
+**Type**: Validation
+
+**Preconditions**:
+- Widget open
+
+**Test Steps**:
+1. Attempt to proceed without selecting service
+2. Attempt to proceed without entering address
+3. Attempt to submit without contact info
+
+**Expected Result**:
+- Cannot proceed without required fields
+- Clear error messages
+- Fields highlighted in red
+- User guided to complete fields
+
+**Priority**: High
+
+---
+
+### TC-WID-020: Widget Validation - Email Format
+
+**Priority**: Medium  
+**Type**: Validation
+
+**Preconditions**:
+- Widget at contact step
+
+**Test Steps**:
+1. Enter invalid email: "notanemail"
+2. Attempt to submit
+
+**Expected Result**:
+- Error: "Invalid email format"
+- Cannot submit
+- Field highlighted
+
+**Priority**: Medium
+
+---
+
+### TC-WID-021: Widget Validation - Phone Format
+
+**Priority**: Medium  
+**Type**: Validation
+
+**Preconditions**:
+- Widget at contact step
+
+**Test Steps**:
+1. Enter invalid phone: "abc"
+2. Attempt to submit
+
+**Expected Result**:
+- Error: "Invalid phone number"
+- Cannot submit
+- Accepts various formats: (555) 123-4567, 555-123-4567, etc.
+
+**Priority**: Medium
+
+---
+
+### TC-WID-022: Widget Time Conflict Prevention
+
+**Priority**: High  
+**Type**: Functional
+
+**Preconditions**:
+- Inspection scheduled at 10:00 AM
+
+**Test Steps**:
+1. Open widget
+2. Select same date
+3. View available time slots
+4. Verify 10:00 AM not available
+
+**Expected Result**:
+- Booked time slot not shown
+- Prevents double-booking
+- Real-time availability check
+- Buffer time applied
+
+**Priority**: High
+
+---
+
+### TC-WID-023: Widget Embed on WordPress
+
+**Priority**: Medium  
+**Type**: Integration
+
+**Preconditions**:
+- WordPress site available
+
+**Test Steps**:
+1. Log into WordPress admin
+2. Create new page
+3. Add HTML block
+4. Paste embed code
+5. Publish page
+6. View page
+
+**Expected Result**:
+- Widget embeds successfully
+- Fully functional in WordPress
+- No conflicts with theme
+- Responsive in WordPress layout
+
+**Priority**: Medium
+
+---
+
+### TC-WID-024: Widget Embed on Wix
+
+**Priority**: Low  
+**Type**: Integration
+
+**Preconditions**:
+- Wix site available
+
+**Test Steps**:
+1. Log into Wix editor
+2. Add HTML embed element
+3. Paste embed code
+4. Publish site
+5. View page
+
+**Expected Result**:
+- Widget embeds successfully
+- Works in Wix environment
+- Responsive
+
+**Priority**: Low
+
+---
+
+### TC-WID-025: Widget Embed on Squarespace
+
+**Priority**: Low  
+**Type**: Integration
+
+**Preconditions**:
+- Squarespace site available
+
+**Test Steps**:
+1. Log into Squarespace
+2. Add code block
+3. Paste embed code
+4. Publish
+5. View
+
+**Expected Result**:
+- Widget embeds successfully
+- Works in Squarespace
+- Responsive
+
+**Priority**: Low
+
+---
+
+### TC-WID-026: Widget Custom Events
+
+**Priority**: Low  
+**Type**: Integration
+
+**Preconditions**:
+- Widget embedded with custom event listeners
+
+**Test Steps**:
+1. Add JavaScript to listen for widget events
+2. Complete booking
+3. Verify events fired
+
+**Expected Result**:
+- `bookingSuccess` event fired
+- Event contains booking data
+- Can integrate with analytics
+- Can trigger custom actions
+
+**Priority**: Low
+
+---
+
+### TC-WID-027: Widget Payment Integration (Future)
+
+**Priority**: Low  
+**Type**: Functional
+
+**Preconditions**:
+- Payment settings configured
+- Stripe connected (future feature)
+
+**Test Steps**:
+1. Complete booking
+2. View payment step
+3. Enter payment info
+4. Complete payment
+
+**Expected Result**:
+- Payment step shown
+- Stripe checkout integrated
+- Payment processed
+- Booking confirmed after payment
+- (Note: Not yet implemented)
+
+**Priority**: Low
+
+---
+
+## API/Backend Test Cases
+
+### TC-WID-API-001: Widget Config API
+
+**Priority**: High  
+**Type**: API
+
+**Test Steps**:
+1. Call `/api/widget/config/[inspectorId]`
+2. Verify widget configuration returned
+
+**Expected Result**:
+- Widget settings returned
+- Branding configuration included
+- Calendar settings included
+- Public data only (no sensitive info)
+
+**Priority**: High
+
+---
+
+### TC-WID-API-002: Widget Services API
+
+**Priority**: High  
+**Type**: API
+
+**Test Steps**:
+1. Call `/api/widget/services/[inspectorId]`
+2. Verify active services returned
+
+**Expected Result**:
+- Only active services returned
+- Service details included
+- Pricing information included
+- No inactive services
+
+**Priority**: High
+
+---
+
+### TC-WID-API-003: Widget Availability API
+
+**Priority**: High  
+**Type**: API
+
+**Test Steps**:
+1. Call `/api/widget/availability/[inspectorId]?date=2025-11-15`
+2. Verify available time slots returned
+
+**Expected Result**:
+- Available slots calculated correctly
+- Working hours respected
+- Existing bookings excluded
+- Buffer time applied
+- Blackout dates excluded
+
+**Priority**: High
+
+---
+
+### TC-WID-API-004: Widget Booking API
+
+**Priority**: High  
+**Type**: API
+
+**Test Steps**:
+1. POST to `/api/widget/booking` with booking data
+2. Verify inspection created
+3. Verify notifications sent
+
+**Expected Result**:
+- Inspection created in Firestore
+- Email notifications sent
+- SMS notifications sent
+- Service usage incremented
+- Returns confirmation number
+
+**Priority**: High
+
+---
+
+## Performance Test Cases
+
+### TC-WID-PERF-001: Widget Load Performance
+
+**Priority**: Medium  
+**Type**: Performance
+
+**Test Steps**:
+1. Embed widget on page
+2. Measure load time
+3. Measure script size
+
+**Expected Result**:
+- Widget loads in &lt;2 seconds
+- Embed script &lt;10KB gzipped
+- Minimal impact on page performance
+- Async loading
+
+**Priority**: Medium
+
+---
+
+### TC-WID-PERF-002: Availability Calculation Performance
+
+**Priority**: Medium  
+**Type**: Performance
+
+**Test Steps**:
+1. Request availability for 30 days
+2. Measure response time
+
+**Expected Result**:
+- Calculation completes in &lt;1 second
+- Efficient algorithm
+- No blocking
+
+**Priority**: Medium
+
+---
+
+## Security Test Cases
+
+### TC-WID-SEC-001: Public API Security
+
+**Priority**: High  
+**Type**: Security
+
+**Test Steps**:
+1. Verify widget APIs are public (no auth required)
+2. Verify no sensitive data exposed
+3. Test for injection vulnerabilities
+
+**Expected Result**:
+- APIs accessible without auth (by design)
+- Only public data returned
+- Input sanitized
+- No SQL/XSS injection possible
+
+**Priority**: High
+
+---
+
+### TC-WID-SEC-002: Rate Limiting
+
+**Priority**: Medium  
+**Type**: Security
+
+**Test Steps**:
+1. Make 100 rapid API requests
+2. Verify rate limiting applied
+
+**Expected Result**:
+- Rate limiting prevents abuse
+- Clear error message
+- Can retry after cooldown
+
+**Priority**: Medium
+
+---
+
+## Summary
+
+**Total Test Cases**: 33  
+**High Priority**: 19  
+**Medium Priority**: 10  
+**Low Priority**: 4
+
+**Coverage Areas**:
+- [OK] Widget Configuration (General, Branding, Calendar)
+- [OK] Embed Code Generation
+- [OK] Multi-Step Booking Flow
+- [OK] Single-Page Mode
+- [OK] Availability Calculator
+- [OK] Price Calculation
+- [OK] Email/SMS Notifications
+- [OK] Responsive Design
+- [OK] Validation
+- [OK] External Website Embedding (WordPress, Wix, Squarespace)
+- [OK] API Endpoints
+- [OK] Performance
+- [OK] Security
+
+**Estimated Testing Time**: 12-14 hours for complete execution
+
+
+

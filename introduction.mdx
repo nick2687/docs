@@ -1,0 +1,97 @@
+---
+title: Introduction
+description: Learn about HomeLens Web - professional home inspection software for modern inspectors
+---
+
+# Introduction
+
+HomeLens Web is a comprehensive, cloud-based dashboard for home inspection professionals. Built on modern web technologies, it provides a powerful interface for managing inspections, templates, services, contacts, and client communications.
+
+## What is HomeLens?
+
+HomeLens is a complete home inspection management platform designed specifically for solo inspectors and small inspection businesses. It combines the power of a mobile app (iOS/Android) with a full-featured web dashboard, all backed by Firebase for real-time synchronization.
+
+## Key Features
+
+### Inspection Management
+- Create and manage inspections with detailed property information
+- Track inspection status from scheduled to completed
+- Associate inspections with templates and services
+- Generate professional PDF reports
+
+### Template System
+- Build custom inspection templates with sections and items
+- Organize findings by categories (Information, Limitations, Deficiencies)
+- Import/export templates for easy sharing
+- Support for Spectora template imports
+
+### Service & Pricing
+- Define inspection services with flexible pricing
+- Configure tiered fees based on property size, age, distance, and more
+- Track service usage and revenue
+- Support for multiple currencies and tax rates
+
+### Contact Management
+- CRM-style contact management for clients, agents, and contractors
+- Tag contacts for easy organization
+- Track communication history
+- Bulk import/export capabilities
+- Duplicate detection and merging
+
+### Calendar Integration
+- View inspections in calendar format (month, week, day views)
+- Google Calendar integration for two-way sync
+- Quick add inspections from calendar view
+- Filter by status and date range
+
+### Client Portal
+- Branded client portal for sharing inspection reports
+- Secure token-based access
+- Repair request builder
+- Payment collection integration
+
+### Scheduling Widgets
+- Embeddable booking widgets for your website
+- Multi-step booking flow
+- Customizable fields and branding
+- Real-time availability checking
+
+### Integrations
+- **Stripe Connect**: Payment processing and invoicing
+- **Google Calendar**: Two-way calendar sync
+- **Google Drive**: Automatic report storage
+- **HelloSign**: E-signature collection
+- **HomeBinder**: Report upload integration
+- **ISN**: Order management sync
+
+## Architecture
+
+HomeLens Web is built with:
+
+- **Framework**: Next.js 14+ (App Router)
+- **Language**: TypeScript
+- **Styling**: Tailwind CSS + shadcn/ui components
+- **Database**: Firebase Firestore
+- **Authentication**: Firebase Authentication
+- **Storage**: Firebase Storage
+- **Deployment**: Vercel (recommended)
+
+## Data Synchronization
+
+The web application shares data with mobile apps through Firebase Firestore, ensuring:
+
+- Real-time updates across all platforms
+- Offline-first mobile experience
+- No sync conflicts with automatic resolution
+- Unified data model
+
+## Getting Started
+
+Ready to get started? Check out our [Getting Started Guide](/docs/getting-started) to set up your development environment and configure the application.
+
+## Need Help?
+
+- Review the [API Reference](/docs/api-reference) for technical details
+- Check the [Development Guide](/docs/development) for contributing
+- Explore feature-specific documentation in the sidebar
+

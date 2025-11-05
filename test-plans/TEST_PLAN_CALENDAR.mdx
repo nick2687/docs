@@ -1,0 +1,558 @@
+---
+title: "Test Plan: Calendar Integration"
+description: "Test plan for calendar integration and scheduling features"
+---
+
+# Test Plan: Calendar Integration
+
+**Feature Area**: Calendar & Scheduling  
+**Related Files**: `web/app/dashboard/calendar/page.tsx`, `web/components/calendar/*`, `web/lib/availability/*`
+
+---
+
+## Feature Overview
+
+The calendar system provides a visual schedule view of inspections, quick add functionality, availability management, and integration with inspection scheduling. It includes month/week/day views, drag-and-drop scheduling, and real-time updates.
+
+---
+
+## Test Cases
+
+### TC-CAL-001: View Calendar (Month View)
+
+**Priority**: High  
+**Type**: Functional
+
+**Preconditions**:
+- User is logged in
+- Inspections exist in current month
+
+**Test Steps**:
+1. Navigate to `/dashboard/calendar`
+2. View month calendar
+3. Verify inspections displayed on correct dates
+4. Click on different dates
+
+**Expected Result**:
+- Calendar displays current month
+- Inspections appear on scheduled dates
+- Each inspection shows: time, address, status color
+- Can navigate between months
+- Today's date highlighted
+
+**Priority**: High
+
+---
+
+### TC-CAL-002: Navigate Between Months
+
+**Priority**: High  
+**Type**: Functional
+
+**Preconditions**:
+- User is logged in
+
+**Test Steps**:
+1. Navigate to `/dashboard/calendar`
+2. Click "Next Month" button
+3. Verify calendar updates
+4. Click "Previous Month" button
+5. Click "Today" button
+
+**Expected Result**:
+- Next month button advances calendar
+- Previous month button goes back
+- Today button returns to current month
+- Month/year label updates correctly
+- Inspections load for selected month
+
+**Priority**: High
+
+---
+
+### TC-CAL-003: Quick Add Inspection from Calendar
+
+**Priority**: High  
+**Type**: Functional
+
+**Preconditions**:
+- User is logged in
+- At least one service exists
+
+**Test Steps**:
+1. Navigate to `/dashboard/calendar`
+2. Click on a future date
+3. Click "Quick Add" or "+" button
+4. Fill in quick add form:
+   - Property address: "123 Main St"
+   - Service: Select from dropdown
+   - Time: "10:00 AM"
+   - Duration: "2 hours"
+   - Client: Select or enter name
+5. Click "Create Inspection"
+
+**Expected Result**:
+- Quick add modal opens
+- Date pre-filled from clicked date
+- Form validates required fields
+- Inspection created successfully
+- Appears on calendar immediately
+- Modal closes automatically
+- Success message displayed
+
+**Priority**: High
+
+---
+
+### TC-CAL-004: View Inspection Details from Calendar
+
+**Priority**: High  
+**Type**: Functional
+
+**Preconditions**:
+- User is logged in
+- Inspection exists on calendar
+
+**Test Steps**:
+1. Navigate to `/dashboard/calendar`
+2. Click on an inspection on the calendar
+3. View inspection detail modal/sidebar
+
+**Expected Result**:
+- Inspection details displayed:
+  - Property address
+  - Client name
+  - Time and duration
+  - Service and price
+  - Status
+- Action buttons available: Edit, Delete, View Full Details
+- Can close modal and return to calendar
+
+**Priority**: High
+
+---
+
+### TC-CAL-005: Edit Inspection from Calendar
+
+**Priority**: High  
+**Type**: Functional
+
+**Preconditions**:
+- User is logged in
+- Inspection exists on calendar
+
+**Test Steps**:
+1. Navigate to `/dashboard/calendar`
+2. Click on an inspection
+3. Click "Edit" button
+4. Modify time from "10:00 AM" to "2:00 PM"
+5. Save changes
+
+**Expected Result**:
+- Edit drawer/modal opens
+- Can modify inspection details
+- Changes save successfully
+- Inspection updates on calendar immediately
+- New time reflected in calendar view
+
+**Priority**: High
+
+---
+
+### TC-CAL-006: Delete Inspection from Calendar
+
+**Priority**: Medium  
+**Type**: Functional
+
+**Preconditions**:
+- User is logged in
+- Inspection exists on calendar
+
+**Test Steps**:
+1. Navigate to `/dashboard/calendar`
+2. Click on an inspection
+3. Click "Delete" button
+4. Confirm deletion
+
+**Expected Result**:
+- Confirmation modal appears
+- After confirmation, inspection deleted
+- Removed from calendar immediately
+- Success message displayed
+- Calendar updates in real-time
+
+**Priority**: Medium
+
+---
+
+### TC-CAL-007: Filter Calendar by Status
+
+**Priority**: Medium  
+**Type**: Functional
+
+**Preconditions**:
+- User is logged in
+- Inspections with various statuses exist
+
+**Test Steps**:
+1. Navigate to `/dashboard/calendar`
+2. Open status filter dropdown
+3. Select "Scheduled" only
+4. Verify only scheduled inspections shown
+5. Select "Completed" only
+6. Verify only completed inspections shown
+
+**Expected Result**:
+- Filter dropdown shows all status options
+- Selecting status filters calendar view
+- Only matching inspections displayed
+- Color coding maintained
+- Can select multiple statuses
+- "All" option shows everything
+
+**Priority**: Medium
+
+---
+
+### TC-CAL-008: Inspections Sidebar
+
+**Priority**: Medium  
+**Type**: Functional
+
+**Preconditions**:
+- User is logged in
+- Multiple inspections exist
+
+**Test Steps**:
+1. Navigate to `/dashboard/calendar`
+2. View inspections sidebar (if present)
+3. Click on an inspection in sidebar
+
+**Expected Result**:
+- Sidebar shows list of upcoming inspections
+- Sorted chronologically
+- Shows date, time, address
+- Clicking inspection highlights on calendar
+- Scrollable if many inspections
+
+**Priority**: Medium
+
+---
+
+### TC-CAL-009: Real-Time Calendar Updates
+
+**Priority**: High  
+**Type**: Functional
+
+**Preconditions**:
+- User is logged in
+- Calendar page open
+
+**Test Steps**:
+1. Open calendar in Browser A
+2. Open app in Browser B
+3. Create inspection in Browser B
+4. Observe calendar in Browser A
+
+**Expected Result**:
+- New inspection appears on calendar in Browser A
+- No page refresh required
+- Real-time sync via Firestore listeners
+- Updates appear within 1-2 seconds
+
+**Priority**: High
+
+---
+
+### TC-CAL-010: Calendar Performance with Many Inspections
+
+**Priority**: Medium  
+**Type**: Performance
+
+**Preconditions**:
+- User is logged in
+- 50+ inspections in current month
+
+**Test Steps**:
+1. Navigate to `/dashboard/calendar`
+2. Measure load time
+3. Navigate between months
+4. Measure responsiveness
+
+**Expected Result**:
+- Calendar loads in &lt;3 seconds
+- Month navigation smooth
+- No lag when clicking dates
+- Inspections render efficiently
+- No browser freezing
+
+**Priority**: Medium
+
+---
+
+### TC-CAL-011: Calendar on Mobile Devices
+
+**Priority**: High  
+**Type**: Mobile
+
+**Preconditions**:
+- User is logged in on mobile device
+
+**Test Steps**:
+1. Open calendar on mobile
+2. View month calendar
+3. Tap on a date
+4. Tap on an inspection
+
+**Expected Result**:
+- Calendar responsive on mobile
+- Touch targets appropriately sized
+- Can navigate easily
+- Inspections readable
+- Modals work on mobile
+- No horizontal scrolling
+
+**Priority**: High
+
+---
+
+### TC-CAL-012: Calendar Color Coding by Status
+
+**Priority**: Low  
+**Type**: UI/UX
+
+**Preconditions**:
+- User is logged in
+- Inspections with different statuses exist
+
+**Test Steps**:
+1. Navigate to `/dashboard/calendar`
+2. Observe inspection colors
+
+**Expected Result**:
+- Scheduled: Blue
+- In Progress: Yellow/Orange
+- Completed: Green
+- Cancelled: Red/Gray
+- Color legend displayed
+- Colors accessible (color-blind friendly)
+
+**Priority**: Low
+
+---
+
+### TC-CAL-013: Empty Calendar State
+
+**Priority**: Low  
+**Type**: UI/UX
+
+**Preconditions**:
+- User is logged in
+- No inspections exist
+
+**Test Steps**:
+1. Navigate to `/dashboard/calendar`
+2. View empty calendar
+
+**Expected Result**:
+- Helpful empty state message
+- Suggestion to create first inspection
+- "Create Inspection" button prominent
+- Calendar still functional
+- No errors displayed
+
+**Priority**: Low
+
+---
+
+### TC-CAL-014: Calendar Header Information
+
+**Priority**: Low  
+**Type**: Functional
+
+**Preconditions**:
+- User is logged in
+
+**Test Steps**:
+1. Navigate to `/dashboard/calendar`
+2. View calendar header
+
+**Expected Result**:
+- Current month and year displayed
+- Navigation buttons (prev/next/today)
+- View toggle (month/week/day) if available
+- Filter options accessible
+- Quick add button visible
+
+**Priority**: Low
+
+---
+
+### TC-CAL-015: Inspection Time Conflicts
+
+**Priority**: Medium  
+**Type**: Validation
+
+**Preconditions**:
+- User is logged in
+- Inspection exists at 10:00 AM on specific date
+
+**Test Steps**:
+1. Attempt to create another inspection
+2. Select same date and time (10:00 AM)
+3. Try to save
+
+**Expected Result**:
+- Warning message displayed about time conflict
+- User can choose to proceed or change time
+- Both inspections can exist (no hard block)
+- Visual indicator of overlapping times
+
+**Priority**: Medium
+
+---
+
+## Integration Test Cases
+
+### TC-CAL-INT-001: Inspection Creation Syncs to Calendar
+
+**Priority**: High  
+**Type**: Integration
+
+**Preconditions**:
+- User is logged in
+
+**Test Steps**:
+1. Navigate to `/dashboard/inspections/new`
+2. Create inspection with scheduled date
+3. Navigate to `/dashboard/calendar`
+4. Verify inspection appears on calendar
+
+**Expected Result**:
+- Inspection created via inspections page
+- Appears on calendar automatically
+- Correct date and time
+- All details accessible from calendar
+
+**Priority**: High
+
+---
+
+### TC-CAL-INT-002: Editing Inspection Updates Calendar
+
+**Priority**: High  
+**Type**: Integration
+
+**Preconditions**:
+- User is logged in
+- Inspection exists
+
+**Test Steps**:
+1. Open inspection detail page
+2. Edit scheduled date/time
+3. Navigate to calendar
+4. Verify inspection moved to new date
+
+**Expected Result**:
+- Editing inspection updates calendar
+- Old date cleared
+- New date shows inspection
+- Real-time sync
+
+**Priority**: High
+
+---
+
+### TC-CAL-INT-003: Deleting Inspection Removes from Calendar
+
+**Priority**: High  
+**Type**: Integration
+
+**Preconditions**:
+- User is logged in
+- Inspection exists on calendar
+
+**Test Steps**:
+1. Delete inspection from inspections list
+2. Navigate to calendar
+3. Verify inspection no longer on calendar
+
+**Expected Result**:
+- Deleted inspection removed from calendar
+- No orphaned calendar entries
+- Real-time removal
+
+**Priority**: High
+
+---
+
+## API/Backend Test Cases
+
+### TC-CAL-API-001: Query Inspections by Date Range
+
+**Priority**: High  
+**Type**: API
+
+**Test Steps**:
+1. Call API to get inspections for specific month
+2. Verify only inspections in date range returned
+3. Test with different date ranges
+
+**Expected Result**:
+- Only inspections within date range returned
+- Efficient Firestore query
+- Results sorted by date/time
+- No unnecessary data fetched
+
+**Priority**: High
+
+---
+
+### TC-CAL-API-002: Availability Calculator
+
+**Priority**: High  
+**Type**: API
+
+**Preconditions**:
+- Availability settings configured
+- Some inspections scheduled
+
+**Test Steps**:
+1. Call availability API for specific date
+2. Verify available time slots returned
+3. Verify booked slots excluded
+
+**Expected Result**:
+- Available time slots calculated correctly
+- Working hours respected
+- Buffer time applied
+- Existing inspections excluded
+- Blackout dates excluded
+
+**Priority**: High
+
+---
+
+## Summary
+
+**Total Test Cases**: 21  
+**High Priority**: 11  
+**Medium Priority**: 6  
+**Low Priority**: 4
+
+**Coverage Areas**:
+- [OK] Calendar Views (Month)
+- [OK] Navigation
+- [OK] Quick Add Inspection
+- [OK] View/Edit/Delete from Calendar
+- [OK] Filtering
+- [OK] Real-Time Updates
+- [OK] Mobile Responsiveness
+- [OK] Integration with Inspections
+- [OK] API/Backend
+- [OK] Performance
+
+**Estimated Testing Time**: 6-8 hours for complete execution
+
+
+

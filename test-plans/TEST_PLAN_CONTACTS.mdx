@@ -1,0 +1,1093 @@
+---
+title: "Test Plan: Contact/CRM Management"
+description: "Test plan for contact and CRM management features"
+---
+
+# Test Plan: Contact/CRM Management
+
+**Feature Area**: Contacts & CRM  
+**Related Files**: `web/app/dashboard/contacts/page.tsx`, `web/components/contacts/*`, `web/lib/firebase/contacts.ts`
+
+---
+
+## Feature Overview
+
+The Contact/CRM system manages clients, agents, and contractors with full CRUD operations, CSV import/export, activity logging, communication history, and relationship tracking with inspections.
+
+---
+
+## Test Cases
+
+### TC-CONT-001: Create New Contact
+
+**Priority**: High  
+**Type**: Functional
+
+**Preconditions**:
+- User is logged in
+
+**Test Steps**:
+1. Navigate to `/dashboard/contacts`
+2. Click "Add Contact" button
+3. Fill in contact form:
+   - First Name: "John"
+   - Last Name: "Doe"
+   - Contact Type: "Client"
+   - Email: "john.doe@example.com"
+   - Phone: "+1 (555) 123-4567"
+   - Company: "ABC Realty"
+   - Address: "123 Main St, City, State 12345"
+   - Website: "https://example.com"
+   - Tags: "VIP, Referral"
+   - Notes: "Referred by Jane Smith"
+4. Check "Email Consent" checkbox
+5. Check "SMS Consent" checkbox
+6. Click "Save Contact"
+
+**Expected Result**:
+- Contact created in Firestore
+- Unique contact ID generated
+- All fields saved correctly
+- Consent flags recorded with timestamp
+- Success message displayed
+- Contact appears in contacts list
+- Redirected to contact detail view
+
+**Priority**: High
+
+---
+
+### TC-CONT-002: View Contact List
+
+**Priority**: High  
+**Type**: Functional
+
+**Preconditions**:
+- User is logged in
+- Multiple contacts exist
+
+**Test Steps**:
+1. Navigate to `/dashboard/contacts`
+2. View contacts list
+
+**Expected Result**:
+- All user's contacts displayed
+- Shows: Name, Type, Company, Email, Phone, Tags
+- Contacts sorted alphabetically by last name
+- Pagination if &gt;50 contacts
+- Loading state while fetching
+
+**Priority**: High
+
+---
+
+### TC-CONT-003: View Contact Details
+
+**Priority**: High  
+**Type**: Functional
+
+**Preconditions**:
+- User is logged in
+- Contact exists
+
+**Test Steps**:
+1. Navigate to `/dashboard/contacts`
+2. Click on a contact
+3. View contact detail panel
+
+**Expected Result**:
+- Contact detail panel opens
+- All information displayed:
+  - Basic info (name, type, company)
+  - Contact methods (email, phone)
+  - Address
+  - Website (clickable link)
+  - Tags
+  - Notes
+  - Consent status
+  - Related inspections
+  - Communication history
+- Action buttons: Edit, Delete, Send Email, Send SMS, Log Activity
+
+**Priority**: High
+
+---
+
+### TC-CONT-004: Edit Contact
+
+**Priority**: High  
+**Type**: Functional
+
+**Preconditions**:
+- User is logged in
+- Contact exists
+
+**Test Steps**:
+1. Open contact detail panel
+2. Click "Edit" button
+3. Modify phone number
+4. Add new tag
+5. Update notes
+6. Click "Save Changes"
+
+**Expected Result**:
+- All changes saved to Firestore
+- `updatedAt` timestamp updated
+- Changes reflected immediately
+- Success message displayed
+- Detail panel updates
+
+**Priority**: High
+
+---
+
+### TC-CONT-005: Delete Contact
+
+**Priority**: High  
+**Type**: Functional
+
+**Preconditions**:
+- User is logged in
+- Contact exists with no related inspections
+
+**Test Steps**:
+1. Open contact detail panel
+2. Click "Delete" button
+3. Confirm deletion in modal
+
+**Expected Result**:
+- Confirmation modal appears
+- After confirmation:
+  - Contact deleted from Firestore
+  - Removed from contacts list
+  - Success message displayed
+  - Detail panel closes
+
+**Priority**: High
+
+---
+
+### TC-CONT-006: Delete Contact with Related Inspections
+
+**Priority**: Medium  
+**Type**: Functional
+
+**Preconditions**:
+- User is logged in
+- Contact has related inspections
+
+**Test Steps**:
+1. Open contact detail panel
+2. Click "Delete" button
+3. View warning about related inspections
+4. Confirm deletion
+
+**Expected Result**:
+- Warning message about X related inspections
+- User must confirm they understand
+- After confirmation, contact deleted
+- Related inspections remain (contact reference cleared)
+- OR deletion blocked (depending on business logic)
+
+**Priority**: Medium
+
+---
+
+### TC-CONT-007: Filter Contacts by Type
+
+**Priority**: Medium  
+**Type**: Functional
+
+**Preconditions**:
+- User is logged in
+- Contacts of different types exist
+
+**Test Steps**:
+1. Navigate to `/dashboard/contacts`
+2. Click "Type" filter dropdown
+3. Select "Clients"
+4. View filtered results
+5. Select "Agents"
+6. View filtered results
+
+**Expected Result**:
+- Only contacts of selected type shown
+- Filter persists during session
+- Count of filtered results displayed
+- Can select multiple types
+- "All" option shows everything
+
+**Priority**: Medium
+
+---
+
+### TC-CONT-008: Search Contacts
+
+**Priority**: High  
+**Type**: Functional
+
+**Preconditions**:
+- User is logged in
+- Multiple contacts exist
+
+**Test Steps**:
+1. Navigate to `/dashboard/contacts`
+2. Enter "John" in search box
+3. View filtered results
+4. Clear search
+5. Search by company name
+6. Search by email
+
+**Expected Result**:
+- Search filters contacts in real-time
+- Searches across: name, company, email, phone
+- Case-insensitive search
+- Results update as user types
+- Clear button resets search
+
+**Priority**: High
+
+---
+
+### TC-CONT-009: Sort Contacts
+
+**Priority**: Medium  
+**Type**: Functional
+
+**Preconditions**:
+- User is logged in
+- Multiple contacts exist
+
+**Test Steps**:
+1. Navigate to `/dashboard/contacts`
+2. Click "Name" column header
+3. Verify sort order (A-Z)
+4. Click "Name" again
+5. Verify sort order (Z-A)
+6. Click "Company" column header
+
+**Expected Result**:
+- Clicking column header sorts by that column
+- Toggle between ascending/descending
+- Sort indicator shows current sort
+- Sort persists during session
+
+**Priority**: Medium
+
+---
+
+### TC-CONT-010: Add Tags to Contact
+
+**Priority**: Medium  
+**Type**: Functional
+
+**Preconditions**:
+- User is logged in
+- Contact exists
+
+**Test Steps**:
+1. Edit contact
+2. Add tags: "VIP", "Referral Source", "Repeat Client"
+3. Save contact
+4. Verify tags displayed
+
+**Expected Result**:
+- Tags saved as array
+- Tags displayed as badges/chips
+- Can add multiple tags
+- Tags searchable
+- Can remove tags
+
+**Priority**: Medium
+
+---
+
+### TC-CONT-011: Filter Contacts by Tags
+
+**Priority**: Low  
+**Type**: Functional
+
+**Preconditions**:
+- User is logged in
+- Contacts with tags exist
+
+**Test Steps**:
+1. Navigate to `/dashboard/contacts`
+2. Click "Tags" filter
+3. Select "VIP" tag
+4. View filtered results
+
+**Expected Result**:
+- Only contacts with selected tag shown
+- Can select multiple tags
+- Tag filter works with other filters
+- Clear filter option available
+
+**Priority**: Low
+
+---
+
+### TC-CONT-012: Mark Contact as Favorite
+
+**Priority**: Low  
+**Type**: Functional
+
+**Preconditions**:
+- User is logged in
+- Contact exists
+
+**Test Steps**:
+1. Open contact detail panel
+2. Click "Favorite" star icon
+3. Verify contact marked as favorite
+4. Click star again to unfavorite
+
+**Expected Result**:
+- Star icon fills when favorited
+- Contact appears in favorites filter
+- Can toggle favorite status
+- Favorites accessible quickly
+
+**Priority**: Low
+
+---
+
+### TC-CONT-013: View Related Inspections
+
+**Priority**: High  
+**Type**: Functional
+
+**Preconditions**:
+- User is logged in
+- Contact has related inspections
+
+**Test Steps**:
+1. Open contact detail panel
+2. Scroll to "Related Inspections" section
+3. View list of inspections
+4. Click on an inspection
+
+**Expected Result**:
+- All inspections for this contact displayed
+- Shows: Date, Address, Status, Price
+- Sorted by date (newest first)
+- Clicking inspection navigates to detail page
+- Count of total inspections shown
+
+**Priority**: High
+
+---
+
+### TC-CONT-014: Export Contacts to CSV
+
+**Priority**: High  
+**Type**: Functional
+
+**Preconditions**:
+- User is logged in
+- Multiple contacts exist
+
+**Test Steps**:
+1. Navigate to `/dashboard/contacts`
+2. Click "Export" button
+3. Select "CSV" format
+4. Click "Download"
+
+**Expected Result**:
+- CSV file downloaded
+- File named: `contacts_YYYY-MM-DD.csv`
+- Contains all contacts with columns:
+  - First Name, Last Name, Contact Type
+  - Company, Email, Phone
+  - Address fields
+  - Website, Tags, Notes
+  - Consent flags
+- Opens correctly in Excel/Google Sheets
+- Special characters properly escaped
+
+**Priority**: High
+
+---
+
+### TC-CONT-015: Import Contacts from CSV
+
+**Priority**: High  
+**Type**: Functional
+
+**Preconditions**:
+- User is logged in
+- Valid CSV file prepared
+
+**Test Steps**:
+1. Navigate to `/dashboard/contacts`
+2. Click "Import" button
+3. Drag and drop CSV file OR click to browse
+4. Review validation results
+5. Click "Import X Contacts"
+
+**Expected Result**:
+- File upload works (drag-drop and browse)
+- CSV parsed correctly
+- Validation runs:
+  - Required fields checked
+  - Email format validated
+  - Duplicate detection
+- Validation errors displayed with row numbers
+- Can choose "Skip Invalid" or "Fix and Retry"
+- Valid contacts imported successfully
+- Import summary shown (X imported, Y skipped)
+- New contacts appear in list
+
+**Priority**: High
+
+---
+
+### TC-CONT-016: Import CSV with Errors
+
+**Priority**: High  
+**Type**: Functional, Validation
+
+**Preconditions**:
+- User is logged in
+- CSV file with errors prepared
+
+**Test Steps**:
+1. Start import process
+2. Upload CSV with:
+   - Missing required fields (Row 3)
+   - Invalid email format (Row 5)
+   - Duplicate email (Row 8)
+3. Review validation results
+
+**Expected Result**:
+- Validation errors displayed clearly:
+  - Row 3: "Missing required field: Last Name"
+  - Row 5: "Invalid email format"
+  - Row 8: "Duplicate email: already exists"
+- Error count shown
+- Warning count shown
+- Option to "Skip Invalid Rows" and import valid ones
+- Option to "Cancel and Fix File"
+- Clear guidance on fixing errors
+
+**Priority**: High
+
+---
+
+### TC-CONT-017: Log Activity (Phone Call)
+
+**Priority**: High  
+**Type**: Functional
+
+**Preconditions**:
+- User is logged in
+- Contact exists
+
+**Test Steps**:
+1. Open contact detail panel
+2. Click "Log Activity" button
+3. Select activity type: "Phone Call"
+4. Set date/time: Today at 2:00 PM
+5. Set duration: 15 minutes
+6. Enter notes: "Discussed upcoming inspection"
+7. Click "Log Activity"
+
+**Expected Result**:
+- Activity logged successfully
+- Appears in communication history
+- Shows: Type icon, Date/time, Duration, Notes
+- Contact's `lastContactedAt` updated
+- Activity type filter includes new type
+- Success message displayed
+
+**Priority**: High
+
+---
+
+### TC-CONT-018: Log Activity (Meeting)
+
+**Priority**: Medium  
+**Type**: Functional
+
+**Preconditions**:
+- User is logged in
+- Contact exists
+
+**Test Steps**:
+1. Open contact detail panel
+2. Click "Log Activity"
+3. Select "Meeting"
+4. Set date/time
+5. Set duration: 1 hour
+6. Enter notes
+7. Save
+
+**Expected Result**:
+- Meeting logged successfully
+- Appears in communication history
+- Meeting icon displayed
+- Duration shown
+- Chronological order maintained
+
+**Priority**: Medium
+
+---
+
+### TC-CONT-019: Log Activity (Note)
+
+**Priority**: Medium  
+**Type**: Functional
+
+**Preconditions**:
+- User is logged in
+- Contact exists
+
+**Test Steps**:
+1. Open contact detail panel
+2. Click "Log Activity"
+3. Select "Note"
+4. Set date/time
+5. Enter notes: "Client prefers morning appointments"
+6. Save
+
+**Expected Result**:
+- Note logged successfully
+- No duration field (notes don't have duration)
+- Appears in communication history
+- Note icon displayed
+
+**Priority**: Medium
+
+---
+
+### TC-CONT-020: View Communication History
+
+**Priority**: High  
+**Type**: Functional
+
+**Preconditions**:
+- User is logged in
+- Contact has communication history (emails, SMS, activities)
+
+**Test Steps**:
+1. Open contact detail panel
+2. View "Communication History" section
+3. Scroll through history
+
+**Expected Result**:
+- All communications displayed chronologically
+- Shows:
+  - Email sent (with subject)
+  - SMS sent (with preview)
+  - Phone calls (with duration)
+  - Meetings (with duration)
+  - Notes
+- Each entry shows: Type icon, Date/time, Content/Notes
+- Can filter by type
+- Paginated if many entries
+
+**Priority**: High
+
+---
+
+### TC-CONT-021: Filter Communication History
+
+**Priority**: Medium  
+**Type**: Functional
+
+**Preconditions**:
+- User is logged in
+- Contact has various communication types
+
+**Test Steps**:
+1. Open contact detail panel
+2. View communication history
+3. Click filter dropdown
+4. Select "Emails Only"
+5. Select "Calls Only"
+
+**Expected Result**:
+- Filter shows only selected communication types
+- Can select multiple types
+- "All" option shows everything
+- Filter persists while panel open
+
+**Priority**: Medium
+
+---
+
+### TC-CONT-022: Email Consent Tracking
+
+**Priority**: High  
+**Type**: Functional, Compliance
+
+**Preconditions**:
+- User is logged in
+
+**Test Steps**:
+1. Create new contact
+2. Check "Email Consent" checkbox
+3. Save contact
+4. View contact details
+5. Verify consent recorded
+
+**Expected Result**:
+- Email consent flag saved as `true`
+- Consent date recorded (timestamp)
+- Consent method recorded: "manual"
+- Displayed in contact details
+- Required for sending emails (CAN-SPAM compliance)
+
+**Priority**: High
+
+---
+
+### TC-CONT-023: SMS Consent Tracking
+
+**Priority**: High  
+**Type**: Functional, Compliance
+
+**Preconditions**:
+- User is logged in
+
+**Test Steps**:
+1. Create new contact
+2. Check "SMS Consent" checkbox
+3. Save contact
+4. View contact details
+5. Verify consent recorded
+
+**Expected Result**:
+- SMS consent flag saved as `true`
+- Consent date recorded (timestamp)
+- Consent method recorded: "manual"
+- Displayed in contact details
+- Required for sending SMS (TCPA compliance)
+
+**Priority**: High
+
+---
+
+### TC-CONT-024: Revoke Consent
+
+**Priority**: High  
+**Type**: Functional, Compliance
+
+**Preconditions**:
+- User is logged in
+- Contact has email/SMS consent
+
+**Test Steps**:
+1. Edit contact
+2. Uncheck "Email Consent"
+3. Uncheck "SMS Consent"
+4. Save contact
+
+**Expected Result**:
+- Consent flags set to `false`
+- Cannot send emails/SMS to this contact
+- Revocation date recorded
+- Audit trail maintained
+- Warning shown when attempting to send
+
+**Priority**: High
+
+---
+
+### TC-CONT-025: Validation - Required Fields
+
+**Priority**: High  
+**Type**: Validation
+
+**Preconditions**:
+- User is logged in
+
+**Test Steps**:
+1. Click "Add Contact"
+2. Leave First Name empty
+3. Leave Last Name empty
+4. Attempt to save
+
+**Expected Result**:
+- Cannot save without required fields
+- Error messages displayed:
+  - "First Name is required"
+  - "Last Name is required"
+  - "Contact Type is required"
+- Required fields highlighted in red
+- Form submission blocked
+
+**Priority**: High
+
+---
+
+### TC-CONT-026: Validation - Email Format
+
+**Priority**: Medium  
+**Type**: Validation
+
+**Preconditions**:
+- User is logged in
+
+**Test Steps**:
+1. Create/edit contact
+2. Enter invalid email: "notanemail"
+3. Attempt to save
+
+**Expected Result**:
+- Error message: "Invalid email format"
+- Email field highlighted
+- Form submission blocked
+- Valid formats accepted: user@domain.com
+
+**Priority**: Medium
+
+---
+
+### TC-CONT-027: Validation - Phone Format
+
+**Priority**: Low  
+**Type**: Validation
+
+**Preconditions**:
+- User is logged in
+
+**Test Steps**:
+1. Create/edit contact
+2. Test various phone formats:
+   - "(555) 123-4567"
+   - "555-123-4567"
+   - "+1 555 123 4567"
+   - "5551234567"
+3. Save contact
+
+**Expected Result**:
+- All common formats accepted
+- Phone formatted consistently on display
+- International formats supported
+- Invalid formats rejected (e.g., "abc")
+
+**Priority**: Low
+
+---
+
+### TC-CONT-028: Validation - Website URL
+
+**Priority**: Low  
+**Type**: Validation
+
+**Preconditions**:
+- User is logged in
+
+**Test Steps**:
+1. Create/edit contact
+2. Enter website: "example.com"
+3. Save contact
+4. Verify URL formatted correctly
+
+**Expected Result**:
+- URL auto-formatted to include "https://"
+- Invalid URLs rejected
+- Website clickable in detail view
+- Opens in new tab
+
+**Priority**: Low
+
+---
+
+### TC-CONT-029: Duplicate Contact Detection
+
+**Priority**: Medium  
+**Type**: Functional
+
+**Preconditions**:
+- User is logged in
+- Contact with email "john@example.com" exists
+
+**Test Steps**:
+1. Attempt to create new contact
+2. Enter same email: "john@example.com"
+3. Attempt to save
+
+**Expected Result**:
+- Warning message: "Contact with this email already exists"
+- Option to view existing contact
+- Option to proceed anyway (different person, same email)
+- Prevents accidental duplicates
+
+**Priority**: Medium
+
+---
+
+### TC-CONT-030: Contact Statistics
+
+**Priority**: Low  
+**Type**: Functional
+
+**Preconditions**:
+- User is logged in
+- Multiple contacts exist
+
+**Test Steps**:
+1. Navigate to `/dashboard/contacts`
+2. View statistics section (if present)
+
+**Expected Result**:
+- Total contacts count
+- Breakdown by type (X clients, Y agents, Z contractors)
+- Recent additions count
+- Favorites count
+- Statistics accurate and real-time
+
+**Priority**: Low
+
+---
+
+## Integration Test Cases
+
+### TC-CONT-INT-001: Contact to Inspection Linking
+
+**Priority**: High  
+**Type**: Integration
+
+**Preconditions**:
+- User is logged in
+- Contact exists
+
+**Test Steps**:
+1. Create inspection
+2. Select existing contact as client
+3. Save inspection
+4. Navigate to contact detail
+5. View related inspections
+
+**Expected Result**:
+- Inspection linked to contact
+- Appears in contact's related inspections
+- Contact's `lastContactedAt` updated
+- Can navigate from contact to inspection
+
+**Priority**: High
+
+---
+
+### TC-CONT-INT-002: Contact to Communication System
+
+**Priority**: High  
+**Type**: Integration
+
+**Preconditions**:
+- User is logged in
+- Contact with email consent exists
+
+**Test Steps**:
+1. Open contact detail
+2. Click "Send Email" button
+3. Send email
+4. View communication history
+
+**Expected Result**:
+- Email sent successfully
+- Appears in communication history
+- Status tracked (sent, delivered, failed)
+- Timestamp recorded
+
+**Priority**: High
+
+---
+
+## API/Backend Test Cases
+
+### TC-CONT-API-001: Create Contact API
+
+**Priority**: High  
+**Type**: API
+
+**Test Steps**:
+1. Call `createContact()` with valid data
+2. Verify Firestore document created
+3. Check all fields saved correctly
+
+**Expected Result**:
+- Document created in `/contacts` collection
+- Unique ID generated
+- All fields match input
+- Timestamps set correctly
+- User ID associated
+
+**Priority**: High
+
+---
+
+### TC-CONT-API-002: Query Contacts by User
+
+**Priority**: High  
+**Type**: API, Security
+
+**Test Steps**:
+1. Log in as User A
+2. Query contacts
+3. Verify only User A's contacts returned
+4. Attempt to access User B's contact
+
+**Expected Result**:
+- Only authenticated user's contacts returned
+- Cannot access other users' contacts
+- Firestore security rules enforced
+- Query filtered by `userId`
+
+**Priority**: High
+
+---
+
+### TC-CONT-API-003: Real-Time Contact Updates
+
+**Priority**: Medium  
+**Type**: API
+
+**Test Steps**:
+1. Subscribe to contacts collection
+2. Create new contact in another tab
+3. Verify subscription receives update
+
+**Expected Result**:
+- Real-time listener receives all changes
+- New contacts appear immediately
+- Updates reflect immediately
+- Deletions remove immediately
+
+**Priority**: Medium
+
+---
+
+### TC-CONT-API-004: CSV Import Batch Processing
+
+**Priority**: Medium  
+**Type**: API, Performance
+
+**Test Steps**:
+1. Import CSV with 100+ contacts
+2. Monitor import progress
+3. Verify all contacts created
+
+**Expected Result**:
+- Batch processing (50 contacts at a time)
+- Progress indicator shown
+- All valid contacts imported
+- No timeout errors
+- Firestore write limits respected
+
+**Priority**: Medium
+
+---
+
+## Performance Test Cases
+
+### TC-CONT-PERF-001: Load Contacts List Performance
+
+**Priority**: Medium  
+**Type**: Performance
+
+**Test Steps**:
+1. Create 500+ contacts
+2. Navigate to contacts list
+3. Measure load time
+
+**Expected Result**:
+- Page loads in &lt;3 seconds
+- Pagination implemented
+- Smooth scrolling
+- No UI freezing
+
+**Priority**: Medium
+
+---
+
+### TC-CONT-PERF-002: Search Performance
+
+**Priority**: Medium  
+**Type**: Performance
+
+**Test Steps**:
+1. With 500+ contacts
+2. Type in search box
+3. Measure response time
+
+**Expected Result**:
+- Search results appear in &lt;500ms
+- Debounced input (waits for user to stop typing)
+- Efficient Firestore query
+- No lag or stuttering
+
+**Priority**: Medium
+
+---
+
+## Mobile Test Cases
+
+### TC-CONT-MOBILE-001: Create Contact on Mobile
+
+**Priority**: High  
+**Type**: Mobile
+
+**Test Steps**:
+1. Open app on mobile device
+2. Navigate to contacts
+3. Create new contact
+4. Fill in form
+
+**Expected Result**:
+- Form optimized for mobile
+- Keyboard doesn't obscure inputs
+- Touch targets appropriately sized
+- Smooth mobile experience
+
+**Priority**: High
+
+---
+
+### TC-CONT-MOBILE-002: View Contact Details on Mobile
+
+**Priority**: High  
+**Type**: Mobile
+
+**Test Steps**:
+1. Open app on mobile
+2. Tap on contact
+3. View detail panel
+
+**Expected Result**:
+- Detail panel responsive
+- All information accessible
+- Action buttons easy to tap
+- Scrolling smooth
+
+**Priority**: High
+
+---
+
+## Summary
+
+**Total Test Cases**: 40  
+**High Priority**: 22  
+**Medium Priority**: 13  
+**Low Priority**: 5
+
+**Coverage Areas**:
+- [OK] CRUD Operations
+- [OK] CSV Import/Export
+- [OK] Activity Logging
+- [OK] Communication History
+- [OK] Consent Tracking (TCPA/CAN-SPAM)
+- [OK] Filtering, Searching, Sorting
+- [OK] Tags and Favorites
+- [OK] Validation
+- [OK] Integration (Inspections, Communications)
+- [OK] API/Backend
+- [OK] Performance
+- [OK] Mobile
+
+**Estimated Testing Time**: 14-16 hours for complete execution
+
+
+

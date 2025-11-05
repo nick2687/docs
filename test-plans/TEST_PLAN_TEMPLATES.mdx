@@ -1,0 +1,921 @@
+---
+title: "Test Plan: Inspection Templates"
+description: "Test plan for inspection template builder and sync"
+---
+
+# Test Plan: Inspection Templates
+
+**Feature Area**: Inspection Template Builder & Sync  
+**Related Files**: `web/app/dashboard/settings/inspection-templates/*`, `web/components/templates/*`, `web/lib/firebase/templates.ts`
+
+---
+
+## Feature Overview
+
+The inspection template system allows users to create reusable inspection templates with hierarchical structure (Templates → Sections → Items → Comment Templates). Templates sync across web, iOS, and Android platforms.
+
+---
+
+## Test Cases
+
+### TC-TMPL-001: Create New Template
+
+**Priority**: High  
+**Type**: Functional
+
+**Preconditions**:
+- User is logged in
+
+**Test Steps**:
+1. Navigate to `/dashboard/settings/inspection-templates`
+2. Click "Create Template" button
+3. Enter template name: "Residential Home Inspection"
+4. Enter description: "Standard residential property inspection"
+5. Click "Create"
+
+**Expected Result**:
+- Template created in Firestore
+- Unique template ID generated
+- Status set to "Active"
+- Usage count initialized to 0
+- Redirected to template editor
+- Success message displayed
+
+**Priority**: High
+
+---
+
+### TC-TMPL-002: Add Section to Template
+
+**Priority**: High  
+**Type**: Functional
+
+**Preconditions**:
+- User is logged in
+- Template exists
+
+**Test Steps**:
+1. Open template editor
+2. Click "Add Section" button
+3. Enter section name: "Roof"
+4. Enter description: "Roof covering and structure"
+5. Select icon: "Roof" icon
+6. Add reminders text
+7. Add standards of practice text
+8. Save section
+
+**Expected Result**:
+- Section created and linked to template
+- Appears in template hierarchy
+- Order set automatically
+- Icon displayed
+- All fields saved to Firestore
+
+**Priority**: High
+
+---
+
+### TC-TMPL-003: Add Item to Section
+
+**Priority**: High  
+**Type**: Functional
+
+**Preconditions**:
+- User is logged in
+- Template with section exists
+
+**Test Steps**:
+1. Open template editor
+2. Expand a section
+3. Click "Add Item" button
+4. Enter item name: "Roof Coverings"
+5. Enter description: "Shingles, tiles, or other covering materials"
+6. Save item
+
+**Expected Result**:
+- Item created and linked to section
+- Appears under section in hierarchy
+- Order set automatically
+- All fields saved
+
+**Priority**: High
+
+---
+
+### TC-TMPL-004: Add Comment Template to Item
+
+**Priority**: High  
+**Type**: Functional
+
+**Preconditions**:
+- User is logged in
+- Template with section and item exists
+
+**Test Steps**:
+1. Open template editor
+2. Expand section and item
+3. Click "Add Comment Template"
+4. Select comment group: "Information"
+5. Select comment type: "Checkbox"
+6. Enter title: "Shingle Condition"
+7. Enter text: "Shingles are in good condition with no visible damage"
+8. Add checkbox options:
+   - "Good condition"
+   - "Minor wear"
+   - "Needs repair"
+   - "Needs replacement"
+9. Upload reference photo (optional)
+10. Save comment template
+
+**Expected Result**:
+- Comment template created
+- Linked to item
+- All fields saved
+- Photo uploaded to Firebase Storage (if provided)
+- Appears in template hierarchy
+
+**Priority**: High
+
+---
+
+### TC-TMPL-005: Reorder Sections
+
+**Priority**: Medium  
+**Type**: Functional
+
+**Preconditions**:
+- User is logged in
+- Template with multiple sections exists
+
+**Test Steps**:
+1. Open template editor
+2. Drag "Electrical" section
+3. Drop above "Plumbing" section
+4. Verify order changed
+
+**Expected Result**:
+- Sections reorder via drag-and-drop
+- Order saved to Firestore
+- Changes persist after refresh
+- Smooth drag-and-drop UX
+
+**Priority**: Medium
+
+---
+
+### TC-TMPL-006: Reorder Items within Section
+
+**Priority**: Medium  
+**Type**: Functional
+
+**Preconditions**:
+- User is logged in
+- Section with multiple items exists
+
+**Test Steps**:
+1. Open template editor
+2. Expand section
+3. Drag item to new position
+4. Verify order changed
+
+**Expected Result**:
+- Items reorder within section
+- Order saved
+- Changes persist
+- Drag-and-drop works smoothly
+
+**Priority**: Medium
+
+---
+
+### TC-TMPL-007: Reorder Comment Templates
+
+**Priority**: Medium  
+**Type**: Functional
+
+**Preconditions**:
+- User is logged in
+- Item with multiple comment templates exists
+
+**Test Steps**:
+1. Open template editor
+2. Expand item
+3. Reorder comment templates
+4. Save
+
+**Expected Result**:
+- Comment templates reorder
+- Order saved
+- Changes persist
+
+**Priority**: Medium
+
+---
+
+### TC-TMPL-008: Edit Section
+
+**Priority**: High  
+**Type**: Functional
+
+**Preconditions**:
+- User is logged in
+- Section exists
+
+**Test Steps**:
+1. Click on section
+2. Click "Edit" button
+3. Modify name and description
+4. Change icon
+5. Save changes
+
+**Expected Result**:
+- All changes saved
+- Updates reflected immediately
+- `updatedAt` timestamp updated
+
+**Priority**: High
+
+---
+
+### TC-TMPL-009: Edit Item
+
+**Priority**: High  
+**Type**: Functional
+
+**Preconditions**:
+- User is logged in
+- Item exists
+
+**Test Steps**:
+1. Click on item
+2. Edit name and description
+3. Save
+
+**Expected Result**:
+- Changes saved
+- Updates reflected immediately
+
+**Priority**: High
+
+---
+
+### TC-TMPL-010: Edit Comment Template
+
+**Priority**: High  
+**Type**: Functional
+
+**Preconditions**:
+- User is logged in
+- Comment template exists
+
+**Test Steps**:
+1. Click on comment template
+2. Edit text
+3. Modify checkbox options
+4. Add/remove photos
+5. Save
+
+**Expected Result**:
+- All changes saved
+- Photos uploaded/deleted from Storage
+- Updates reflected immediately
+
+**Priority**: High
+
+---
+
+### TC-TMPL-011: Delete Section
+
+**Priority**: Medium  
+**Type**: Functional
+
+**Preconditions**:
+- User is logged in
+- Section exists
+
+**Test Steps**:
+1. Click on section
+2. Click "Delete" button
+3. Confirm deletion
+
+**Expected Result**:
+- Confirmation modal appears
+- After confirmation:
+  - Section deleted
+  - All child items deleted
+  - All comment templates deleted
+  - Photos deleted from Storage
+  - Removed from template hierarchy
+
+**Priority**: Medium
+
+---
+
+### TC-TMPL-012: Delete Item
+
+**Priority**: Medium  
+**Type**: Functional
+
+**Preconditions**:
+- User is logged in
+- Item exists
+
+**Test Steps**:
+1. Click on item
+2. Delete item
+3. Confirm
+
+**Expected Result**:
+- Item deleted
+- All child comment templates deleted
+- Photos deleted
+- Removed from hierarchy
+
+**Priority**: Medium
+
+---
+
+### TC-TMPL-013: Delete Comment Template
+
+**Priority**: Medium  
+**Type**: Functional
+
+**Preconditions**:
+- User is logged in
+- Comment template exists
+
+**Test Steps**:
+1. Click on comment template
+2. Delete
+3. Confirm
+
+**Expected Result**:
+- Comment template deleted
+- Associated photos deleted from Storage
+- Removed from list
+
+**Priority**: Medium
+
+---
+
+### TC-TMPL-014: Duplicate Template
+
+**Priority**: Medium  
+**Type**: Functional
+
+**Preconditions**:
+- User is logged in
+- Complete template exists
+
+**Test Steps**:
+1. View templates list
+2. Click "Duplicate" on a template
+3. Enter new name: "Copy of [Original]"
+4. Confirm duplication
+
+**Expected Result**:
+- New template created
+- All sections copied
+- All items copied
+- All comment templates copied
+- Photos copied to new Storage paths
+- New unique IDs for all entities
+- Original template unchanged
+
+**Priority**: Medium
+
+---
+
+### TC-TMPL-015: Delete Template
+
+**Priority**: High  
+**Type**: Functional
+
+**Preconditions**:
+- User is logged in
+- Template exists
+
+**Test Steps**:
+1. View templates list
+2. Click "Delete" on template
+3. Confirm deletion
+
+**Expected Result**:
+- Confirmation modal with warning
+- After confirmation:
+  - Template deleted
+  - All sections deleted
+  - All items deleted
+  - All comment templates deleted
+  - All photos deleted from Storage
+  - Removed from list
+
+**Priority**: High
+
+---
+
+### TC-TMPL-016: Import Template from CSV (Spectora Format)
+
+**Priority**: High  
+**Type**: Functional
+
+**Preconditions**:
+- User is logged in
+- Spectora CSV file prepared
+
+**Test Steps**:
+1. Navigate to templates page
+2. Click "Import Template"
+3. Select "Spectora CSV" format
+4. Upload CSV file
+5. Review import preview
+6. Confirm import
+
+**Expected Result**:
+- CSV parsed correctly
+- Template structure created:
+  - Sections from CSV
+  - Items from CSV
+  - Comment templates from CSV
+- All fields mapped correctly
+- Import summary shown
+- New template appears in list
+
+**Priority**: High
+
+---
+
+### TC-TMPL-017: Export Template
+
+**Priority**: Medium  
+**Type**: Functional
+
+**Preconditions**:
+- User is logged in
+- Template exists
+
+**Test Steps**:
+1. View template
+2. Click "Export" button
+3. Select export format (JSON or CSV)
+4. Download file
+
+**Expected Result**:
+- Template exported with full hierarchy
+- All sections, items, comments included
+- File downloads successfully
+- Can be imported later
+
+**Priority**: Medium
+
+---
+
+### TC-TMPL-018: Template Sync to iOS
+
+**Priority**: High  
+**Type**: Integration
+
+**Preconditions**:
+- User logged in on web and iOS
+- Template created on web
+
+**Test Steps**:
+1. Create/edit template on web
+2. Open iOS app
+3. Trigger sync (pull to refresh)
+4. Navigate to templates
+5. Verify template appears
+
+**Expected Result**:
+- Template syncs to iOS
+- All sections synced
+- All items synced
+- All comment templates synced
+- Photos downloaded and cached
+- Hierarchy preserved
+- Can use template in iOS inspections
+
+**Priority**: High
+
+---
+
+### TC-TMPL-019: Template Sync to Android
+
+**Priority**: High  
+**Type**: Integration
+
+**Preconditions**:
+- User logged in on web and Android
+- Template created on web
+
+**Test Steps**:
+1. Create/edit template on web
+2. Open Android app
+3. Trigger sync
+4. Navigate to templates
+5. Verify template appears
+
+**Expected Result**:
+- Template syncs to Android
+- Full hierarchy synced
+- Photos downloaded
+- Can use template in Android inspections
+
+**Priority**: High
+
+---
+
+### TC-TMPL-020: Comment Type - Checkbox
+
+**Priority**: High  
+**Type**: Functional
+
+**Preconditions**:
+- User is logged in
+
+**Test Steps**:
+1. Create comment template
+2. Select type: "Checkbox"
+3. Add multiple checkbox options
+4. Save
+
+**Expected Result**:
+- Checkbox options saved
+- Can select multiple options
+- Works in inspection creation
+
+**Priority**: High
+
+---
+
+### TC-TMPL-021: Comment Type - Multiple Choice
+
+**Priority**: Medium  
+**Type**: Functional
+
+**Preconditions**:
+- User is logged in
+
+**Test Steps**:
+1. Create comment template
+2. Select type: "Multiple Choice"
+3. Add options
+4. Save
+
+**Expected Result**:
+- Options saved
+- Only one option selectable
+- Works in inspection
+
+**Priority**: Medium
+
+---
+
+### TC-TMPL-022: Comment Type - Text
+
+**Priority**: Medium  
+**Type**: Functional
+
+**Preconditions**:
+- User is logged in
+
+**Test Steps**:
+1. Create comment template
+2. Select type: "Text"
+3. Set default text (optional)
+4. Save
+
+**Expected Result**:
+- Text field available in inspection
+- Default text pre-filled
+- Can be edited during inspection
+
+**Priority**: Medium
+
+---
+
+### TC-TMPL-023: Comment Type - Rating
+
+**Priority**: Low  
+**Type**: Functional
+
+**Preconditions**:
+- User is logged in
+
+**Test Steps**:
+1. Create comment template
+2. Select type: "Rating"
+3. Set rating scale (1-5 stars)
+4. Save
+
+**Expected Result**:
+- Rating field available
+- Stars/scale works in inspection
+- Rating saved with inspection
+
+**Priority**: Low
+
+---
+
+### TC-TMPL-024: Upload Reference Photo to Comment
+
+**Priority**: Medium  
+**Type**: Functional
+
+**Preconditions**:
+- User is logged in
+- Comment template exists
+
+**Test Steps**:
+1. Edit comment template
+2. Click "Upload Photo"
+3. Select image file
+4. Add caption
+5. Save
+
+**Expected Result**:
+- Photo uploaded to Firebase Storage
+- URL saved in comment template
+- Photo displays in template editor
+- Photo syncs to mobile apps
+- Caption saved
+
+**Priority**: Medium
+
+---
+
+### TC-TMPL-025: Template Preview Mode
+
+**Priority**: Medium  
+**Type**: Functional
+
+**Preconditions**:
+- User is logged in
+- Template exists
+
+**Test Steps**:
+1. View template
+2. Click "Preview" button
+3. View inspector preview
+4. Switch to client report preview
+
+**Expected Result**:
+- Inspector preview shows full hierarchy
+- Client preview shows formatted report view
+- All sections, items, comments visible
+- Photos displayed
+- Helps visualize template
+
+**Priority**: Medium
+
+---
+
+### TC-TMPL-026: Template Usage Count
+
+**Priority**: Low  
+**Type**: Functional
+
+**Preconditions**:
+- User is logged in
+- Template exists
+
+**Test Steps**:
+1. Note template usage count
+2. Create inspection using this template
+3. Return to templates page
+4. Verify usage incremented
+
+**Expected Result**:
+- Usage count increments
+- Displayed on template card
+- Accurate tracking
+
+**Priority**: Low
+
+---
+
+### TC-TMPL-027: Search Templates
+
+**Priority**: Medium  
+**Type**: Functional
+
+**Preconditions**:
+- User is logged in
+- Multiple templates exist
+
+**Test Steps**:
+1. Navigate to templates page
+2. Enter "Residential" in search
+3. View filtered results
+
+**Expected Result**:
+- Search filters templates
+- Searches name and description
+- Real-time filtering
+- Clear button resets
+
+**Priority**: Medium
+
+---
+
+### TC-TMPL-028: Filter Templates by Status
+
+**Priority**: Low  
+**Type**: Functional
+
+**Preconditions**:
+- User is logged in
+- Active and inactive templates exist
+
+**Test Steps**:
+1. Click status filter
+2. Select "Active Only"
+3. Select "Inactive Only"
+
+**Expected Result**:
+- Filter works correctly
+- Only matching templates shown
+- Can toggle filter
+
+**Priority**: Low
+
+---
+
+### TC-TMPL-029: Validation - Template Name Required
+
+**Priority**: High  
+**Type**: Validation
+
+**Preconditions**:
+- User is logged in
+
+**Test Steps**:
+1. Click "Create Template"
+2. Leave name empty
+3. Attempt to save
+
+**Expected Result**:
+- Error: "Template name is required"
+- Cannot save without name
+- Form submission blocked
+
+**Priority**: High
+
+---
+
+### TC-TMPL-030: Validation - Section Name Required
+
+**Priority**: High  
+**Type**: Validation
+
+**Preconditions**:
+- User is logged in
+
+**Test Steps**:
+1. Add section to template
+2. Leave name empty
+3. Attempt to save
+
+**Expected Result**:
+- Error: "Section name is required"
+- Cannot save without name
+
+**Priority**: High
+
+---
+
+## API/Backend Test Cases
+
+### TC-TMPL-API-001: Template Sync Query
+
+**Priority**: High  
+**Type**: API
+
+**Test Steps**:
+1. Query templates for user
+2. Query sections for template
+3. Query items for section
+4. Query comments for item
+5. Verify hierarchy
+
+**Expected Result**:
+- Efficient queries with indexes
+- Correct filtering by userId
+- Proper ordering
+- Complete hierarchy returned
+
+**Priority**: High
+
+---
+
+### TC-TMPL-API-002: Cascade Delete
+
+**Priority**: High  
+**Type**: API
+
+**Test Steps**:
+1. Delete template with full hierarchy
+2. Verify all related documents deleted
+
+**Expected Result**:
+- Template document deleted
+- All section documents deleted
+- All item documents deleted
+- All comment documents deleted
+- Photos deleted from Storage
+- No orphaned data
+
+**Priority**: High
+
+---
+
+### TC-TMPL-API-003: Photo Upload to Storage
+
+**Priority**: High  
+**Type**: API
+
+**Test Steps**:
+1. Upload photo to comment template
+2. Verify stored in Firebase Storage
+3. Verify URL saved in Firestore
+
+**Expected Result**:
+- Photo uploaded successfully
+- Stored in correct path: ```
+/templates/{userId}/{templateId}/...
+```text
+- Public URL generated
+- URL saved in comment template
+
+**Priority**: High
+
+---
+
+## Performance Test Cases
+
+### TC-TMPL-PERF-001: Load Large Template
+
+**Priority**: Medium  
+**Type**: Performance
+
+**Test Steps**:
+1. Create template with:
+   - 20 sections
+   - 10 items per section (200 total)
+   - 5 comments per item (1,000 total)
+2. Load template in editor
+3. Measure load time
+
+**Expected Result**:
+- Template loads in &lt;5 seconds
+- Hierarchy renders smoothly
+- No UI freezing
+- Lazy loading for large structures
+
+**Priority**: Medium
+
+---
+
+### TC-TMPL-PERF-002: Sync Performance
+
+**Priority**: High  
+**Type**: Performance
+
+**Test Steps**:
+1. Sync 5 large templates to mobile
+2. Measure sync time
+
+**Expected Result**:
+- Sync completes in &lt;30 seconds
+- Progress indicator shown
+- Photos downloaded efficiently
+- No timeouts
+
+**Priority**: High
+
+---
+
+## Summary
+
+**Total Test Cases**: 33  
+**High Priority**: 15  
+**Medium Priority**: 14  
+**Low Priority**: 4
+
+**Coverage Areas**:
+- [OK] Template CRUD
+- [OK] Hierarchical Structure (Sections, Items, Comments)
+- [OK] Drag-and-Drop Reordering
+- [OK] Comment Types (Checkbox, Text, Rating, etc.)
+- [OK] Photo Management
+- [OK] Import/Export (Spectora CSV)
+- [OK] Cross-Platform Sync (iOS, Android)
+- [OK] Template Preview
+- [OK] Validation
+- [OK] API/Backend
+- [OK] Performance
+
+**Estimated Testing Time**: 14-16 hours for complete execution
+
+
+

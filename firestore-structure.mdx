@@ -1,0 +1,353 @@
+---
+title: Firestore Structure
+description: Complete database schema and data structure
+---
+
+# Firestore Structure
+
+This document details the complete Firestore database structure used by HomeLens Web and mobile apps.
+
+## Design Principles
+
+1. **Flat Collections**: Avoid deeply nested subcollections for better query performance
+2. **Denormalization**: Store commonly accessed data together to reduce reads
+3. **User Isolation**: All documents contain `userId` for security rules
+4. **Timestamps**: Every document has `createdAt` and `updatedAt`
+5. **Soft Deletes**: Use status flags instead of deleting for data recovery
+
+## Collections Overview
+
+```
+users
+templates
+templateSections
+templateItems
+commentTemplates
+services
+fees
+feeOptions
+contacts
+inspections
+```
+
+## Collection Details
+
+### users
+
+User profiles and company information.
+
+**Document ID**: Firebase Auth UID
+
+```typescript
+{
+  id: string                    // Same as document ID
+  email: string
+  companyName?: string
+  licenseNumber?: string
+  phoneNumber?: string
+  businessAddress?: string
+  website?: string
+  logoUrl?: string
+  profilePhotoUrl?: string
+  branding?: {
+    primaryColor: string
+    secondaryColor: string
+    accentColor: string
+    fontFamily?: string
+  }
+  createdAt: Timestamp
+  updatedAt: Timestamp
+}
+```
+
+### templates
+
+Inspection report templates.
+
+**Document ID**: Auto-generated
+
+```typescript
+{
+  id: string
+  userId: string
+  name: string
+  templateDescription?: string
+  isActive: boolean
+  usageCount: number
+  createdAt: Timestamp
+  updatedAt: Timestamp
+}
+```
+
+### templateSections
+
+Sections within templates.
+
+**Document ID**: Auto-generated
+
+```typescript
+{
+  id: string
+  templateId: string
+  name: string
+  sectionDescription?: string
+  iconName?: string
+  order: number
+  reminders?: string
+  standardsOfPractice?: string
+}
+```
+
+### templateItems
+
+Items within sections.
+
+**Document ID**: Auto-generated
+
+```typescript
+{
+  id: string
+  sectionId: string
+  name: string
+  itemDescription?: string
+  order: number
+}
+```
+
+### commentTemplates
+
+Pre-defined comments organized by category.
+
+**Document ID**: Auto-generated
+
+```typescript
+{
+  id: string
+  itemId: string
+  commentGroup: 'information' | 'limitations' | 'deficiencies'
+  commentType: 'checkbox' | 'text' | 'multipleChoice' | 'rating'
+  text: string
+  checkboxOptions?: string[]
+  order: number
+}
+```
+
+### services
+
+Inspection services offered.
+
+**Document ID**: Auto-generated
+
+```typescript
+{
+  id: string
+  userId: string
+  name: string
+  serviceDescription?: string
+  estimatedDuration: number  // Minutes
+  isActive: boolean
+  isDefault: boolean
+  basePrice: number
+  currency: string
+  taxRate: number           // Decimal
+  taxName: string
+  usageCount: number
+  totalRevenue: number
+  templateIds?: string[]
+  createdAt: Timestamp
+  updatedAt: Timestamp
+}
+```
+
+### fees
+
+Additional fees for services.
+
+**Document ID**: Auto-generated
+
+```typescript
+{
+  id: string
+  serviceId: string
+  feeType: 'property_size' | 'selling_price' | 'property_age' | 
+           'travel_distance' | 'hourly_rate' | 'additional_features' | 'custom'
+  feeName: string
+  calculationMethod: 'tiered' | 'flat' | 'percentage'
+  isEnabled: boolean
+  order: number
+}
+```
+
+### feeOptions
+
+Tier ranges for fees.
+
+**Document ID**: Auto-generated
+
+```typescript
+{
+  id: string
+  feeId: string
+  minValue: number
+  maxValue: number
+  feeAmount: number
+  optionLabel: string
+  order: number
+}
+```
+
+### contacts
+
+CRM contacts (clients, agents, contractors).
+
+**Document ID**: Auto-generated
+
+```typescript
+{
+  id: string
+  userId: string
+  contactType: 'client' | 'agent' | 'contractor'
+  firstName: string
+  lastName: string
+  email?: string
+  phone?: string
+  company?: string
+  address?: string
+  notes?: string
+  tags: string[]
+  createdAt: Timestamp
+  updatedAt: Timestamp
+  lastContactedAt?: Timestamp
+}
+```
+
+### inspections
+
+Scheduled or completed inspections.
+
+**Document ID**: Auto-generated
+
+```typescript
+{
+  id: string
+  userId: string
+  propertyAddress: string
+  propertyCity: string
+  propertyState: string
+  propertyZip: string
+  propertyCountry: string
+  clientName: string
+  clientEmail?: string
+  clientPhone?: string
+  scheduledDate: Timestamp
+  status: 'scheduled' | 'in_progress' | 'completed' | 'cancelled'
+  notes?: string
+  serviceId?: string
+  serviceName?: string      // Denormalized
+  basePrice?: number
+  totalPrice?: number
+  isPublic: boolean
+  shareToken?: string
+  createdAt: Timestamp
+  updatedAt: Timestamp
+}
+```
+
+## Query Examples
+
+### Get Active Templates
+
+```typescript
+const templatesRef = collection(db, 'templates')
+const q = query(
+  templatesRef,
+  where('userId', '==', currentUserId),
+  where('isActive', '==', true),
+  orderBy('updatedAt', 'desc')
+)
+```
+
+### Get Template Sections
+
+```typescript
+const sectionsRef = collection(db, 'templateSections')
+const q = query(
+  sectionsRef,
+  where('templateId', '==', templateId),
+  orderBy('order', 'asc')
+)
+```
+
+### Get Upcoming Inspections
+
+```typescript
+const inspectionsRef = collection(db, 'inspections')
+const q = query(
+  inspectionsRef,
+  where('userId', '==', currentUserId),
+  where('scheduledDate', '>=', new Date()),
+  orderBy('scheduledDate', 'asc'),
+  limit(50)
+)
+```
+
+### Find Inspection by Share Token
+
+```typescript
+const inspectionsRef = collection(db, 'inspections')
+const q = query(
+  inspectionsRef,
+  where('shareToken', '==', token),
+  where('isPublic', '==', true)
+)
+```
+
+## Security Rules
+
+### User Isolation
+
+All collections follow user isolation:
+
+```javascript
+match /{collection}/{document} {
+  allow read, write: if request.auth != null && 
+    resource.data.userId == request.auth.uid;
+}
+```
+
+### Public Access Exception
+
+Inspections with public access:
+
+```javascript
+match /inspections/{inspectionId} {
+  allow read: if request.auth != null && 
+    resource.data.userId == request.auth.uid ||
+    (resource.data.isPublic == true && 
+     resource.data.shareToken == request.query.token);
+}
+```
+
+## Indexes
+
+Required composite indexes:
+
+- `templates`: `userId` + `isActive`
+- `templateSections`: `templateId` + `order`
+- `templateItems`: `sectionId` + `order`
+- `commentTemplates`: `itemId` + `commentGroup` + `order`
+- `services`: `userId` + `isActive`
+- `fees`: `serviceId` + `order`
+- `feeOptions`: `feeId` + `order`
+- `contacts`: `userId` + `contactType`
+- `contacts`: `userId` + `lastContactedAt` (DESC)
+- `inspections`: `userId` + `scheduledDate`
+- `inspections`: `userId` + `status` + `scheduledDate`
+- `inspections`: `shareToken` (unique)
+
+## Related Documentation
+
+- [Architecture](/docs/architecture) - System design
+- [API Reference](/docs/api-reference) - API endpoints
+- [Development](/docs/development) - Development guide
+

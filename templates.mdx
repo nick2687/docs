@@ -1,0 +1,233 @@
+---
+title: Templates
+description: Create and manage inspection report templates
+---
+
+# Templates
+
+The template system allows you to create custom inspection report templates with sections, items, and pre-defined comments.
+
+## Overview
+
+Templates define the structure of your inspection reports:
+
+- **Templates** - Top-level template (e.g., "Residential Full Inspection")
+- **Sections** - Major areas (e.g., "Roof", "Foundation", "Electrical")
+- **Items** - Specific inspection points within sections
+- **Comment Templates** - Pre-defined comments organized by category
+
+## Template Structure
+
+### Creating a Template
+
+1. Navigate to **Settings → Inspection Templates**
+2. Click **Create New Template**
+3. Enter template name and description
+4. Set template as active/inactive
+
+### Template Fields
+
+```typescript
+interface Template {
+  id: string
+  userId: string
+  name: string
+  templateDescription?: string
+  isActive: boolean
+  usageCount: number
+  createdAt: Timestamp
+  updatedAt: Timestamp
+}
+```
+
+## Sections
+
+### Adding Sections
+
+Sections organize inspection items into logical groups:
+
+1. Select a template
+2. Click **Add Section**
+3. Enter section name and description
+4. Choose an icon (optional)
+5. Set display order
+
+### Section Fields
+
+```typescript
+interface TemplateSection {
+  id: string
+  templateId: string
+  name: string
+  sectionDescription?: string
+  iconName?: string
+  order: number
+  reminders?: string
+  standardsOfPractice?: string
+}
+```
+
+### Section Ordering
+
+Drag and drop sections to reorder, or use the order field for programmatic ordering.
+
+## Items
+
+### Adding Items
+
+Items are specific inspection points within sections:
+
+1. Select a section
+2. Click **Add Item**
+3. Enter item name and description
+4. Set display order
+
+### Item Fields
+
+```typescript
+interface TemplateItem {
+  id: string
+  sectionId: string
+  name: string
+  itemDescription?: string
+  order: number
+}
+```
+
+## Comment Templates
+
+Comment templates provide pre-defined comments organized into three categories:
+
+### Comment Groups
+
+1. **Information** - General observations
+2. **Limitations** - Inspection limitations and disclaimers
+3. **Deficiencies** - Defects and issues found
+
+### Comment Types
+
+- **Checkbox** - Yes/No options
+- **Text** - Free-form text
+- **Multiple Choice** - Select from options
+- **Rating** - Rating scale
+
+### Creating Comment Templates
+
+1. Select an item
+2. Choose comment group
+3. Select comment type
+4. Enter comment text or options
+5. Set order
+
+### Comment Template Example
+
+```typescript
+interface CommentTemplate {
+  id: string
+  itemId: string
+  commentGroup: 'information' | 'limitations' | 'deficiencies'
+  commentType: 'checkbox' | 'text' | 'multipleChoice' | 'rating'
+  text: string
+  checkboxOptions?: string[]
+  order: number
+}
+```
+
+## Template Management
+
+### Importing Templates
+
+Import templates from other systems:
+
+1. Navigate to template list
+2. Click **Import Template**
+3. Upload JSON or CSV file
+4. Map fields if needed
+5. Review and confirm
+
+### Exporting Templates
+
+Export templates for backup or sharing:
+
+1. Select template
+2. Click **Export Template**
+3. Choose format (JSON or CSV)
+4. Download file
+
+### Spectora Import
+
+Special import for Spectora templates:
+
+1. Click **Import from Spectora**
+2. Upload Spectora export file
+3. System automatically maps:
+   - Templates → Templates
+   - Categories → Sections
+   - Items → Items
+   - Comments → Comment Templates
+
+### Template Usage
+
+- Templates are linked to inspections via `templateId`
+- Usage count tracks how many inspections use each template
+- Active templates appear in inspection creation dropdown
+
+## Best Practices
+
+### Organization
+
+- Use descriptive section names
+- Group related items together
+- Maintain consistent ordering
+
+### Comments
+
+- Create reusable comment templates
+- Organize by comment group
+- Use checkboxes for common findings
+- Provide text options for detailed notes
+
+### Maintenance
+
+- Review template usage regularly
+- Archive unused templates
+- Update templates based on inspection feedback
+
+## API Examples
+
+### Get All Templates
+
+```typescript
+import { getTemplates } from '@/lib/firebase/templates'
+
+const templates = await getTemplates(userId)
+```
+
+### Create Template
+
+```typescript
+import { createTemplate } from '@/lib/firebase/templates'
+
+const template = await createTemplate({
+  userId,
+  name: 'Residential Full Inspection',
+  templateDescription: 'Standard residential home inspection',
+  isActive: true,
+})
+```
+
+### Get Template with Sections and Items
+
+```typescript
+import { getTemplateWithDetails } from '@/lib/firebase/templates'
+
+const template = await getTemplateWithDetails(templateId)
+// Returns template with nested sections, items, and comments
+```
+
+## Related Documentation
+
+- [Inspections](/docs/inspections) - Using templates in inspections
+- [Services](/docs/services) - Linking templates to services
+- [API Reference](/docs/api-reference) - Template API endpoints
+

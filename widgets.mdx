@@ -1,0 +1,311 @@
+---
+title: Scheduling Widgets
+description: Embeddable booking widgets for your website
+---
+
+# Scheduling Widgets
+
+Embeddable scheduling widgets allow clients to book inspections directly from your website without leaving the page.
+
+## Overview
+
+Widget features:
+
+- Multi-step booking flow
+- Real-time availability checking
+- Customizable fields and branding
+- Service selection
+- Payment integration
+- Mobile-responsive
+
+## Widget Types
+
+### Single Page Widget
+
+All fields on one page:
+
+- Quick booking
+- Simple layout
+- Fast completion
+
+### Multi-Step Widget
+
+Progressive form:
+
+- Step 1: Contact information
+- Step 2: Property details
+- Step 3: Service selection
+- Step 4: Scheduling
+- Step 5: Custom fields (optional)
+- Step 6: Review and submit
+
+## Widget Configuration
+
+### General Settings
+
+Configure widget basics:
+
+- **Widget Name**: Internal identifier
+- **Service Selection**: Single or multiple services
+- **Availability**: Calendar availability rules
+- **Payment**: Require payment on booking
+
+### Branding
+
+Customize widget appearance:
+
+- **Colors**: Match your brand
+- **Logo**: Upload logo
+- **Font**: Custom font family
+- **Layout**: Customize layout
+
+### Fields
+
+Configure which fields to collect:
+
+- **Required Fields**: Always shown
+- **Optional Fields**: Can be hidden
+- **Custom Fields**: Add custom questions
+- **Field Labels**: Customize labels
+
+### Scheduling Options
+
+- **Time Slots**: Available time slots
+- **Buffer Time**: Time between bookings
+- **Advance Booking**: How far in advance
+- **Same-Day Booking**: Allow/disallow
+
+## Embedding Widgets
+
+### Embed Code
+
+Generate embed code:
+
+1. Navigate to **Settings → Widget**
+2. Configure widget
+3. Click **Get Embed Code**
+4. Copy code snippet
+
+### HTML Embed
+
+```html
+<iframe
+  src="https://yourdomain.com/widget/{inspectorId}"
+  width="100%"
+  height="800"
+  frameborder="0"
+></iframe>
+```
+
+### React Component
+
+```typescript
+import { Widget } from '@/components/widget'
+
+<Widget inspectorId={inspectorId} />
+```
+
+## Widget Flow
+
+### Step 1: Contact Information
+
+Collect client contact details:
+
+- First name
+- Last name
+- Email
+- Phone
+
+### Step 2: Property Details
+
+Property information:
+
+- Address (with autocomplete)
+- City
+- State/Province
+- ZIP/Postal Code
+- Property type (optional)
+
+### Step 3: Service Selection
+
+Select inspection service:
+
+- Service list
+- Service descriptions
+- Pricing display
+- Estimated duration
+
+### Step 4: Scheduling
+
+Choose date and time:
+
+- Calendar view
+- Available time slots
+- Time zone display
+- Buffer time indicators
+
+### Step 5: Custom Fields
+
+Additional information (if configured):
+
+- Text fields
+- Dropdowns
+- Checkboxes
+- File uploads
+
+### Step 6: Review
+
+Review and submit:
+
+- Summary of information
+- Total price
+- Payment (if required)
+- Terms and conditions
+
+## Availability Management
+
+### Availability Rules
+
+Configure when bookings are available:
+
+- **Business Hours**: Operating hours
+- **Days Off**: Blocked days
+- **Time Slots**: Available time slots
+- **Buffer Time**: Time between bookings
+
+### Real-Time Checking
+
+- Check availability in real-time
+- Show only available slots
+- Update as slots are booked
+- Handle conflicts
+
+## Payment Integration
+
+### Payment on Booking
+
+Require payment when booking:
+
+- Stripe integration
+- Secure payment processing
+- Payment confirmation
+- Invoice generation
+
+### Payment Settings
+
+- Enable/disable payment
+- Payment amount (full or deposit)
+- Payment methods
+- Refund policy
+
+## Widget API
+
+### Widget Endpoints
+
+```
+GET /api/widget/config/{inspectorId}
+GET /api/widget/availability/{inspectorId}
+POST /api/widget/booking
+GET /api/widget/services/{inspectorId}
+```
+
+### Config Response
+
+```typescript
+interface WidgetConfig {
+  inspectorId: string
+  branding: {
+    colors: ColorScheme
+    logo: string
+    font: string
+  }
+  services: Service[]
+  fields: FieldConfig[]
+  scheduling: SchedulingOptions
+}
+```
+
+### Booking Submission
+
+```typescript
+interface BookingRequest {
+  contact: ContactInfo
+  property: PropertyInfo
+  serviceId: string
+  scheduledDate: string
+  scheduledTime: string
+  customFields?: Record<string, any>
+  paymentIntentId?: string
+}
+```
+
+## Customization
+
+### Field Templates
+
+Create reusable field templates:
+
+- Custom questions
+- Field types
+- Validation rules
+- Default values
+
+### Branding
+
+Match widget to your site:
+
+- Color scheme
+- Logo placement
+- Typography
+- Layout options
+
+## Analytics
+
+### Widget Analytics
+
+Track widget performance:
+
+- Views
+- Starts
+- Completions
+- Conversion rate
+- Popular services
+
+### Booking Sources
+
+Track where bookings come from:
+
+- Website embed
+- Direct link
+- Social media
+- Email campaigns
+
+## Best Practices
+
+### Configuration
+
+- Keep fields minimal
+- Make required fields clear
+- Test booking flow
+- Verify availability settings
+
+### Branding
+
+- Match website design
+- Use consistent colors
+- Include logo
+- Professional appearance
+
+### User Experience
+
+- Clear progress indicators
+- Mobile-friendly design
+- Fast loading
+- Error handling
+
+## Related Documentation
+
+- [Inspections](/docs/inspections) - Booking creates inspections
+- [Services](/docs/services) - Service configuration
+- [Settings](/docs/settings) - Widget settings
+

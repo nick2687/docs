@@ -1,0 +1,446 @@
+---
+title: "Test Plan - Document Index"
+description: "Index and navigation guide for all HomeLens test plan documents"
+---
+
+# HomeLens Test Plan - Document Index
+
+**Project**: HomeLens Web Application  
+**Version**: 1.0  
+**Date**: November 4, 2025  
+**Total Documents**: 12
+
+---
+
+## Quick Navigation
+
+This test plan is organized into 12 separate documents for easier navigation and management. Each document focuses on a specific feature area or testing approach.
+
+---
+
+## Core Documents
+
+### 1. [TEST_PLAN_OVERVIEW.mdx](./TEST_PLAN_OVERVIEW.mdx)
+**Purpose**: Executive summary, testing strategy, environment setup, roles and responsibilities
+
+**Key Sections**:
+- Executive Summary
+- Scope (In/Out of Scope)
+- Testing Strategy (Functional, UI/UX, Performance, Security, API, Integration, Cross-Browser)
+- Test Environment Setup
+- Pass/Fail Criteria
+- Roles and Responsibilities
+- Test Schedule
+- Defect Management
+- Risk Assessment
+
+**Read this first** to understand the overall testing approach.
+
+---
+
+## Feature-Specific Test Plans
+
+### 2. [TEST_PLAN_AUTHENTICATION.mdx](./TEST_PLAN_AUTHENTICATION.mdx)
+**Feature**: User Authentication & Account Management  
+**Test Cases**: 28 (21 High, 6 Medium, 1 Low)  
+**Estimated Time**: 8-10 hours
+
+**Coverage**:
+- Sign Up, Login, Logout
+- Password Reset
+- Session Management
+- Protected Routes
+- Security (XSS, CSRF, Token Validation)
+- API/Backend
+- Performance
+- Cross-Browser
+
+---
+
+### 3. [TEST_PLAN_INSPECTIONS.mdx](./TEST_PLAN_INSPECTIONS.mdx)
+**Feature**: Inspection Management  
+**Test Cases**: 35 (20 High, 13 Medium, 2 Low)  
+**Estimated Time**: 12-15 hours
+
+**Coverage**:
+- CRUD Operations
+- Multi-step Inspection Creation
+- Quick Add from Calendar
+- Status Management
+- Service Selection and Pricing
+- Filtering, Searching, Sorting
+- Validation
+- Integration (Calendar, Contacts, Services)
+- API/Backend
+- Performance
+
+---
+
+### 4. [TEST_PLAN_CALENDAR.mdx](./TEST_PLAN_CALENDAR.mdx)
+**Feature**: Calendar Integration & Scheduling  
+**Test Cases**: 21 (11 High, 6 Medium, 4 Low)  
+**Estimated Time**: 6-8 hours
+
+**Coverage**:
+- Calendar Views (Month)
+- Navigation
+- Quick Add Inspection
+- View/Edit/Delete from Calendar
+- Filtering
+- Real-Time Updates
+- Mobile Responsiveness
+- Integration with Inspections
+- API/Backend
+- Performance
+
+---
+
+### 5. [TEST_PLAN_CONTACTS.mdx](./TEST_PLAN_CONTACTS.mdx)
+**Feature**: Contact/CRM Management  
+**Test Cases**: 40 (22 High, 13 Medium, 5 Low)  
+**Estimated Time**: 14-16 hours
+
+**Coverage**:
+- CRUD Operations
+- CSV Import/Export
+- Activity Logging (Calls, Meetings, Notes)
+- Communication History
+- Consent Tracking (TCPA/CAN-SPAM)
+- Filtering, Searching, Sorting
+- Tags and Favorites
+- Validation
+- Integration (Inspections, Communications)
+- API/Backend
+- Performance
+
+---
+
+### 6. [TEST_PLAN_SERVICES.mdx](./TEST_PLAN_SERVICES.mdx)
+**Feature**: Services & Pricing Management  
+**Test Cases**: 27 (16 High, 9 Medium, 2 Low)  
+**Estimated Time**: 10-12 hours
+
+**Coverage**:
+- CRUD Operations
+- Flat Rate Pricing
+- Size-Based Pricing
+- Custom Multi-Fee Pricing
+- Usage Tracking
+- Revenue Calculation
+- Integration with Inspections
+- Pricing Calculator
+- Validation
+- API/Backend
+- Performance
+
+---
+
+### 7. [TEST_PLAN_COMMUNICATIONS.mdx](./TEST_PLAN_COMMUNICATIONS.mdx)
+**Feature**: Communication System (Email/SMS)  
+**Test Cases**: 35 (18 High, 13 Medium, 4 Low)  
+**Estimated Time**: 12-14 hours
+
+**Coverage**:
+- Email Templates
+- SMS Templates
+- Template Management (CRUD)
+- Sending Emails/SMS
+- Consent Tracking (TCPA/CAN-SPAM)
+- Variable Replacement
+- Communication History
+- Delivery Status Tracking
+- Bulk Sending
+- Validation
+- Integration (Inspections, Contacts)
+- API/Backend (Cloud Functions)
+- Security
+
+---
+
+### 8. [TEST_PLAN_TEMPLATES.mdx](./TEST_PLAN_TEMPLATES.mdx)
+**Feature**: Inspection Template Builder & Sync  
+**Test Cases**: 33 (15 High, 14 Medium, 4 Low)  
+**Estimated Time**: 14-16 hours
+
+**Coverage**:
+- Template CRUD
+- Hierarchical Structure (Sections, Items, Comments)
+- Drag-and-Drop Reordering
+- Comment Types (Checkbox, Text, Rating, etc.)
+- Photo Management
+- Import/Export (Spectora CSV)
+- Cross-Platform Sync (iOS, Android)
+- Template Preview
+- Validation
+- API/Backend
+- Performance
+
+---
+
+### 9. [TEST_PLAN_PORTAL.mdx](./TEST_PLAN_PORTAL.mdx)
+**Feature**: Client Portal  
+**Test Cases**: 33 (17 High, 12 Medium, 4 Low)  
+**Estimated Time**: 12-14 hours
+
+**Coverage**:
+- Portal Settings Configuration
+- Portal Publishing
+- Secure URL Generation
+- Portal Access (Valid/Invalid/Expired)
+- Access Tracking & Analytics
+- Email Notifications
+- Portal Display (Property, Report, Dates)
+- Responsive Design
+- Branding
+- Security (Token Security, Data Isolation)
+- API/Backend (Cloud Functions)
+- Performance
+
+---
+
+### 10. [TEST_PLAN_WIDGET.mdx](./TEST_PLAN_WIDGET.mdx)
+**Feature**: Embeddable Scheduling Widget  
+**Test Cases**: 33 (19 High, 10 Medium, 4 Low)  
+**Estimated Time**: 12-14 hours
+
+**Coverage**:
+- Widget Configuration (General, Branding, Calendar)
+- Embed Code Generation
+- Multi-Step Booking Flow
+- Single-Page Mode
+- Availability Calculator
+- Price Calculation
+- Email/SMS Notifications
+- Responsive Design
+- Validation
+- External Website Embedding (WordPress, Wix, Squarespace)
+- API Endpoints
+- Performance
+- Security
+
+---
+
+### 11. [TEST_PLAN_SETTINGS.mdx](./TEST_PLAN_SETTINGS.mdx)
+**Feature**: Settings & Configuration  
+**Test Cases**: 30 (11 High, 14 Medium, 5 Low)  
+**Estimated Time**: 10-12 hours
+
+**Coverage**:
+- Profile Settings
+- Company Settings
+- Password Management
+- Branding Configuration
+- Photo/Logo Upload
+- Sync Settings
+- Validation
+- Settings Persistence
+- Integration (Dashboard, Reports, Portal, Widget)
+- API/Backend
+- Security
+
+---
+
+## Special Documents
+
+### 12. [TEST_PLAN_AUTOMATED.mdx](./TEST_PLAN_AUTOMATED.mdx)
+**Purpose**: Comprehensive recommendations for implementing automated testing
+
+**Key Sections**:
+1. **Unit Testing** (Jest/Vitest + React Testing Library)
+   - What to test
+   - Setup instructions
+   - Code examples
+   - Coverage goals (70%+)
+
+2. **Integration Testing** (React Testing Library + MSW)
+   - Component integration
+   - API mocking
+   - Setup instructions
+
+3. **End-to-End Testing** (Playwright)
+   - Critical user journeys
+   - Setup instructions
+   - CI/CD integration
+
+4. **API Testing** (Firebase Emulator Suite)
+   - Cloud Functions testing
+   - Firestore rules testing
+
+5. **Visual Regression Testing** (Chromatic/Percy)
+6. **Performance Testing** (Lighthouse CI)
+7. **Accessibility Testing** (jest-axe)
+8. **CI/CD Integration** (GitHub Actions)
+9. **Implementation Roadmap** (Phased approach)
+10. **Best Practices**
+11. **Metrics and Monitoring**
+
+---
+
+## Summary Statistics
+
+### Overall Test Coverage
+
+| Document | Test Cases | High Priority | Medium Priority | Low Priority | Est. Time |
+|----------|------------|---------------|-----------------|--------------|-----------|
+| Authentication | 28 | 21 | 6 | 1 | 8-10h |
+| Inspections | 35 | 20 | 13 | 2 | 12-15h |
+| Calendar | 21 | 11 | 6 | 4 | 6-8h |
+| Contacts | 40 | 22 | 13 | 5 | 14-16h |
+| Services | 27 | 16 | 9 | 2 | 10-12h |
+| Communications | 35 | 18 | 13 | 4 | 12-14h |
+| Templates | 33 | 15 | 14 | 4 | 14-16h |
+| Portal | 33 | 17 | 12 | 4 | 12-14h |
+| Widget | 33 | 19 | 10 | 4 | 12-14h |
+| Settings | 30 | 11 | 14 | 5 | 10-12h |
+| **TOTAL** | **315** | **170** | **110** | **35** | **110-141h** |
+
+### Priority Breakdown
+
+- **High Priority**: 170 test cases (54%) - Critical functionality
+- **Medium Priority**: 110 test cases (35%) - Important features
+- **Low Priority**: 35 test cases (11%) - Nice-to-have
+
+### Testing Types Covered
+
+- [OK] Functional Testing
+- [OK] UI/UX Testing
+- [OK] Security Testing
+- [OK] Performance Testing
+- [OK] API/Backend Testing
+- [OK] Integration Testing
+- [OK] Cross-Browser Testing
+- [OK] Mobile Testing
+- [OK] Validation Testing
+- [OK] Compliance Testing (TCPA, CAN-SPAM)
+
+---
+
+## How to Use These Documents
+
+### For QA Teams
+
+1. **Start with TEST_PLAN_OVERVIEW.mdx** to understand the overall approach
+2. **Review feature-specific plans** for detailed test cases
+3. **Execute tests** following the priority order (High → Medium → Low)
+4. **Log defects** using the defect management process outlined in Overview
+5. **Track progress** against the test schedule
+
+### For Developers
+
+1. **Review TEST_PLAN_AUTOMATED.mdx** for automated testing recommendations
+2. **Implement unit tests** for new features as you develop
+3. **Reference feature-specific plans** to understand test coverage
+4. **Fix defects** logged by QA team
+5. **Maintain test coverage** as code evolves
+
+### For Product Owners
+
+1. **Review TEST_PLAN_OVERVIEW.mdx** for scope and strategy
+2. **Understand test coverage** from summary statistics
+3. **Prioritize defect fixes** based on severity
+4. **Make go/no-go decisions** based on pass/fail criteria
+5. **Track testing progress** against schedule
+
+### For Stakeholders
+
+1. **Read Executive Summary** in TEST_PLAN_OVERVIEW.mdx
+2. **Review Summary Statistics** (above)
+3. **Understand testing approach** and coverage
+4. **Track key metrics** (defects found, test pass rate, coverage)
+
+---
+
+## Testing Phases
+
+### Phase 1: Smoke Testing (Week 1)
+**Focus**: Critical paths only  
+**Documents**: Authentication, Inspections (High priority only)  
+**Goal**: Verify core functionality works
+
+### Phase 2: Feature Testing (Weeks 2-3)
+**Focus**: All functional test cases  
+**Documents**: All feature-specific plans  
+**Goal**: Complete feature coverage
+
+### Phase 3: Integration Testing (Week 4)
+**Focus**: Feature interactions  
+**Documents**: Integration test cases across all plans  
+**Goal**: Verify features work together
+
+### Phase 4: Performance & Security (Week 5)
+**Focus**: Non-functional requirements  
+**Documents**: Performance and Security test cases  
+**Goal**: Meet performance targets, no security issues
+
+### Phase 5: Cross-Browser Testing (Week 6)
+**Focus**: Browser compatibility  
+**Documents**: Cross-browser test cases  
+**Goal**: Works on all target browsers
+
+### Phase 6: Regression Testing (Week 7)
+**Focus**: Re-test all fixed defects  
+**Documents**: All plans (regression suite)  
+**Goal**: Ready for production
+
+---
+
+## Quick Reference
+
+### Critical Path Tests (Must Pass Before Release)
+
+1. **User Authentication** - Sign up, login, logout
+2. **Inspection Creation** - Complete multi-step flow
+3. **Widget Booking** - Complete booking from widget
+4. **Service Selection** - Pricing calculation works
+5. **Contact Management** - CRUD operations work
+6. **Email Sending** - Emails send successfully
+7. **Portal Publishing** - Portal accessible and secure
+8. **Template Sync** - Templates sync to mobile
+9. **Calendar Integration** - Inspections appear on calendar
+10. **Settings Persistence** - Settings save correctly
+
+### High-Risk Areas (Extra Attention Required)
+
+1. **Payment Processing** (when implemented)
+2. **Data Security** (user data isolation)
+3. **Email/SMS Consent** (TCPA/CAN-SPAM compliance)
+4. **Portal Security** (token security, access control)
+5. **Widget Availability** (prevent double-booking)
+6. **Pricing Calculator** (accurate calculations)
+7. **Cross-Platform Sync** (data consistency)
+8. **File Uploads** (security, validation)
+
+---
+
+## Maintenance
+
+### Document Updates
+
+- **Review quarterly** to ensure test cases remain relevant
+- **Update after major features** added
+- **Refine based on defects** found in production
+- **Add new test cases** as edge cases discovered
+
+### Version History
+
+| Version | Date | Changes |
+|---------|------|---------|
+| 1.0 | Nov 4, 2025 | Initial comprehensive test plan |
+
+---
+
+## Contact
+
+For questions about this test plan:
+- **Test Manager**: [Name]
+- **QA Lead**: [Name]
+- **Development Lead**: [Name]
+
+---
+
+**Next Steps**: 
+1. Review TEST_PLAN_OVERVIEW.mdx
+2. Set up test environment
+3. Begin Phase 1 (Smoke Testing)
+4. Review TEST_PLAN_AUTOMATED.mdx for long-term testing strategy
+

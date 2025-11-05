@@ -1,0 +1,229 @@
+---
+title: Client Portal
+description: Share inspection reports with clients through branded portal
+---
+
+# Client Portal
+
+The client portal provides a secure, branded way to share inspection reports with clients without requiring them to create an account.
+
+## Overview
+
+Client portal features:
+
+- Token-based secure access
+- Branded experience with your logo and colors
+- Report viewing and download
+- Repair request builder
+- Payment collection
+- Document downloads
+
+## Portal Access
+
+### Generating Share Links
+
+Publish an inspection to the portal:
+
+1. Open completed inspection
+2. Click **Publish to Portal**
+3. Configure portal settings:
+   - Access expiration (default: 90 days)
+   - Welcome message
+   - Payment options
+4. Generate share link
+
+### Share Token
+
+Each portal access gets a unique token:
+
+- Format: `/portal/r/{token}`
+- Secure and unguessable
+- Expires based on settings
+- One-time or reusable (configurable)
+
+### Portal URL Structure
+
+```
+https://yourdomain.com/portal/r/{shareToken}
+```
+
+## Portal Settings
+
+### Appearance
+
+Customize portal appearance:
+
+- **Logo**: Upload company logo
+- **Colors**: Primary, secondary, accent colors
+- **Font**: Custom font family
+- **Layout**: Left or center alignment
+
+### Access Control
+
+- **Expiration**: Days until access expires
+- **One-Time**: Link expires after first view (optional)
+- **Password**: Optional password protection
+
+### Features
+
+- **Show Closing Date**: Display option period dates
+- **Show End of Period**: Display due diligence period
+- **Period Display Name**: Custom label (e.g., "Option Period")
+- **Allow Payment**: Enable payment collection
+- **Collect After Publish**: Payment timing
+
+## Portal Features
+
+### Report Viewing
+
+Clients can:
+
+- View full inspection report
+- Navigate by sections
+- View photos with annotations
+- Download PDF report
+
+### Repair Request Builder
+
+Clients can create repair requests:
+
+1. Select items from report
+2. Add notes
+3. Submit request
+4. Request sent to inspector
+
+### Payment Collection
+
+If enabled:
+
+- View invoice
+- Pay securely via Stripe
+- Payment confirmation
+- Receipt download
+
+### Document Downloads
+
+- PDF report
+- Photo gallery
+- Repair requests
+- Receipts (if paid)
+
+## Portal Status
+
+Track portal access:
+
+- **Published**: Portal is active
+- **Unpublished**: Portal is inactive
+- **Expired**: Access has expired
+- **Viewed**: Client has accessed portal
+- **Last Accessed**: Most recent access time
+
+## Portal Preview
+
+Preview portal before publishing:
+
+1. Click **Preview Portal**
+2. See client view
+3. Test all features
+4. Adjust settings if needed
+
+## API Examples
+
+### Publish Inspection
+
+```typescript
+import { publishInspection } from '@/lib/firebase/portal'
+
+const portalAccess = await publishInspection(inspectionId, {
+  expirationDays: 90,
+  welcomeMessage: 'Thank you for choosing our services!',
+  allowPayment: true,
+})
+```
+
+### Get Portal Access
+
+```typescript
+import { getPortalAccess } from '@/lib/firebase/portal'
+
+const access = await getPortalAccess(shareToken)
+```
+
+### Track Portal View
+
+```typescript
+import { trackPortalView } from '@/lib/firebase/portal'
+
+await trackPortalView(shareToken, {
+  ipAddress,
+  userAgent,
+})
+```
+
+## Security
+
+### Token Security
+
+- Cryptographically secure tokens
+- Unguessable UUIDs
+- Single-use tokens (optional)
+
+### Access Control
+
+- Expiration dates enforced
+- Server-side validation
+- Rate limiting on access attempts
+
+### Data Privacy
+
+- Only inspection data exposed
+- No access to other inspections
+- No access to inspector account
+
+## Customization
+
+### Branding
+
+Match portal to your brand:
+
+- Upload logo
+- Set brand colors
+- Custom fonts
+- Custom messaging
+
+### Layout
+
+- Left-aligned logo
+- Center-aligned logo
+- Responsive design
+- Mobile-friendly
+
+## Best Practices
+
+### Publishing
+
+- Publish after inspection completion
+- Review report before publishing
+- Set appropriate expiration
+- Include welcome message
+
+### Communication
+
+- Send portal link via email
+- Include instructions
+- Set expectations for access
+- Follow up on payment (if enabled)
+
+### Security
+
+- Use unique tokens
+- Set expiration dates
+- Monitor access logs
+- Unpublish when no longer needed
+
+## Related Documentation
+
+- [Inspections](/docs/inspections) - Creating inspections
+- [Settings](/docs/settings) - Portal configuration
+- [Payments](/docs/payments) - Payment integration
+

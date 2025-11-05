@@ -1,0 +1,599 @@
+---
+title: "Test Plan Overview"
+description: "Executive summary, testing strategy, environment setup, and roles for HomeLens web application testing"
+---
+
+# HomeLens Web Application - Test Plan Overview
+
+**Project**: HomeLens Web Application  
+**Version**: 1.0  
+**Date**: November 4, 2025  
+**Platform**: Web (Next.js/React)
+
+---
+
+## Executive Summary
+
+This test plan provides comprehensive testing coverage for the HomeLens web application, a modern home inspection management platform. The application has completed development of core features including user authentication, inspection management, calendar scheduling, contact/CRM, services management, communication system, client portal, and scheduling widget.
+
+### Testing Objectives
+
+1. Verify all completed features function correctly according to specifications
+2. Ensure data integrity across Firebase Firestore operations
+3. Validate security and authentication mechanisms
+4. Confirm responsive design and cross-browser compatibility
+5. Test API endpoints and Cloud Functions
+6. Validate integration between features and third-party services
+
+---
+
+## Document Structure
+
+This test plan is organized into separate documents for each major feature area:
+
+1. **TEST_PLAN_OVERVIEW.mdx** (this document) - Overview, strategy, environment, roles
+2. **TEST_PLAN_AUTHENTICATION.mdx** - User authentication and account management
+3. **TEST_PLAN_INSPECTIONS.mdx** - Inspection management and workflows
+4. **TEST_PLAN_CALENDAR.mdx** - Calendar integration and scheduling
+5. **TEST_PLAN_CONTACTS.mdx** - Contact/CRM management
+6. **TEST_PLAN_SERVICES.mdx** - Services and pricing management
+7. **TEST_PLAN_COMMUNICATIONS.mdx** - Email/SMS templates and sending
+8. **TEST_PLAN_TEMPLATES.mdx** - Inspection template builder and sync
+9. **TEST_PLAN_PORTAL.mdx** - Client portal functionality
+10. **TEST_PLAN_WIDGET.mdx** - Scheduling widget and public booking
+11. **TEST_PLAN_SETTINGS.mdx** - Settings and configuration
+12. **TEST_PLAN_AUTOMATED.mdx** - Automated testing recommendations
+
+---
+
+## Scope
+
+### In Scope
+
+**Core Features (Completed):**
+- [OK] User Authentication (Sign Up, Login, Password Reset, Logout)
+- [OK] Dashboard & Analytics (Stats, Recent Activity, Quick Actions)
+- [OK] Inspection Management (Create, Edit, View, Delete, Status Management)
+- [OK] Calendar Integration (Schedule View, Quick Add, Availability Management)
+- [OK] Contact/CRM Management (CRUD, Import/Export CSV, Activity Logging)
+- [OK] Services Management (Create Services, Pricing Tiers, Usage Tracking)
+- [OK] Communication System (Email/SMS Templates, Send Communications, History)
+- [OK] Inspection Templates (Template Builder, Sections, Items, Comment Templates)
+- [OK] Client Portal (Portal Settings, URL Generation, Access Tracking)
+- [OK] Scheduling Widget (Embeddable Widget, Multi-step/Single-page, Availability Calculator)
+- [OK] Settings Management (Profile, Company, Password, Sync, Portal, Widget)
+- [OK] Template Sync (Cross-platform sync to iOS/Android)
+
+**Technical Areas:**
+- Firebase Authentication
+- Firestore database operations
+- Firebase Cloud Functions
+- Firebase Storage (photo uploads)
+- Third-party integrations (Mailgun, Plivo, Resend, NotificationAPI)
+- API endpoints for widget
+- Real-time data synchronization
+
+### Out of Scope
+
+- iOS native application testing
+- Android native application testing
+- Payment processing (Stripe integration - not yet implemented)
+- Google Calendar OAuth integration (foundation ready, not connected)
+- PDF report generation
+- Mobile app offline functionality
+
+---
+
+## Testing Strategy
+
+### 1. Functional Testing
+
+**Objective**: Verify all features work according to specifications
+
+**Approach**:
+- Test all CRUD operations for each data entity
+- Verify business logic and calculations
+- Test data validation and error handling
+- Confirm user workflows from start to finish
+- Test edge cases and boundary conditions
+
+**Coverage**: All features listed in scope
+
+### 2. UI/UX Testing
+
+**Objective**: Ensure excellent user experience across devices
+
+**Approach**:
+- Test responsive design on multiple screen sizes
+- Verify accessibility standards (WCAG 2.1 AA)
+- Test keyboard navigation
+- Verify visual consistency and branding
+- Test loading states and error messages
+- Confirm intuitive navigation and workflows
+
+**Tools**: Browser DevTools, Lighthouse, WAVE accessibility checker
+
+### 3. Performance Testing
+
+**Objective**: Ensure application performs well under load
+
+**Approach**:
+- Measure page load times (target: &lt;3 seconds)
+- Test with large datasets (100+ contacts, inspections, templates)
+- Monitor Firestore query performance
+- Test concurrent user scenarios
+- Measure widget embed performance
+- Test photo upload and processing times
+
+**Metrics**:
+- First Contentful Paint (FCP): &lt;1.8s
+- Largest Contentful Paint (LCP): &lt;2.5s
+- Time to Interactive (TTI): &lt;3.5s
+- Cumulative Layout Shift (CLS): &lt;0.1
+
+### 4. Security Testing
+
+**Objective**: Ensure data protection and secure access
+
+**Approach**:
+- Test authentication and authorization
+- Verify Firestore security rules
+- Test for XSS vulnerabilities
+- Test for CSRF protection
+- Verify API endpoint security
+- Test data encryption and storage
+- Verify user data isolation (multi-tenancy)
+- Test consent tracking compliance (TCPA, CAN-SPAM)
+
+**Focus Areas**:
+- Firebase Authentication tokens
+- Firestore security rules
+- Cloud Function authentication
+- API endpoint validation
+- Input sanitization
+- Session management
+
+### 5. API/Backend Testing
+
+**Objective**: Verify all backend services function correctly
+
+**Approach**:
+- Test Firebase Cloud Functions
+- Verify Firestore queries and indexes
+- Test API endpoints (widget booking, availability)
+- Verify email/SMS sending (Mailgun, Plivo, Resend, NotificationAPI)
+- Test file upload to Firebase Storage
+- Verify real-time listeners and subscriptions
+
+**Tools**: Postman, Firebase Emulator Suite, curl
+
+### 6. Integration Testing
+
+**Objective**: Ensure features work together seamlessly
+
+**Approach**:
+- Test data flow between features
+- Verify real-time updates across components
+- Test third-party service integrations
+- Verify cross-platform sync (web to iOS/Android)
+- Test widget embed on external websites
+
+**Key Integrations**:
+- Inspection → Calendar sync
+- Contact → Communication history
+- Service → Inspection pricing
+- Template → Inspection creation
+- Portal → Inspection publishing
+- Widget → Inspection booking
+
+### 7. Cross-Browser Testing
+
+**Objective**: Ensure compatibility across browsers
+
+**Browsers**:
+- [OK] Chrome (latest 2 versions)
+- [OK] Firefox (latest 2 versions)
+- [OK] Safari (latest 2 versions)
+- [OK] Edge (latest 2 versions)
+
+**Mobile Browsers**:
+- [OK] Safari iOS (latest)
+- [OK] Chrome Android (latest)
+
+---
+
+## Test Environment
+
+### Hardware Requirements
+
+**Desktop/Laptop**:
+- Processor: Intel i5 or equivalent
+- RAM: 8GB minimum
+- Screen Resolution: 1920x1080 (test at 1366x768, 1920x1080, 2560x1440)
+
+**Mobile Devices**:
+- iPhone 12 or newer (iOS 16+)
+- Android device (Android 10+)
+- iPad (latest 2 generations)
+
+### Software Requirements
+
+**Operating Systems**:
+- macOS 12+ (Monterey or newer)
+- Windows 10/11
+- Ubuntu 20.04+ (optional)
+
+**Browsers** (with versions):
+- Google Chrome 119+
+- Mozilla Firefox 119+
+- Safari 17+
+- Microsoft Edge 119+
+
+**Development Tools**:
+- Node.js 18+
+- npm 9+
+- Git
+- VS Code or similar IDE
+
+### Test Data Requirements
+
+**User Accounts**:
+- Admin user: `test-admin@swiftinspect.com`
+- Standard user: `test-user@swiftinspect.com`
+- New user (for registration testing)
+
+**Sample Data**:
+- 50+ contacts (various types: clients, agents, contractors)
+- 20+ inspections (various statuses: scheduled, in progress, completed)
+- 10+ services with pricing tiers
+- 5+ inspection templates with full hierarchy
+- 10+ communication templates (email and SMS)
+- Sample CSV files for import testing
+
+### Firebase Configuration
+
+**Project**: HomeLens Production/Staging
+
+**Required Services**:
+- Firebase Authentication (Email/Password enabled)
+- Cloud Firestore (with indexes deployed)
+- Firebase Storage (with CORS configured)
+- Cloud Functions (deployed and configured)
+
+**Environment Variables**:
+```bash
+NEXT_PUBLIC_FIREBASE_API_KEY=xxx
+NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=xxx
+NEXT_PUBLIC_FIREBASE_PROJECT_ID=xxx
+NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=xxx
+NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=xxx
+NEXT_PUBLIC_FIREBASE_APP_ID=xxx
+NEXT_PUBLIC_APP_URL=https://app.swiftinspect.com
+
+# Email/SMS (Cloud Functions)
+RESEND_API_KEY=xxx
+RESEND_FROM_EMAIL=noreply@swiftinspect.com
+NOTIFICATIONAPI_CLIENT_ID=xxx
+NOTIFICATIONAPI_CLIENT_SECRET=xxx
+```
+
+### Third-Party Service Accounts
+
+**Email Services**:
+- Mailgun account (for legacy email)
+- Resend account (for new email notifications)
+
+**SMS Services**:
+- Plivo account (for legacy SMS)
+- NotificationAPI account (for new SMS notifications)
+
+**Testing Credentials**:
+- Test phone numbers for SMS
+- Test email addresses (not production)
+
+### Network Requirements
+
+- Stable internet connection (10+ Mbps)
+- Access to Firebase services (no firewall blocking)
+- Access to third-party APIs (Mailgun, Resend, etc.)
+
+---
+
+## Pass/Fail Criteria
+
+### Pass Criteria
+
+A test case **PASSES** if:
+1. All test steps execute without errors
+2. Expected results match actual results exactly
+3. No console errors or warnings appear
+4. Data persists correctly in Firestore
+5. UI renders correctly across target browsers
+6. Performance meets defined metrics
+7. No security vulnerabilities detected
+
+### Fail Criteria
+
+A test case **FAILS** if:
+1. Any test step produces an error
+2. Actual results differ from expected results
+3. Console shows errors (warnings may be acceptable)
+4. Data does not persist or persists incorrectly
+5. UI breaks or renders incorrectly
+6. Performance falls below acceptable thresholds
+7. Security vulnerabilities are discovered
+8. User experience is significantly degraded
+
+### Severity Levels
+
+**Critical (Blocker)**:
+- Application crashes or becomes unusable
+- Data loss or corruption occurs
+- Security vulnerability exposes user data
+- Authentication completely broken
+- Payment processing fails (when implemented)
+
+**High**:
+- Major feature completely non-functional
+- Significant data integrity issues
+- Major UI/UX problems affecting usability
+- Performance degradation &gt;50% of target
+
+**Medium**:
+- Feature partially functional with workarounds
+- Minor data inconsistencies
+- UI/UX issues that don't block workflows
+- Performance degradation 25-50% of target
+
+**Low**:
+- Cosmetic issues
+- Minor inconveniences with easy workarounds
+- Performance degradation &lt;25% of target
+- Documentation or help text issues
+
+### Test Execution Status
+
+- [OK] **Pass**: Test executed successfully, all criteria met
+- [FAIL] **Fail**: Test failed, issue logged
+- [WARNING] **Blocked**: Cannot execute due to dependency
+- [SKIP] **Skipped**: Not applicable or deferred
+- [RETEST] **Retest**: Failed previously, needs re-execution
+
+---
+
+## Roles and Responsibilities
+
+### Test Manager
+**Responsibilities**:
+- Overall test planning and strategy
+- Resource allocation and scheduling
+- Test progress tracking and reporting
+- Risk management and mitigation
+- Stakeholder communication
+
+**Deliverables**:
+- Test plan documents
+- Test progress reports
+- Test summary reports
+- Risk assessment documents
+
+### QA Lead
+**Responsibilities**:
+- Test case design and review
+- Test execution coordination
+- Defect triage and prioritization
+- Test automation strategy
+- Quality metrics tracking
+
+**Deliverables**:
+- Test cases and test suites
+- Test execution reports
+- Defect reports and metrics
+- Automation test scripts
+
+### QA Engineers (Manual Testing)
+**Responsibilities**:
+- Execute manual test cases
+- Document test results
+- Log defects with detailed reproduction steps
+- Perform exploratory testing
+- Verify bug fixes
+
+**Deliverables**:
+- Test execution results
+- Defect reports with screenshots/videos
+- Exploratory testing notes
+
+### QA Automation Engineers
+**Responsibilities**:
+- Develop automated test scripts
+- Maintain test automation framework
+- Execute automated test suites
+- Integrate tests into CI/CD pipeline
+- Report automation coverage metrics
+
+**Deliverables**:
+- Automated test scripts
+- Test automation framework
+- CI/CD integration configuration
+- Automation coverage reports
+
+### Developers
+**Responsibilities**:
+- Fix defects identified during testing
+- Provide technical support for test environment
+- Write unit tests for new code
+- Participate in test case reviews
+- Support test data creation
+
+**Deliverables**:
+- Bug fixes with unit tests
+- Technical documentation
+- Test data scripts
+- Code coverage reports
+
+### Product Owner
+**Responsibilities**:
+- Define acceptance criteria
+- Prioritize defects for fixing
+- Review test results
+- Make go/no-go decisions
+- Approve test plan and scope
+
+**Deliverables**:
+- User stories with acceptance criteria
+- Feature prioritization
+- Sign-off on releases
+
+---
+
+## Test Schedule
+
+### Phase 1: Smoke Testing (Week 1)
+- Execute critical path test cases
+- Verify core functionality works
+- Identify blocking issues
+- **Exit Criteria**: No critical defects
+
+### Phase 2: Feature Testing (Weeks 2-3)
+- Execute all functional test cases
+- Test each feature in detail
+- Log all defects found
+- **Exit Criteria**: &lt;5 high-severity defects
+
+### Phase 3: Integration Testing (Week 4)
+- Test feature interactions
+- Verify data flow between modules
+- Test third-party integrations
+- **Exit Criteria**: All integrations working
+
+### Phase 4: Performance & Security (Week 5)
+- Execute performance test scenarios
+- Run security vulnerability scans
+- Load testing with concurrent users
+- **Exit Criteria**: Performance targets met, no security issues
+
+### Phase 5: Cross-Browser Testing (Week 6)
+- Test on all target browsers
+- Test on mobile devices
+- Verify responsive design
+- **Exit Criteria**: Works on all target platforms
+
+### Phase 6: Regression Testing (Week 7)
+- Re-test all fixed defects
+- Execute full regression suite
+- Final acceptance testing
+- **Exit Criteria**: All tests pass, ready for production
+
+---
+
+## Defect Management
+
+### Defect Logging
+
+**Required Information**:
+1. Title (clear, concise description)
+2. Severity (Critical, High, Medium, Low)
+3. Priority (P0, P1, P2, P3)
+4. Environment (browser, OS, device)
+5. Steps to reproduce (detailed, numbered)
+6. Expected result
+7. Actual result
+8. Screenshots/videos
+9. Console logs (if applicable)
+10. Test data used
+
+### Defect Workflow
+
+1. **New** - Defect logged by QA
+2. **Triaged** - Reviewed and prioritized by QA Lead
+3. **Assigned** - Assigned to developer
+4. **In Progress** - Developer working on fix
+5. **Fixed** - Developer completed fix
+6. **Ready for Test** - Deployed to test environment
+7. **Verified** - QA confirmed fix works
+8. **Closed** - Defect resolved
+9. **Reopened** - Issue persists after fix
+
+### Defect Metrics
+
+Track and report:
+- Total defects found
+- Defects by severity
+- Defects by feature area
+- Defect resolution time
+- Defect reopen rate
+- Defects found vs fixed
+
+---
+
+## Risk Assessment
+
+### High Risks
+
+1. **Firebase Service Outages**
+   - Impact: Application unusable
+   - Mitigation: Monitor Firebase status, have rollback plan
+
+2. **Third-Party API Failures**
+   - Impact: Email/SMS not sending
+   - Mitigation: Implement retry logic, queue messages
+
+3. **Data Migration Issues**
+   - Impact: Data loss or corruption
+   - Mitigation: Backup data, test migration thoroughly
+
+4. **Browser Compatibility Issues**
+   - Impact: Features broken on some browsers
+   - Mitigation: Test early and often on all browsers
+
+### Medium Risks
+
+1. **Performance Degradation with Large Datasets**
+   - Impact: Slow load times
+   - Mitigation: Implement pagination, optimize queries
+
+2. **Incomplete Test Coverage**
+   - Impact: Bugs in production
+   - Mitigation: Prioritize critical paths, add automation
+
+3. **Test Environment Instability**
+   - Impact: Delayed testing
+   - Mitigation: Dedicated staging environment
+
+---
+
+## Test Deliverables
+
+1. [OK] Test Plan Documents (this and feature-specific plans)
+2. [PENDING] Test Cases (detailed in feature-specific documents)
+3. [PENDING] Test Execution Reports
+4. [PENDING] Defect Reports
+5. [PENDING] Test Summary Report
+6. [PENDING] Automated Test Scripts (recommendations in TEST_PLAN_AUTOMATED.mdx)
+
+---
+
+## Approval
+
+| Role | Name | Signature | Date |
+|------|------|-----------|------|
+| Test Manager | | | |
+| QA Lead | | | |
+| Product Owner | | | |
+| Development Lead | | | |
+
+---
+
+## References
+
+- Feature Documentation: See individual completion documents (WIDGET_IMPLEMENTATION_COMPLETE.md, etc.)
+- API Documentation: `/web/functions/src/index.ts`
+- Database Schema: `/web/types/index.ts`
+- Firestore Rules: `/web/firestore.rules`
+- Security Rules: `/web/firestore.rules`
+
+---
+
+**Next Steps**: Review feature-specific test plan documents for detailed test cases.
+

@@ -1,0 +1,862 @@
+---
+title: "Test Plan: Communication System"
+description: "Test plan for email and SMS communication system"
+---
+
+# Test Plan: Communication System (Email/SMS)
+
+**Feature Area**: Communications (Email & SMS)  
+**Related Files**: `web/app/dashboard/settings/communication-templates/page.tsx`, `web/components/communications/*`, `web/functions/src/index.ts`
+
+---
+
+## Feature Overview
+
+The communication system allows users to send emails and SMS messages to contacts using templates with variable replacement. It includes template management, consent tracking (TCPA/CAN-SPAM compliance), communication history, and integration with third-party services (Mailgun, Resend, Plivo, NotificationAPI).
+
+---
+
+## Test Cases
+
+### TC-COMM-001: Create Email Template
+
+**Priority**: High  
+**Type**: Functional
+
+**Preconditions**:
+- User is logged in
+
+**Test Steps**:
+1. Navigate to `/dashboard/settings/communication-templates`
+2. Click "Add Email Template" button
+3. Fill in template form:
+   - Template Name: "Inspection Confirmation"
+   - Subject: "Your Inspection is Scheduled"
+   - Body: "Hi {'{'}firstName{'}'}, your inspection at {'{'}propertyAddress{'}'} is scheduled for {'{'}inspectionDate{'}'}."
+   - Category: "Inspection"
+4. Click "Save Template"
+
+**Expected Result**:
+- Template created in Firestore
+- Unique template ID generated
+- All fields saved correctly
+- Template appears in templates list
+- Variables preserved in body
+- Success message displayed
+
+**Priority**: High
+
+---
+
+### TC-COMM-002: Create SMS Template
+
+**Priority**: High  
+**Type**: Functional
+
+**Preconditions**:
+- User is logged in
+
+**Test Steps**:
+1. Navigate to communication templates page
+2. Click "Add SMS Template"
+3. Fill in form:
+   - Template Name: "Inspection Reminder"
+   - Message: "Reminder: Inspection tomorrow at {'{'}}}propertyAddress{'}'}'}} at {'{'}}}inspectionTime{'}'}'}}. - {'{'}}}inspectorName{'}'}'}}"
+   - Category: "Reminder"
+4. Save template
+
+**Expected Result**:
+- SMS template created
+- Character count displayed (160 char limit warning)
+- Template saved to Firestore
+- Appears in SMS templates list
+- Variables preserved
+
+**Priority**: High
+
+---
+
+### TC-COMM-003: View Templates List
+
+**Priority**: High  
+**Type**: Functional
+
+**Preconditions**:
+- User is logged in
+- Email and SMS templates exist
+
+**Test Steps**:
+1. Navigate to communication templates page
+2. View templates list
+
+**Expected Result**:
+- All user's templates displayed
+- Separate tabs/sections for Email and SMS
+- Each template shows:
+  - Name
+  - Category
+  - Usage count
+  - Last used date
+  - Active/Inactive status
+- Can search and filter templates
+
+**Priority**: High
+
+---
+
+### TC-COMM-004: Edit Template
+
+**Priority**: High  
+**Type**: Functional
+
+**Preconditions**:
+- User is logged in
+- Template exists
+
+**Test Steps**:
+1. Click on a template
+2. Click "Edit" button
+3. Modify subject line
+4. Update body text
+5. Add new variable: {'{'}}}inspectorPhone{'}'}'}}
+6. Save changes
+
+**Expected Result**:
+- All changes saved
+- `updatedAt` timestamp updated
+- Changes reflected immediately
+- Variable syntax validated
+- Success message displayed
+
+**Priority**: High
+
+---
+
+### TC-COMM-005: Delete Template
+
+**Priority**: Medium  
+**Type**: Functional
+
+**Preconditions**:
+- User is logged in
+- Template exists
+
+**Test Steps**:
+1. Click on a template
+2. Click "Delete" button
+3. Confirm deletion
+
+**Expected Result**:
+- Confirmation modal appears
+- After confirmation, template deleted
+- Removed from templates list
+- Cannot be used for new communications
+- Past communications using this template unaffected
+
+**Priority**: Medium
+
+---
+
+### TC-COMM-006: Send Email to Contact
+
+**Priority**: High  
+**Type**: Functional
+
+**Preconditions**:
+- User is logged in
+- Contact with email consent exists
+- Email template exists
+
+**Test Steps**:
+1. Open contact detail panel
+2. Click "Send Email" button
+3. Select template: "Inspection Confirmation"
+4. Review pre-filled content with variables replaced
+5. Optionally edit content
+6. Click "Send Email"
+
+**Expected Result**:
+- Email sent via Mailgun/Resend
+- Variables replaced with actual data:
+  - {'{'}}}firstName{'}'}'}} → "John"
+  - {'{'}}}propertyAddress{'}'}'}} → "123 Main St"
+- Email logged in communication history
+- Status: "Sent"
+- Success message displayed
+- Template usage count incremented
+
+**Priority**: High
+
+---
+
+### TC-COMM-007: Send SMS to Contact
+
+**Priority**: High  
+**Type**: Functional
+
+**Preconditions**:
+- User is logged in
+- Contact with SMS consent exists
+- SMS template exists
+
+**Test Steps**:
+1. Open contact detail panel
+2. Click "Send SMS" button
+3. Select template: "Inspection Reminder"
+4. Review pre-filled message with variables replaced
+5. Verify character count
+6. Click "Send SMS"
+
+**Expected Result**:
+- SMS sent via Plivo/NotificationAPI
+- Variables replaced correctly
+- SMS logged in communication history
+- Status: "Sent"
+- Delivery status tracked
+- Success message displayed
+- Template usage incremented
+
+**Priority**: High
+
+---
+
+### TC-COMM-008: Send Email Without Consent
+
+**Priority**: High  
+**Type**: Functional, Compliance
+
+**Preconditions**:
+- User is logged in
+- Contact WITHOUT email consent exists
+
+**Test Steps**:
+1. Open contact detail panel
+2. Click "Send Email" button
+
+**Expected Result**:
+- Warning message displayed: "This contact has not consented to receive emails"
+- Cannot proceed with sending
+- OR can proceed with explicit warning acknowledgment
+- Compliance with CAN-SPAM requirements
+
+**Priority**: High
+
+---
+
+### TC-COMM-009: Send SMS Without Consent
+
+**Priority**: High  
+**Type**: Functional, Compliance
+
+**Preconditions**:
+- User is logged in
+- Contact WITHOUT SMS consent exists
+
+**Test Steps**:
+1. Open contact detail panel
+2. Click "Send SMS" button
+
+**Expected Result**:
+- Error message: "This contact has not consented to receive SMS"
+- Cannot send SMS
+- Strict enforcement (TCPA compliance)
+- No override option
+
+**Priority**: High
+
+---
+
+### TC-COMM-010: Variable Replacement in Email
+
+**Priority**: High  
+**Type**: Functional
+
+**Preconditions**:
+- User is logged in
+- Contact and inspection exist
+
+**Test Steps**:
+1. Send email using template with variables:
+   - {'{'}}}firstName{'}'}'}}, {'{'}}}lastName{'}'}'}}, {'{'}}}fullName{'}'}'}}
+   - {'{'}}}company{'}'}'}}, {'{'}}}email{'}'}'}}, {'{'}}}phone{'}'}'}}
+   - {'{'}}}propertyAddress{'}'}'}}, {'{'}}}inspectionDate{'}'}'}}
+   - {'{'}}}inspectorName{'}'}'}}, {'{'}}}inspectorPhone{'}'}'}}
+2. Check sent email
+
+**Expected Result**:
+- All variables replaced with actual data
+- Formatting preserved
+- No variable syntax left in email ({'{'}}}variable{'}'}'}})
+- Missing data handled gracefully (empty or default text)
+
+**Priority**: High
+
+---
+
+### TC-COMM-011: Variable Replacement in SMS
+
+**Priority**: High  
+**Type**: Functional
+
+**Preconditions**:
+- User is logged in
+- Contact exists
+
+**Test Steps**:
+1. Send SMS with variables
+2. Check sent SMS
+
+**Expected Result**:
+- All variables replaced
+- Character count accurate after replacement
+- No truncation issues
+- Variables work same as email
+
+**Priority**: High
+
+---
+
+### TC-COMM-012: View Communication History
+
+**Priority**: High  
+**Type**: Functional
+
+**Preconditions**:
+- User is logged in
+- Contact has communication history
+
+**Test Steps**:
+1. Open contact detail panel
+2. View "Communication History" section
+3. Scroll through history
+
+**Expected Result**:
+- All communications displayed chronologically
+- Shows:
+  - Type (Email/SMS/Call/Meeting/Note)
+  - Date and time
+  - Subject/preview
+  - Status (Sent, Delivered, Failed, Opened)
+  - Template used (if any)
+- Can filter by type
+- Paginated if many entries
+
+**Priority**: High
+
+---
+
+### TC-COMM-013: Email Delivery Status Tracking
+
+**Priority**: Medium  
+**Type**: Functional
+
+**Preconditions**:
+- User is logged in
+- Email sent to contact
+
+**Test Steps**:
+1. Send email
+2. Wait for delivery
+3. Check communication history
+4. View email status
+
+**Expected Result**:
+- Status updates automatically:
+  - "Sending" → "Sent" → "Delivered"
+  - OR "Failed" with error message
+- Delivery timestamp recorded
+- Provider message ID stored
+- Can view delivery details
+
+**Priority**: Medium
+
+---
+
+### TC-COMM-014: SMS Delivery Status Tracking
+
+**Priority**: Medium  
+**Type**: Functional
+
+**Preconditions**:
+- User is logged in
+- SMS sent to contact
+
+**Test Steps**:
+1. Send SMS
+2. Wait for delivery
+3. Check communication history
+4. View SMS status
+
+**Expected Result**:
+- Status updates:
+  - "Sending" → "Sent" → "Delivered"
+  - OR "Failed" with error
+- Delivery timestamp recorded
+- Provider message ID stored
+
+**Priority**: Medium
+
+---
+
+### TC-COMM-015: Template Variable Insertion Helper
+
+**Priority**: Medium  
+**Type**: UI/UX
+
+**Preconditions**:
+- User is logged in
+- Creating/editing template
+
+**Test Steps**:
+1. Open template editor
+2. Click "Insert Variable" button
+3. View available variables
+4. Click on a variable
+5. Verify inserted at cursor position
+
+**Expected Result**:
+- Variable dropdown/menu displayed
+- Shows all available variables
+- Clicking variable inserts at cursor
+- Proper syntax: {'{'}}}variableName{'}'}'}}
+- Can insert multiple variables
+
+**Priority**: Medium
+
+---
+
+### TC-COMM-016: Template Preview with Sample Data
+
+**Priority**: Medium  
+**Type**: Functional
+
+**Preconditions**:
+- User is logged in
+- Template with variables exists
+
+**Test Steps**:
+1. View template
+2. Click "Preview" button
+3. View preview with sample data
+
+**Expected Result**:
+- Preview shows template with variables replaced
+- Uses sample/placeholder data
+- Formatting preserved
+- Helps visualize final email/SMS
+
+**Priority**: Medium
+
+---
+
+### TC-COMM-017: Bulk Email Send
+
+**Priority**: Medium  
+**Type**: Functional
+
+**Preconditions**:
+- User is logged in
+- Multiple contacts with email consent exist
+
+**Test Steps**:
+1. Navigate to contacts page
+2. Select multiple contacts (checkbox)
+3. Click "Send Bulk Email" button
+4. Select template
+5. Review recipients
+6. Send
+
+**Expected Result**:
+- Email sent to all selected contacts
+- Variables replaced for each recipient
+- Each email logged separately
+- Progress indicator shown
+- Success summary displayed
+- Failed sends reported
+
+**Priority**: Medium
+
+---
+
+### TC-COMM-018: Email Template Categories
+
+**Priority**: Low  
+**Type**: Functional
+
+**Preconditions**:
+- User is logged in
+- Templates in different categories exist
+
+**Test Steps**:
+1. View templates list
+2. Filter by category: "Inspection"
+3. Filter by category: "Reminder"
+4. Filter by category: "Follow-up"
+
+**Expected Result**:
+- Templates filtered by category
+- Can create custom categories
+- Helps organize templates
+- Filter persists during session
+
+**Priority**: Low
+
+---
+
+### TC-COMM-019: Template Usage Statistics
+
+**Priority**: Low  
+**Type**: Functional
+
+**Preconditions**:
+- User is logged in
+- Template has been used
+
+**Test Steps**:
+1. View template details
+2. Check usage statistics
+
+**Expected Result**:
+- Usage count displayed
+- Last used date shown
+- Most popular templates highlighted
+- Statistics accurate
+
+**Priority**: Low
+
+---
+
+### TC-COMM-020: Validation - Email Template Subject Required
+
+**Priority**: High  
+**Type**: Validation
+
+**Preconditions**:
+- User is logged in
+
+**Test Steps**:
+1. Create email template
+2. Leave subject line empty
+3. Attempt to save
+
+**Expected Result**:
+- Error message: "Subject is required"
+- Cannot save without subject
+- Form submission blocked
+
+**Priority**: High
+
+---
+
+### TC-COMM-021: Validation - SMS Character Limit
+
+**Priority**: Medium  
+**Type**: Validation
+
+**Preconditions**:
+- User is logged in
+
+**Test Steps**:
+1. Create SMS template
+2. Enter message &gt;160 characters
+3. Observe character counter
+
+**Expected Result**:
+- Character count displayed
+- Warning at 160 characters
+- Can save longer messages (multi-part SMS)
+- Warning about additional cost
+- Variables count toward limit after replacement
+
+**Priority**: Medium
+
+---
+
+### TC-COMM-022: Validation - Invalid Variable Syntax
+
+**Priority**: Medium  
+**Type**: Validation
+
+**Preconditions**:
+- User is logged in
+
+**Test Steps**:
+1. Create template
+2. Enter invalid variable: {'{'}}}invalidVar{'}'}'}}
+3. Attempt to save
+
+**Expected Result**:
+- Warning message about unrecognized variable
+- Can save but warned
+- OR validation prevents saving
+- List of valid variables shown
+
+**Priority**: Medium
+
+---
+
+## Integration Test Cases
+
+### TC-COMM-INT-001: Send Email from Inspection
+
+**Priority**: High  
+**Type**: Integration
+
+**Preconditions**:
+- User is logged in
+- Inspection with client contact exists
+
+**Test Steps**:
+1. Open inspection detail page
+2. Click "Send Confirmation Email" button
+3. Select template
+4. Send email
+
+**Expected Result**:
+- Email sent to inspection client
+- Inspection-specific variables populated
+- Email logged in contact's history
+- Email linked to inspection
+
+**Priority**: High
+
+---
+
+### TC-COMM-INT-002: Automatic Email on Inspection Status Change
+
+**Priority**: Medium  
+**Type**: Integration
+
+**Preconditions**:
+- User is logged in
+- Inspection exists
+- Auto-email enabled in settings
+
+**Test Steps**:
+1. Change inspection status to "Completed"
+2. Check if email sent automatically
+
+**Expected Result**:
+- Email sent automatically (if configured)
+- Uses appropriate template
+- Logged in communication history
+- Can be disabled in settings
+
+**Priority**: Medium
+
+---
+
+## API/Backend Test Cases
+
+### TC-COMM-API-001: Send Email Cloud Function
+
+**Priority**: High  
+**Type**: API
+
+**Test Steps**:
+1. Call `sendEmail` Cloud Function with:
+   - contactId
+   - templateId
+   - userId
+2. Verify email sent via Mailgun/Resend
+3. Check communication logged in Firestore
+
+**Expected Result**:
+- Cloud Function executes successfully
+- Email sent to provider
+- Communication document created
+- Template usage incremented
+- Error handling for failures
+
+**Priority**: High
+
+---
+
+### TC-COMM-API-002: Send SMS Cloud Function
+
+**Priority**: High  
+**Type**: API
+
+**Test Steps**:
+1. Call `sendSms` Cloud Function
+2. Verify SMS sent via Plivo/NotificationAPI
+3. Check communication logged
+
+**Expected Result**:
+- Cloud Function executes
+- SMS sent to provider
+- Communication logged
+- Delivery status tracked
+
+**Priority**: High
+
+---
+
+### TC-COMM-API-003: Variable Replacement Engine
+
+**Priority**: High  
+**Type**: API
+
+**Test Steps**:
+1. Call variable replacement function with:
+   - Template text with variables
+   - Contact data
+   - Inspection data
+2. Verify output
+
+**Expected Result**:
+- All variables replaced correctly
+- Missing data handled gracefully
+- No variable syntax remains
+- Formatting preserved
+
+**Priority**: High
+
+---
+
+### TC-COMM-API-004: Consent Verification
+
+**Priority**: High  
+**Type**: API, Security
+
+**Test Steps**:
+1. Attempt to send email to contact without consent
+2. Verify Cloud Function rejects request
+
+**Expected Result**:
+- Request rejected
+- Error: "Contact has not consented"
+- No email sent
+- Compliance enforced server-side
+
+**Priority**: High
+
+---
+
+### TC-COMM-API-005: Rate Limiting
+
+**Priority**: Medium  
+**Type**: API, Security
+
+**Test Steps**:
+1. Attempt to send 100 emails rapidly
+2. Check for rate limiting
+
+**Expected Result**:
+- Rate limiting applied (if configured)
+- Prevents abuse
+- Clear error message
+- Can retry after cooldown
+
+**Priority**: Medium
+
+---
+
+## Performance Test Cases
+
+### TC-COMM-PERF-001: Bulk Email Performance
+
+**Priority**: Medium  
+**Type**: Performance
+
+**Test Steps**:
+1. Send email to 100 contacts
+2. Measure completion time
+
+**Expected Result**:
+- All emails sent in &lt;60 seconds
+- Progress indicator updates
+- No timeouts
+- Batch processing efficient
+
+**Priority**: Medium
+
+---
+
+### TC-COMM-PERF-002: Template Loading Performance
+
+**Priority**: Low  
+**Type**: Performance
+
+**Test Steps**:
+1. Load templates page with 50+ templates
+2. Measure load time
+
+**Expected Result**:
+- Page loads in &lt;3 seconds
+- Templates render smoothly
+- Search/filter responsive
+
+**Priority**: Low
+
+---
+
+## Security Test Cases
+
+### TC-COMM-SEC-001: API Key Security
+
+**Priority**: High  
+**Type**: Security
+
+**Test Steps**:
+1. Inspect Cloud Functions code
+2. Verify API keys not exposed
+3. Check environment variables
+
+**Expected Result**:
+- API keys stored in Firebase Functions config
+- Not exposed in client-side code
+- Not in Git repository
+- Secure key management
+
+**Priority**: High
+
+---
+
+### TC-COMM-SEC-002: User Data Isolation
+
+**Priority**: High  
+**Type**: Security
+
+**Test Steps**:
+1. Log in as User A
+2. Attempt to send email using User B's template
+3. Attempt to view User B's communication history
+
+**Expected Result**:
+- Cannot access other users' templates
+- Cannot view other users' communications
+- Firestore security rules enforced
+- User ID validated in Cloud Functions
+
+**Priority**: High
+
+---
+
+## Summary
+
+**Total Test Cases**: 35  
+**High Priority**: 18  
+**Medium Priority**: 13  
+**Low Priority**: 4
+
+**Coverage Areas**:
+- [OK] Email Templates
+- [OK] SMS Templates
+- [OK] Template Management (CRUD)
+- [OK] Sending Emails/SMS
+- [OK] Consent Tracking (TCPA/CAN-SPAM)
+- [OK] Variable Replacement
+- [OK] Communication History
+- [OK] Delivery Status Tracking
+- [OK] Bulk Sending
+- [OK] Validation
+- [OK] Integration (Inspections, Contacts)
+- [OK] API/Backend (Cloud Functions)
+- [OK] Security
+- [OK] Performance
+
+**Estimated Testing Time**: 12-14 hours for complete execution
+
+
+

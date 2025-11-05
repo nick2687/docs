@@ -1,0 +1,381 @@
+---
+title: API Reference
+description: Complete API endpoint documentation
+---
+
+# API Reference
+
+Complete reference for all API endpoints in HomeLens Web.
+
+## Base URL
+
+```
+https://yourdomain.com/api
+```
+
+## Authentication
+
+Most endpoints require authentication. Include Firebase Auth token in request headers:
+
+```
+Authorization: Bearer {firebaseAuthToken}
+```
+
+## Endpoints
+
+### Templates
+
+#### Get Templates
+
+```http
+GET /api/templates
+```
+
+**Response:**
+
+```json
+{
+  "templates": [
+    {
+      "id": "template_123",
+      "userId": "user_456",
+      "name": "Residential Full Inspection",
+      "isActive": true,
+      "usageCount": 10
+    }
+  ]
+}
+```
+
+#### Create Template
+
+```http
+POST /api/templates
+Content-Type: application/json
+
+{
+  "name": "Residential Full Inspection",
+  "templateDescription": "Standard residential inspection",
+  "isActive": true
+}
+```
+
+#### Update Template
+
+```http
+PUT /api/templates/{templateId}
+Content-Type: application/json
+
+{
+  "name": "Updated Name",
+  "isActive": false
+}
+```
+
+#### Delete Template
+
+```http
+DELETE /api/templates/{templateId}
+```
+
+### Services
+
+#### Get Services
+
+```http
+GET /api/services
+```
+
+**Response:**
+
+```json
+{
+  "services": [
+    {
+      "id": "service_123",
+      "name": "Residential Home Inspection",
+      "basePrice": 300,
+      "currency": "USD",
+      "isActive": true
+    }
+  ]
+}
+```
+
+#### Create Service
+
+```http
+POST /api/services
+Content-Type: application/json
+
+{
+  "name": "Residential Home Inspection",
+  "basePrice": 300,
+  "currency": "USD",
+  "taxRate": 0.13,
+  "taxName": "HST",
+  "estimatedDuration": 180
+}
+```
+
+### Inspections
+
+#### Get Inspections
+
+```http
+GET /api/inspections?status=scheduled&startDate=2025-12-01
+```
+
+**Query Parameters:**
+
+- `status`: Filter by status
+- `startDate`: Filter by start date
+- `endDate`: Filter by end date
+- `limit`: Limit results (default: 50)
+
+#### Create Inspection
+
+```http
+POST /api/inspections
+Content-Type: application/json
+
+{
+  "propertyAddress": "123 Main St",
+  "propertyCity": "Toronto",
+  "propertyState": "ON",
+  "propertyZip": "M5H 2N2",
+  "propertyCountry": "Canada",
+  "clientName": "John Doe",
+  "scheduledDate": "2025-12-01T10:00:00Z",
+  "serviceId": "service_123"
+}
+```
+
+#### Update Inspection
+
+```http
+PUT /api/inspections/{inspectionId}
+Content-Type: application/json
+
+{
+  "status": "completed",
+  "notes": "Inspection completed successfully"
+}
+```
+
+### Contacts
+
+#### Get Contacts
+
+```http
+GET /api/contacts?contactType=client&tags=VIP
+```
+
+**Query Parameters:**
+
+- `contactType`: Filter by type
+- `tags`: Filter by tags (comma-separated)
+- `search`: Search by name, email, phone
+
+#### Create Contact
+
+```http
+POST /api/contacts
+Content-Type: application/json
+
+{
+  "contactType": "client",
+  "firstName": "John",
+  "lastName": "Doe",
+  "email": "john@example.com",
+  "phone": "555-0100",
+  "tags": ["VIP"]
+}
+```
+
+### Widget
+
+#### Get Widget Config
+
+```http
+GET /api/widget/config/{inspectorId}
+```
+
+**Response:**
+
+```json
+{
+  "inspectorId": "user_123",
+  "branding": {
+    "colors": {
+      "primary": "#1E40AF",
+      "secondary": "#3B82F6"
+    },
+    "logo": "https://...",
+    "font": "Inter"
+  },
+  "services": [...],
+  "fields": [...],
+  "scheduling": {...}
+}
+```
+
+#### Check Availability
+
+```http
+GET /api/widget/availability/{inspectorId}?date=2025-12-01
+```
+
+#### Submit Booking
+
+```http
+POST /api/widget/booking
+Content-Type: application/json
+
+{
+  "inspectorId": "user_123",
+  "contact": {
+    "firstName": "John",
+    "lastName": "Doe",
+    "email": "john@example.com",
+    "phone": "555-0100"
+  },
+  "property": {
+    "address": "123 Main St",
+    "city": "Toronto",
+    "state": "ON",
+    "zip": "M5H 2N2"
+  },
+  "serviceId": "service_123",
+  "scheduledDate": "2025-12-01",
+  "scheduledTime": "10:00"
+}
+```
+
+### Stripe
+
+#### Connect Account
+
+```http
+POST /api/stripe/create-account
+```
+
+#### Get Account Status
+
+```http
+GET /api/stripe/connect/account-status
+```
+
+#### Create Payment Link
+
+```http
+POST /api/stripe/create-invoice-payment-link
+Content-Type: application/json
+
+{
+  "inspectionId": "inspection_123",
+  "amount": 45765,
+  "currency": "usd"
+}
+```
+
+### Google Calendar
+
+#### Connect Calendar
+
+```http
+GET /api/calendar/connect
+```
+
+#### Calendar Callback
+
+```http
+GET /api/calendar/callback?code={authCode}
+```
+
+### Google Drive
+
+#### Connect Drive
+
+```http
+GET /api/drive/connect
+```
+
+#### Upload Report
+
+```http
+POST /api/drive/upload
+Content-Type: application/json
+
+{
+  "inspectionId": "inspection_123",
+  "reportUrl": "https://..."
+}
+```
+
+## Error Responses
+
+### Standard Error Format
+
+```json
+{
+  "error": "Error message",
+  "code": "ERROR_CODE",
+  "details": {}
+}
+```
+
+### Status Codes
+
+- `200`: Success
+- `201`: Created
+- `400`: Bad Request
+- `401`: Unauthorized
+- `403`: Forbidden
+- `404`: Not Found
+- `500`: Internal Server Error
+
+## Rate Limiting
+
+API requests are rate-limited:
+
+- **Authenticated**: 1000 requests/hour
+- **Unauthenticated**: 100 requests/hour
+
+Rate limit headers:
+
+```
+X-RateLimit-Limit: 1000
+X-RateLimit-Remaining: 999
+X-RateLimit-Reset: 1638360000
+```
+
+## Pagination
+
+Endpoints that return lists support pagination:
+
+**Query Parameters:**
+
+- `limit`: Items per page (default: 50, max: 100)
+- `offset`: Skip items (default: 0)
+
+**Response:**
+
+```json
+{
+  "data": [...],
+  "pagination": {
+    "limit": 50,
+    "offset": 0,
+    "total": 150,
+    "hasMore": true
+  }
+}
+```
+
+## Related Documentation
+
+- [Architecture](/docs/architecture) - System design
+- [Firestore Structure](/docs/firestore-structure) - Database schema
+- [Development](/docs/development) - Development guide
+

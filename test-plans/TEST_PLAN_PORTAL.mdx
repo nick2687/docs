@@ -1,0 +1,863 @@
+---
+title: "Test Plan: Client Portal"
+description: "Test plan for client portal functionality"
+---
+
+# Test Plan: Client Portal
+
+**Feature Area**: Client Portal  
+**Related Files**: `web/app/portal/r/[token]/*`, `web/app/dashboard/settings/portal/page.tsx`, `web/components/portal/*`
+
+---
+
+## Feature Overview
+
+The client portal allows inspectors to publish inspection reports to a secure, client-accessible web portal. Features include customizable welcome messages, access expiration, portal URL generation, access tracking, and analytics.
+
+---
+
+## Test Cases
+
+### TC-PORT-001: Configure Portal Settings
+
+**Priority**: High  
+**Type**: Functional
+
+**Preconditions**:
+- User is logged in
+
+**Test Steps**:
+1. Navigate to `/dashboard/settings/portal`
+2. Configure settings:
+   - Welcome Message: "Thank you for choosing our inspection service..."
+   - Access Expiration: 90 days
+   - Show Closing Date: Yes
+   - Show End of Period: Yes
+   - Period Display Name: "Option Period"
+   - Allow Payment After Publish: Yes
+3. Click "Save Settings"
+
+**Expected Result**:
+- Settings saved to Firestore (```
+users/{userId}/portalSettings
+```)
+- Success message displayed
+- Settings persist after page refresh
+- All fields saved correctly
+
+**Priority**: High
+
+---
+
+### TC-PORT-002: Welcome Message Variable Insertion
+
+**Priority**: Medium  
+**Type**: Functional
+
+**Preconditions**:
+- User is logged in
+- On portal settings page
+
+**Test Steps**:
+1. Click in welcome message textarea
+2. Position cursor
+3. Click variable button: {'{'}}}clientName{'}'}'}}
+4. Click variable button: {'{'}}}propertyAddress{'}'}'}}
+5. Click variable button: {'{'}}}inspectorName{'}'}'}}
+6. Save settings
+
+**Expected Result**:
+- Variables inserted at cursor position
+- Proper syntax: {'{'}}}variableName{'}'}'}}
+- Variables saved in message
+- Will be replaced when portal viewed
+
+**Priority**: Medium
+
+---
+
+### TC-PORT-003: Welcome Message Character Limit
+
+**Priority**: Low  
+**Type**: Validation
+
+**Preconditions**:
+- User is logged in
+
+**Test Steps**:
+1. Enter welcome message
+2. Observe character counter
+3. Exceed 1,000 characters
+
+**Expected Result**:
+- Character count displayed
+- Warning at 900+ characters
+- Cannot exceed 1,000 characters
+- Clear indication of limit
+
+**Priority**: Low
+
+---
+
+### TC-PORT-004: Publish Inspection to Portal
+
+**Priority**: High  
+**Type**: Functional
+
+**Preconditions**:
+- User is logged in
+- Completed inspection exists
+- Portal settings configured
+
+**Test Steps**:
+1. Navigate to inspection detail page
+2. Click "Publish to Portal" button
+3. Review publish modal:
+   - Portal URL preview
+   - Expiration date
+   - Welcome message preview
+4. Optionally customize message
+5. Check "Send email to client" checkbox
+6. Click "Publish"
+
+**Expected Result**:
+- Unique portal URL generated (32-character token)
+- Portal access document created in Firestore
+- Expiration date set based on settings
+- Email sent to client with portal link (if checked)
+- Success message with portal URL
+- "Copy URL" button available
+- Inspection marked as published
+
+**Priority**: High
+
+---
+
+### TC-PORT-005: Generate Secure Portal URL
+
+**Priority**: High  
+**Type**: Security
+
+**Preconditions**:
+- User is logged in
+- Inspection exists
+
+**Test Steps**:
+1. Publish inspection to portal
+2. Examine generated URL
+3. Verify token characteristics
+
+**Expected Result**:
+- URL format: ```
+https://app.swiftinspect.com/portal/r/{32-char-token}
+```text
+- Token is cryptographically secure (random)
+- Token is 32 characters (hex)
+- No sequential IDs (prevents guessing)
+- Each inspection gets unique token
+
+**Priority**: High
+
+---
+
+### TC-PORT-006: Access Portal with Valid Token
+
+**Priority**: High  
+**Type**: Functional
+
+**Preconditions**:
+- Inspection published to portal
+- Portal URL obtained
+
+**Test Steps**:
+1. Open portal URL in browser (incognito mode)
+2. View portal landing page
+
+**Expected Result**:
+- Portal loads successfully
+- Welcome message displayed with variables replaced:
+  - {'{'}}}clientName{'}'}'}} → actual client name
+  - {'{'}}}propertyAddress{'}'}'}} → actual address
+  - {'{'}}}inspectorName{'}'}'}} → inspector name
+- Property information displayed
+- Inspection details shown
+- Report available for viewing/download
+- No authentication required (public access)
+
+**Priority**: High
+
+---
+
+### TC-PORT-007: Access Portal with Invalid Token
+
+**Priority**: High  
+**Type**: Security
+
+**Preconditions**:
+- None
+
+**Test Steps**:
+1. Navigate to portal URL with invalid token
+2. Example: `/portal/r/invalidtoken123`
+
+**Expected Result**:
+- Error page displayed: "Invalid or expired portal link"
+- No inspection data shown
+- No sensitive information leaked
+- Helpful message for user
+
+**Priority**: High
+
+---
+
+### TC-PORT-008: Access Portal with Expired Token
+
+**Priority**: High  
+**Type**: Functional
+
+**Preconditions**:
+- Inspection published with 30-day expiration
+- 31 days have passed (or manually expire)
+
+**Test Steps**:
+1. Navigate to portal URL
+2. Attempt to access
+
+**Expected Result**:
+- Error page: "This portal link has expired"
+- No inspection data accessible
+- Expiration date shown
+- Contact inspector message
+
+**Priority**: High
+
+---
+
+### TC-PORT-009: Track Portal Access
+
+**Priority**: High  
+**Type**: Functional
+
+**Preconditions**:
+- Inspection published to portal
+
+**Test Steps**:
+1. Access portal URL
+2. View inspection details
+3. Navigate to inspector dashboard
+4. View portal analytics for this inspection
+
+**Expected Result**:
+- Access logged in Firestore:
+  - Access count incremented
+  - Last accessed timestamp updated
+  - IP address recorded
+  - User agent recorded
+- Inspector can view:
+  - Total views
+  - Last viewed date
+  - Access history
+
+**Priority**: High
+
+---
+
+### TC-PORT-010: Portal View Analytics
+
+**Priority**: Medium  
+**Type**: Functional
+
+**Preconditions**:
+- Inspection published
+- Portal accessed multiple times
+
+**Test Steps**:
+1. Navigate to inspection detail page
+2. View "Portal Analytics" section
+
+**Expected Result**:
+- Total views count
+- Unique visitors count (by IP)
+- Last viewed timestamp
+- View history timeline
+- Analytics accurate
+
+**Priority**: Medium
+
+---
+
+### TC-PORT-011: Send Portal Email to Client
+
+**Priority**: High  
+**Type**: Integration
+
+**Preconditions**:
+- User is logged in
+- Inspection with client email exists
+- Portal settings configured
+
+**Test Steps**:
+1. Publish inspection
+2. Check "Send email to client"
+3. Publish
+
+**Expected Result**:
+- Email sent to client's email address
+- Email contains:
+  - Welcome message
+  - Portal URL (clickable link)
+  - Inspection details
+  - Expiration date
+  - Inspector contact info
+- Email branded with company logo/colors
+- Email logged in communication history
+
+**Priority**: High
+
+---
+
+### TC-PORT-012: Copy Portal URL to Clipboard
+
+**Priority**: Medium  
+**Type**: UI/UX
+
+**Preconditions**:
+- Inspection published
+
+**Test Steps**:
+1. View inspection detail
+2. Click "Copy Portal URL" button
+3. Paste URL in browser
+
+**Expected Result**:
+- URL copied to clipboard
+- Success message: "URL copied!"
+- Pasted URL is correct and complete
+- Can share URL via any method
+
+**Priority**: Medium
+
+---
+
+### TC-PORT-013: Revoke Portal Access
+
+**Priority**: High  
+**Type**: Functional
+
+**Preconditions**:
+- Inspection published to portal
+
+**Test Steps**:
+1. Navigate to inspection detail
+2. Click "Revoke Portal Access" button
+3. Confirm revocation
+4. Attempt to access portal URL
+
+**Expected Result**:
+- Portal access revoked
+- Token invalidated
+- Accessing URL shows error: "Access revoked"
+- Inspector can re-publish if needed
+- Revocation logged
+
+**Priority**: High
+
+---
+
+### TC-PORT-014: Update Portal Expiration
+
+**Priority**: Medium  
+**Type**: Functional
+
+**Preconditions**:
+- Inspection published with 30-day expiration
+
+**Test Steps**:
+1. Navigate to inspection detail
+2. Click "Extend Portal Access"
+3. Select new expiration: 90 days
+4. Save
+
+**Expected Result**:
+- Expiration date updated
+- Portal remains accessible
+- New expiration date shown
+- Client can access for extended period
+
+**Priority**: Medium
+
+---
+
+### TC-PORT-015: Portal Display - Property Information
+
+**Priority**: High  
+**Type**: Functional
+
+**Preconditions**:
+- Inspection published
+
+**Test Steps**:
+1. Access portal URL
+2. View property information section
+
+**Expected Result**:
+- Property address displayed
+- Property details shown:
+  - Square footage
+  - Year built
+  - Property type
+- Property photo displayed (if uploaded)
+- Information formatted clearly
+
+**Priority**: High
+
+---
+
+### TC-PORT-016: Portal Display - Inspection Details
+
+**Priority**: High  
+**Type**: Functional
+
+**Preconditions**:
+- Inspection published
+
+**Test Steps**:
+1. Access portal URL
+2. View inspection details section
+
+**Expected Result**:
+- Inspection date displayed
+- Inspector name and contact info
+- Service type
+- Inspection summary
+- All relevant details shown
+
+**Priority**: High
+
+---
+
+### TC-PORT-017: Portal Display - Report Access
+
+**Priority**: High  
+**Type**: Functional
+
+**Preconditions**:
+- Inspection with report published
+
+**Test Steps**:
+1. Access portal URL
+2. Click "View Report" button
+3. Click "Download Report" button
+
+**Expected Result**:
+- Report viewable in browser
+- PDF downloads successfully
+- Report complete and formatted
+- Photos included
+- Professional presentation
+
+**Priority**: High
+
+---
+
+### TC-PORT-018: Portal Display - Closing Date
+
+**Priority**: Medium  
+**Type**: Functional
+
+**Preconditions**:
+- Portal settings: Show Closing Date = Yes
+- Inspection with closing date published
+
+**Test Steps**:
+1. Access portal URL
+2. View closing date section
+
+**Expected Result**:
+- Closing date displayed prominently
+- Countdown shown (if future date)
+- Formatted clearly
+- Only shown if configured in settings
+
+**Priority**: Medium
+
+---
+
+### TC-PORT-019: Portal Display - End of Period Date
+
+**Priority**: Medium  
+**Type**: Functional
+
+**Preconditions**:
+- Portal settings: Show End of Period = Yes
+- Custom period name: "Option Period"
+- Inspection with end date published
+
+**Test Steps**:
+1. Access portal URL
+2. View period information
+
+**Expected Result**:
+- Custom period name displayed: "Option Period"
+- End date shown
+- Countdown displayed
+- Only shown if configured
+
+**Priority**: Medium
+
+---
+
+### TC-PORT-020: Portal Responsive Design
+
+**Priority**: High  
+**Type**: UI/UX
+
+**Preconditions**:
+- Inspection published
+
+**Test Steps**:
+1. Access portal on desktop
+2. Access portal on tablet
+3. Access portal on mobile phone
+
+**Expected Result**:
+- Portal fully responsive
+- All content accessible on all devices
+- Touch-friendly on mobile
+- Report viewable on mobile
+- Professional appearance on all screens
+
+**Priority**: High
+
+---
+
+### TC-PORT-021: Portal Branding
+
+**Priority**: Medium  
+**Type**: UI/UX
+
+**Preconditions**:
+- User has configured company branding
+- Inspection published
+
+**Test Steps**:
+1. Access portal URL
+2. Observe branding elements
+
+**Expected Result**:
+- Company logo displayed
+- Brand colors applied
+- Company name shown
+- Contact information displayed
+- Professional, branded experience
+
+**Priority**: Medium
+
+---
+
+### TC-PORT-022: Portal Payment Integration (Future)
+
+**Priority**: Low  
+**Type**: Functional
+
+**Preconditions**:
+- Portal settings: Allow Payment = Yes
+- Stripe configured (future feature)
+
+**Test Steps**:
+1. Access portal
+2. View payment section
+3. Click "Pay Now" button
+
+**Expected Result**:
+- Payment amount displayed
+- Stripe checkout opens
+- Can complete payment
+- Payment status tracked
+- (Note: Not yet implemented)
+
+**Priority**: Low
+
+---
+
+### TC-PORT-023: Multiple Portal Publishes
+
+**Priority**: Medium  
+**Type**: Functional
+
+**Preconditions**:
+- Inspection previously published
+
+**Test Steps**:
+1. Revoke portal access
+2. Re-publish inspection
+3. Verify new URL generated
+
+**Expected Result**:
+- New unique URL generated
+- Old URL invalidated
+- New token created
+- Can publish multiple times
+- Each publish creates new access record
+
+**Priority**: Medium
+
+---
+
+### TC-PORT-024: Portal Access Without Email
+
+**Priority**: Medium  
+**Type**: Functional
+
+**Preconditions**:
+- Inspection published
+- Email NOT sent
+
+**Test Steps**:
+1. Publish inspection without sending email
+2. Manually share URL with client
+
+**Expected Result**:
+- Portal URL generated
+- No email sent
+- Inspector can share URL manually
+- Portal still accessible
+- Flexibility in sharing method
+
+**Priority**: Medium
+
+---
+
+### TC-PORT-025: Portal SEO and Indexing
+
+**Priority**: Low  
+**Type**: Security
+
+**Preconditions**:
+- Inspection published
+
+**Test Steps**:
+1. Check portal page meta tags
+2. Verify robots.txt
+3. Check for noindex tag
+
+**Expected Result**:
+- Portal pages have `noindex` meta tag
+- Not indexed by search engines
+- Private and secure
+- Only accessible via direct link
+
+**Priority**: Low
+
+---
+
+## API/Backend Test Cases
+
+### TC-PORT-API-001: Generate Portal URL Cloud Function
+
+**Priority**: High  
+**Type**: API
+
+**Test Steps**:
+1. Call `generatePortalUrl` Cloud Function
+2. Verify token generated
+3. Check Firestore document created
+
+**Expected Result**:
+- 32-character random token generated
+- Portal access document created
+- Expiration date calculated
+- Function returns portal URL
+
+**Priority**: High
+
+---
+
+### TC-PORT-API-002: Validate Portal Access Cloud Function
+
+**Priority**: High  
+**Type**: API
+
+**Test Steps**:
+1. Call `validatePortalAccess` with token
+2. Verify inspection data returned
+3. Test with invalid token
+4. Test with expired token
+
+**Expected Result**:
+- Valid token: Returns inspection data
+- Invalid token: Returns error
+- Expired token: Returns error
+- Access logged
+
+**Priority**: High
+
+---
+
+### TC-PORT-API-003: Track Portal View Cloud Function
+
+**Priority**: Medium  
+**Type**: API
+
+**Test Steps**:
+1. Call `trackPortalView` with token and metadata
+2. Verify view logged in Firestore
+
+**Expected Result**:
+- View document created in `portalViews` collection
+- IP address, user agent, timestamp recorded
+- Access count incremented
+- Last accessed updated
+
+**Priority**: Medium
+
+---
+
+### TC-PORT-API-004: Send Portal Email Cloud Function
+
+**Priority**: High  
+**Type**: API
+
+**Test Steps**:
+1. Call `sendPortalEmail` with inspection ID
+2. Verify email sent via Mailgun/Resend
+
+**Expected Result**:
+- Email sent successfully
+- Variables replaced in email body
+- Portal URL included
+- Email logged in communications
+
+**Priority**: High
+
+---
+
+## Security Test Cases
+
+### TC-PORT-SEC-001: Token Guessing Prevention
+
+**Priority**: High  
+**Type**: Security
+
+**Test Steps**:
+1. Generate multiple portal URLs
+2. Analyze tokens for patterns
+3. Attempt to guess valid tokens
+
+**Expected Result**:
+- Tokens are cryptographically random
+- No sequential patterns
+- No predictable elements
+- Guessing tokens is infeasible
+- 32 characters = 2^128 possible values
+
+**Priority**: High
+
+---
+
+### TC-PORT-SEC-002: Data Isolation
+
+**Priority**: High  
+**Type**: Security
+
+**Test Steps**:
+1. Access portal for Inspection A
+2. Modify URL token to try accessing Inspection B
+3. Verify access denied
+
+**Expected Result**:
+- Cannot access other inspections
+- Each token unique to one inspection
+- No data leakage
+- Secure isolation
+
+**Priority**: High
+
+---
+
+### TC-PORT-SEC-003: No Authentication Bypass
+
+**Priority**: High  
+**Type**: Security
+
+**Test Steps**:
+1. Attempt to access portal without token
+2. Attempt SQL injection in token parameter
+3. Attempt XSS in portal pages
+
+**Expected Result**:
+- No access without valid token
+- All inputs sanitized
+- No injection vulnerabilities
+- Secure implementation
+
+**Priority**: High
+
+---
+
+## Performance Test Cases
+
+### TC-PORT-PERF-001: Portal Load Performance
+
+**Priority**: Medium  
+**Type**: Performance
+
+**Test Steps**:
+1. Access portal URL
+2. Measure page load time
+3. Test with large reports
+
+**Expected Result**:
+- Portal loads in &lt;3 seconds
+- Report loads efficiently
+- Photos optimized
+- Good user experience
+
+**Priority**: Medium
+
+---
+
+### TC-PORT-PERF-002: Concurrent Portal Access
+
+**Priority**: Low  
+**Type**: Performance
+
+**Test Steps**:
+1. Simulate 100 concurrent portal accesses
+2. Measure response times
+
+**Expected Result**:
+- All requests succeed
+- Average response time &lt;2 seconds
+- No timeouts
+- Scales well
+
+**Priority**: Low
+
+---
+
+## Summary
+
+**Total Test Cases**: 33  
+**High Priority**: 17  
+**Medium Priority**: 12  
+**Low Priority**: 4
+
+**Coverage Areas**:
+- [OK] Portal Settings Configuration
+- [OK] Portal Publishing
+- [OK] Secure URL Generation
+- [OK] Portal Access (Valid/Invalid/Expired)
+- [OK] Access Tracking & Analytics
+- [OK] Email Notifications
+- [OK] Portal Display (Property, Report, Dates)
+- [OK] Responsive Design
+- [OK] Branding
+- [OK] Security (Token Security, Data Isolation)
+- [OK] API/Backend (Cloud Functions)
+- [OK] Performance
+
+**Estimated Testing Time**: 12-14 hours for complete execution
+
+
+

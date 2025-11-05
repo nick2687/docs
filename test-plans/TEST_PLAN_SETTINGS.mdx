@@ -1,0 +1,863 @@
+---
+title: "Test Plan: Settings & Configuration"
+description: "Test plan for settings and configuration management"
+---
+
+# Test Plan: Settings & Configuration
+
+**Feature Area**: Settings Management  
+**Related Files**: `web/app/dashboard/settings/*`, `web/lib/firebase/firestore.ts`
+
+---
+
+## Feature Overview
+
+The settings system allows users to configure their profile, company information, password, sync preferences, and various feature settings (portal, widget, communication templates, services, inspection templates).
+
+---
+
+## Test Cases
+
+### TC-SET-001: View Settings Dashboard
+
+**Priority**: High  
+**Type**: Functional
+
+**Preconditions**:
+- User is logged in
+
+**Test Steps**:
+1. Navigate to `/dashboard/settings`
+2. View settings dashboard
+
+**Expected Result**:
+- Settings dashboard displayed
+- All setting categories shown as cards:
+  - Profile
+  - Company
+  - Password
+  - Communication Templates
+  - Inspection Templates
+  - Services
+  - Client Portal
+  - Scheduling Widget
+  - Sync
+- Each card shows icon, title, description
+- Clicking card navigates to specific settings page
+
+**Priority**: High
+
+---
+
+### TC-SET-002: Update Profile Settings
+
+**Priority**: High  
+**Type**: Functional
+
+**Preconditions**:
+- User is logged in
+
+**Test Steps**:
+1. Navigate to `/dashboard/settings/profile`
+2. Update fields:
+   - First Name: "John"
+   - Last Name: "Smith"
+   - Phone: "+1 (555) 123-4567"
+   - Bio: "Professional home inspector..."
+3. Upload profile photo
+4. Click "Save Changes"
+
+**Expected Result**:
+- All changes saved to Firestore
+- Profile photo uploaded to Firebase Storage
+- `updatedAt` timestamp updated
+- Success message displayed
+- Changes reflected throughout app
+- Profile photo displayed in sidebar
+
+**Priority**: High
+
+---
+
+### TC-SET-003: Update Company Settings
+
+**Priority**: High  
+**Type**: Functional
+
+**Preconditions**:
+- User is logged in
+
+**Test Steps**:
+1. Navigate to `/dashboard/settings/company`
+2. Update fields:
+   - Company Name: "ABC Home Inspections"
+   - License Number: "HI-12345"
+   - Business Address: "123 Main St, City, State 12345"
+   - Website: "https://abcinspections.com"
+   - Phone: "+1 (555) 987-6543"
+3. Upload company logo
+4. Save changes
+
+**Expected Result**:
+- All changes saved
+- Logo uploaded to Storage
+- Company info used in reports, portal, widget
+- Success message displayed
+- Changes persist
+
+**Priority**: High
+
+---
+
+### TC-SET-004: Change Password
+
+**Priority**: High  
+**Type**: Functional, Security
+
+**Preconditions**:
+- User is logged in
+
+**Test Steps**:
+1. Navigate to `/dashboard/settings/password`
+2. Enter current password
+3. Enter new password: "NewSecure123!"
+4. Confirm new password: "NewSecure123!"
+5. Click "Change Password"
+
+**Expected Result**:
+- Password updated in Firebase Auth
+- Success message displayed
+- User remains logged in
+- Can log in with new password
+- Old password no longer works
+
+**Priority**: High
+
+---
+
+### TC-SET-005: Change Password - Incorrect Current Password
+
+**Priority**: High  
+**Type**: Validation, Security
+
+**Preconditions**:
+- User is logged in
+
+**Test Steps**:
+1. Navigate to password settings
+2. Enter incorrect current password
+3. Enter new password
+4. Attempt to save
+
+**Expected Result**:
+- Error message: "Current password is incorrect"
+- Password not changed
+- Form not submitted
+- Security maintained
+
+**Priority**: High
+
+---
+
+### TC-SET-006: Change Password - Passwords Don't Match
+
+**Priority**: Medium  
+**Type**: Validation
+
+**Preconditions**:
+- User is logged in
+
+**Test Steps**:
+1. Navigate to password settings
+2. Enter current password
+3. Enter new password: "NewPass123"
+4. Confirm password: "DifferentPass123"
+5. Attempt to save
+
+**Expected Result**:
+- Error message: "Passwords do not match"
+- Cannot save
+- Fields highlighted
+
+**Priority**: Medium
+
+---
+
+### TC-SET-007: Change Password - Weak Password
+
+**Priority**: Medium  
+**Type**: Validation, Security
+
+**Preconditions**:
+- User is logged in
+
+**Test Steps**:
+1. Navigate to password settings
+2. Enter current password
+3. Enter weak new password: "123"
+4. Attempt to save
+
+**Expected Result**:
+- Error: "Password must be at least 6 characters"
+- Cannot save
+- Password strength indicator shows weak
+
+**Priority**: Medium
+
+---
+
+### TC-SET-008: Configure Branding Colors
+
+**Priority**: Medium  
+**Type**: Functional
+
+**Preconditions**:
+- User is logged in
+
+**Test Steps**:
+1. Navigate to company settings
+2. Scroll to "Branding" section
+3. Configure colors:
+   - Header Color: #1D4D8F
+   - Button Color: #2563EB
+   - Text Color: #1F2937
+   - Sidebar Color: #F9FAFB
+   - Accent Color: #10B981
+4. Select font family: "Inter"
+5. Save changes
+
+**Expected Result**:
+- Branding colors saved
+- Applied throughout dashboard
+- Used in reports, portal, widget
+- Font family applied
+- Professional appearance
+
+**Priority**: Medium
+
+---
+
+### TC-SET-009: Upload and Crop Profile Photo
+
+**Priority**: Medium  
+**Type**: Functional
+
+**Preconditions**:
+- User is logged in
+
+**Test Steps**:
+1. Navigate to profile settings
+2. Click "Upload Photo"
+3. Select image file
+4. Crop image (if cropper available)
+5. Save
+
+**Expected Result**:
+- Image uploaded to Firebase Storage
+- Photo URL saved in user profile
+- Photo displayed in sidebar
+- Photo displayed in settings
+- Proper sizing and formatting
+
+**Priority**: Medium
+
+---
+
+### TC-SET-010: Upload Company Logo
+
+**Priority**: Medium  
+**Type**: Functional
+
+**Preconditions**:
+- User is logged in
+
+**Test Steps**:
+1. Navigate to company settings
+2. Click "Upload Logo"
+3. Select logo file
+4. Save
+
+**Expected Result**:
+- Logo uploaded to Storage
+- Logo URL saved
+- Logo used in:
+  - Reports
+  - Client portal
+  - Scheduling widget
+  - Email templates
+
+**Priority**: Medium
+
+---
+
+### TC-SET-011: Sync Settings - Manual Sync
+
+**Priority**: Medium  
+**Type**: Functional
+
+**Preconditions**:
+- User is logged in
+
+**Test Steps**:
+1. Navigate to `/dashboard/settings/sync`
+2. Click "Sync Now" button
+3. Wait for sync to complete
+
+**Expected Result**:
+- Sync initiated
+- Progress indicator shown
+- Data synced to/from Firestore:
+  - Inspections
+  - Templates
+  - Contacts
+  - Services
+- Success message displayed
+- Last sync timestamp updated
+
+**Priority**: Medium
+
+---
+
+### TC-SET-012: Sync Settings - View Sync Status
+
+**Priority**: Low  
+**Type**: Functional
+
+**Preconditions**:
+- User is logged in
+
+**Test Steps**:
+1. Navigate to sync settings
+2. View sync status
+
+**Expected Result**:
+- Last sync timestamp displayed
+- Sync status shown (Success/Failed/In Progress)
+- Data sync statistics:
+  - Inspections synced
+  - Templates synced
+  - Contacts synced
+- Can view sync logs
+
+**Priority**: Low
+
+---
+
+### TC-SET-013: Validation - Required Fields
+
+**Priority**: High  
+**Type**: Validation
+
+**Preconditions**:
+- User is logged in
+
+**Test Steps**:
+1. Navigate to profile settings
+2. Clear first name field
+3. Attempt to save
+
+**Expected Result**:
+- Error: "First name is required"
+- Cannot save without required fields
+- Field highlighted
+- Form submission blocked
+
+**Priority**: High
+
+---
+
+### TC-SET-014: Validation - Email Format
+
+**Priority**: Medium  
+**Type**: Validation
+
+**Preconditions**:
+- User is logged in
+
+**Test Steps**:
+1. Navigate to profile settings
+2. Enter invalid email: "notanemail"
+3. Attempt to save
+
+**Expected Result**:
+- Error: "Invalid email format"
+- Cannot save
+- Field highlighted
+
+**Priority**: Medium
+
+---
+
+### TC-SET-015: Validation - Website URL Format
+
+**Priority**: Low  
+**Type**: Validation
+
+**Preconditions**:
+- User is logged in
+
+**Test Steps**:
+1. Navigate to company settings
+2. Enter website: "example.com"
+3. Save
+
+**Expected Result**:
+- URL auto-formatted to "https://example.com"
+- OR validation error if invalid format
+- Proper URL validation
+
+**Priority**: Low
+
+---
+
+### TC-SET-016: Validation - Phone Number Format
+
+**Priority**: Low  
+**Type**: Validation
+
+**Preconditions**:
+- User is logged in
+
+**Test Steps**:
+1. Navigate to profile settings
+2. Test various phone formats:
+   - "(555) 123-4567"
+   - "555-123-4567"
+   - "+1 555 123 4567"
+3. Save
+
+**Expected Result**:
+- All common formats accepted
+- Phone formatted consistently
+- International formats supported
+
+**Priority**: Low
+
+---
+
+### TC-SET-017: File Upload - Image Size Limit
+
+**Priority**: Medium  
+**Type**: Validation
+
+**Preconditions**:
+- User is logged in
+
+**Test Steps**:
+1. Attempt to upload very large image (&gt;10MB)
+2. View error message
+
+**Expected Result**:
+- Error: "File size must be less than 10MB"
+- Upload rejected
+- Clear guidance on size limit
+
+**Priority**: Medium
+
+---
+
+### TC-SET-018: File Upload - File Type Validation
+
+**Priority**: Medium  
+**Type**: Validation
+
+**Preconditions**:
+- User is logged in
+
+**Test Steps**:
+1. Attempt to upload non-image file (e.g., .pdf)
+2. View error message
+
+**Expected Result**:
+- Error: "Only image files allowed (JPG, PNG, GIF)"
+- Upload rejected
+- Clear guidance on allowed types
+
+**Priority**: Medium
+
+---
+
+### TC-SET-019: Settings Persistence
+
+**Priority**: High  
+**Type**: Functional
+
+**Preconditions**:
+- User is logged in
+
+**Test Steps**:
+1. Update various settings
+2. Log out
+3. Log back in
+4. Navigate to settings
+
+**Expected Result**:
+- All settings persisted
+- Changes remain after logout/login
+- Data stored in Firestore
+- No data loss
+
+**Priority**: High
+
+---
+
+### TC-SET-020: Settings Real-Time Sync
+
+**Priority**: Medium  
+**Type**: Functional
+
+**Preconditions**:
+- User logged in on two devices/browsers
+
+**Test Steps**:
+1. Update settings in Browser A
+2. Observe Browser B
+
+**Expected Result**:
+- Changes sync in real-time
+- Browser B shows updated settings
+- No page refresh required
+- Firestore listeners working
+
+**Priority**: Medium
+
+---
+
+### TC-SET-021: Reset Settings to Default
+
+**Priority**: Low  
+**Type**: Functional
+
+**Preconditions**:
+- User is logged in
+- Settings have been customized
+
+**Test Steps**:
+1. Navigate to settings page
+2. Click "Reset to Defaults" button (if available)
+3. Confirm reset
+
+**Expected Result**:
+- Settings reset to default values
+- Confirmation modal shown
+- User can cancel
+- After reset, default values applied
+
+**Priority**: Low
+
+---
+
+### TC-SET-022: Export Settings
+
+**Priority**: Low  
+**Type**: Functional
+
+**Preconditions**:
+- User is logged in
+
+**Test Steps**:
+1. Navigate to settings
+2. Click "Export Settings" button (if available)
+3. Download settings file
+
+**Expected Result**:
+- Settings exported as JSON
+- File downloads successfully
+- All settings included
+- Can be imported later
+
+**Priority**: Low
+
+---
+
+### TC-SET-023: Settings Navigation
+
+**Priority**: Medium  
+**Type**: UI/UX
+
+**Preconditions**:
+- User is logged in
+
+**Test Steps**:
+1. Navigate through various settings pages
+2. Use breadcrumbs
+3. Use back button
+
+**Expected Result**:
+- Easy navigation between settings
+- Breadcrumbs show current location
+- Back button works correctly
+- No broken links
+
+**Priority**: Medium
+
+---
+
+### TC-SET-024: Settings Search/Filter
+
+**Priority**: Low  
+**Type**: Functional
+
+**Preconditions**:
+- User is logged in
+
+**Test Steps**:
+1. Navigate to settings dashboard
+2. Enter search term: "password"
+3. View filtered results
+
+**Expected Result**:
+- Settings filtered by search term
+- Relevant settings shown
+- Can quickly find settings
+- Search clears properly
+
+**Priority**: Low
+
+---
+
+### TC-SET-025: Unsaved Changes Warning
+
+**Priority**: Medium  
+**Type**: UI/UX
+
+**Preconditions**:
+- User is logged in
+
+**Test Steps**:
+1. Navigate to settings page
+2. Make changes
+3. Attempt to navigate away without saving
+
+**Expected Result**:
+- Warning modal: "You have unsaved changes"
+- Options: "Save", "Discard", "Cancel"
+- Prevents accidental data loss
+- User-friendly
+
+**Priority**: Medium
+
+---
+
+## Integration Test Cases
+
+### TC-SET-INT-001: Profile Changes Reflect in Dashboard
+
+**Priority**: High  
+**Type**: Integration
+
+**Preconditions**:
+- User is logged in
+
+**Test Steps**:
+1. Update profile name and photo
+2. Navigate to dashboard
+3. View sidebar
+
+**Expected Result**:
+- New name displayed in sidebar
+- New photo displayed
+- Changes reflected throughout app
+- Real-time updates
+
+**Priority**: High
+
+---
+
+### TC-SET-INT-002: Company Settings in Reports
+
+**Priority**: High  
+**Type**: Integration
+
+**Preconditions**:
+- User is logged in
+- Company settings configured
+
+**Test Steps**:
+1. Update company name and logo
+2. Generate inspection report
+3. View report
+
+**Expected Result**:
+- Company name in report header
+- Company logo in report
+- Contact information included
+- Professional branding
+
+**Priority**: High
+
+---
+
+### TC-SET-INT-003: Branding in Client Portal
+
+**Priority**: Medium  
+**Type**: Integration
+
+**Preconditions**:
+- Branding configured
+- Inspection published to portal
+
+**Test Steps**:
+1. Configure branding colors
+2. Publish inspection to portal
+3. Access portal URL
+
+**Expected Result**:
+- Branding colors applied in portal
+- Company logo displayed
+- Consistent branding
+- Professional appearance
+
+**Priority**: Medium
+
+---
+
+### TC-SET-INT-004: Branding in Widget
+
+**Priority**: Medium  
+**Type**: Integration
+
+**Preconditions**:
+- Branding configured
+- Widget enabled
+
+**Test Steps**:
+1. Configure branding
+2. Open widget
+3. View widget appearance
+
+**Expected Result**:
+- Branding applied in widget
+- Colors match settings
+- Logo displayed
+- Consistent branding
+
+**Priority**: Medium
+
+---
+
+## API/Backend Test Cases
+
+### TC-SET-API-001: Update User Profile API
+
+**Priority**: High  
+**Type**: API
+
+**Test Steps**:
+1. Call `updateUserProfile()` with changes
+2. Verify Firestore document updated
+
+**Expected Result**:
+- Profile updated in Firestore
+- Only modified fields changed
+- `updatedAt` timestamp updated
+- Changes reflected immediately
+
+**Priority**: High
+
+---
+
+### TC-SET-API-002: Upload Photo to Storage
+
+**Priority**: High  
+**Type**: API
+
+**Test Steps**:
+1. Upload photo file
+2. Verify stored in Firebase Storage
+3. Verify URL saved in Firestore
+
+**Expected Result**:
+- Photo uploaded successfully
+- Stored in correct path
+- Public URL generated
+- URL saved in user profile
+
+**Priority**: High
+
+---
+
+### TC-SET-API-003: User Data Isolation
+
+**Priority**: High  
+**Type**: Security
+
+**Test Steps**:
+1. Log in as User A
+2. Attempt to update User B's profile
+
+**Expected Result**:
+- Request denied
+- Error: "Permission denied"
+- Cannot access other users' data
+- Firestore security rules enforced
+
+**Priority**: High
+
+---
+
+## Performance Test Cases
+
+### TC-SET-PERF-001: Settings Load Performance
+
+**Priority**: Medium  
+**Type**: Performance
+
+**Test Steps**:
+1. Navigate to settings pages
+2. Measure load times
+
+**Expected Result**:
+- Settings pages load in &lt;2 seconds
+- No lag or freezing
+- Smooth navigation
+- Good user experience
+
+**Priority**: Medium
+
+---
+
+### TC-SET-PERF-002: Photo Upload Performance
+
+**Priority**: Medium  
+**Type**: Performance
+
+**Test Steps**:
+1. Upload 5MB photo
+2. Measure upload time
+
+**Expected Result**:
+- Upload completes in &lt;10 seconds
+- Progress indicator shown
+- No timeout
+- Efficient upload
+
+**Priority**: Medium
+
+---
+
+## Summary
+
+**Total Test Cases**: 30  
+**High Priority**: 11  
+**Medium Priority**: 14  
+**Low Priority**: 5
+
+**Coverage Areas**:
+- [OK] Profile Settings
+- [OK] Company Settings
+- [OK] Password Management
+- [OK] Branding Configuration
+- [OK] Photo/Logo Upload
+- [OK] Sync Settings
+- [OK] Validation
+- [OK] Settings Persistence
+- [OK] Integration (Dashboard, Reports, Portal, Widget)
+- [OK] API/Backend
+- [OK] Security
+- [OK] Performance
+
+**Estimated Testing Time**: 10-12 hours for complete execution
+
+
+
